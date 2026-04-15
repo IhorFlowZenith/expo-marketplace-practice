@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Pressable, TextInput, ScrollView } from 'react-native';
+import { StyleSheet, Pressable, TextInput, ScrollView, View as DefaultView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 
@@ -9,87 +9,93 @@ export default function RegisterScreen() {
     const textColor = useThemeColor({}, 'text');
 
     return (
-        <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+        <View style={styles.container}>
 
             <Pressable onPress={() => router.back()} style={styles.backButton}>
                 <Ionicons name="arrow-back" size={24} color={textColor} />
             </Pressable>
 
-            <View style={styles.headerSection}>
-                <Text style={styles.title}>Create Account</Text>
-                <Text style={styles.subtitle}>Fill your details or continue with social media</Text>
-            </View>
+            <ScrollView
+                contentContainerStyle={styles.scrollContent}
+                showsVerticalScrollIndicator={false}
+            >
+                <DefaultView style={styles.headerSection}>
+                    <Text style={styles.title}>Create Account</Text>
+                    <Text style={styles.subtitle}>Fill your details or continue with social media</Text>
+                </DefaultView>
 
-            <View style={styles.inputContainer} lightColor="#F5F6F8" darkColor="#1C1C1E">
-                <Ionicons name="person-outline" size={20} color="#666" style={styles.icon} />
-                <View style={styles.textInputWrapper} lightColor="transparent" darkColor="transparent">
-                    <Text style={styles.inputLabel}>Full Name</Text>
-                    <TextInput
-                        style={[styles.input, { color: textColor }]}
-                        placeholder="Your full name"
-                        placeholderTextColor="#999"
-                    />
+                <View style={styles.inputContainer} lightColor="#F5F6F8" darkColor="#1C1C1E">
+                    <Ionicons name="person-outline" size={20} color="#666" style={styles.icon} />
+                    <DefaultView style={styles.textInputWrapper}>
+                        <Text style={styles.inputLabel}>Full Name</Text>
+                        <TextInput
+                            style={[styles.input, { color: textColor }]}
+                            placeholder="Your full name"
+                            placeholderTextColor="#999"
+                        />
+                    </DefaultView>
                 </View>
-            </View>
 
-            <View style={styles.inputContainer} lightColor="#F5F6F8" darkColor="#1C1C1E">
-                <Ionicons name="mail-outline" size={20} color="#666" style={styles.icon} />
-                <View style={styles.textInputWrapper} lightColor="transparent" darkColor="transparent">
-                    <Text style={styles.inputLabel}>Email Address</Text>
-                    <TextInput
-                        style={[styles.input, { color: textColor }]}
-                        placeholder="user@email.com"
-                        placeholderTextColor="#999"
-                        keyboardType="email-address"
-                        autoCapitalize="none"
-                    />
+                <View style={styles.inputContainer} lightColor="#F5F6F8" darkColor="#1C1C1E">
+                    <Ionicons name="mail-outline" size={20} color="#666" style={styles.icon} />
+                    <DefaultView style={styles.textInputWrapper}>
+                        <Text style={styles.inputLabel}>Email Address</Text>
+                        <TextInput
+                            style={[styles.input, { color: textColor }]}
+                            placeholder="user@email.com"
+                            placeholderTextColor="#999"
+                            keyboardType="email-address"
+                            autoCapitalize="none"
+                        />
+                    </DefaultView>
                 </View>
-            </View>
 
-            <View style={styles.inputContainer} lightColor="#F5F6F8" darkColor="#1C1C1E">
-                <Ionicons name="lock-closed-outline" size={20} color="#666" style={styles.icon} />
-                <View style={styles.textInputWrapper} lightColor="transparent" darkColor="transparent">
-                    <Text style={styles.inputLabel}>Password</Text>
-                    <TextInput
-                        style={[styles.input, { color: textColor }]}
-                        secureTextEntry
-                        placeholder="********"
-                        placeholderTextColor="#999"
-                    />
+                <View style={styles.inputContainer} lightColor="#F5F6F8" darkColor="#1C1C1E">
+                    <Ionicons name="lock-closed-outline" size={20} color="#666" style={styles.icon} />
+                    <DefaultView style={styles.textInputWrapper}>
+                        <Text style={styles.inputLabel}>Password</Text>
+                        <TextInput
+                            style={[styles.input, { color: textColor }]}
+                            secureTextEntry
+                            placeholder="********"
+                            placeholderTextColor="#999"
+                        />
+                    </DefaultView>
+                    <Ionicons name="eye-off-outline" size={20} color="#666" />
                 </View>
-                <Ionicons name="eye-off-outline" size={20} color="#666" />
-            </View>
 
-            <Pressable style={styles.signUpButton}>
-                <Text style={styles.signUpButtonText}>Sign Up</Text>
-            </Pressable>
-
-            <View style={styles.footer}>
-                <Text style={styles.footerText}>Already have an account? </Text>
-                <Pressable onPress={() => router.push('/login')}>
-                    <Text style={styles.loginLinkText}>Log In</Text>
+                <Pressable style={styles.signUpButton}>
+                    <Text style={styles.signUpButtonText}>Sign Up</Text>
                 </Pressable>
-            </View>
 
+                <DefaultView style={styles.footer}>
+                    <Text style={styles.footerText}>Already have an account? </Text>
+                    <Pressable onPress={() => router.push('/login')}>
+                        <Text style={styles.loginLinkText}>Log In</Text>
+                    </Pressable>
+                </DefaultView>
             </ScrollView>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
-    scrollContainer: {
-        flexGrow: 1,
+    container: {
+        flex: 1,
         paddingHorizontal: 24,
+    },
+    scrollContent: {
+        flexGrow: 1,
         paddingVertical: 40,
     },
     backButton: {
-        marginTop: 10,
-        marginBottom: 20,
-        width: 40,
-        height: 40,
-        justifyContent: 'center',
+        marginTop: 50,
+        marginBottom: -20,
+        zIndex: 10,
     },
     headerSection: {
         marginBottom: 40,
+        alignItems: 'center',
     },
     title: {
         fontSize: 28,
@@ -99,7 +105,7 @@ const styles = StyleSheet.create({
     subtitle: {
         fontSize: 16,
         opacity: 0.6,
-        lineHeight: 22,
+        textAlign: 'center',
     },
     inputContainer: {
         flexDirection: 'row',
