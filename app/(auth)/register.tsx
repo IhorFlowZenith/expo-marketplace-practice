@@ -4,6 +4,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 
 import { Text, View, useThemeColor } from '@/components/Themed';
+import AppButton from "@/components/ui/AppButton";
+import BackButton from "@/components/ui/BackButton";
 
 export default function RegisterScreen() {
     const textColor = useThemeColor({}, 'text');
@@ -11,9 +13,7 @@ export default function RegisterScreen() {
     return (
         <View style={styles.container}>
 
-            <Pressable onPress={() => router.back()} style={styles.backButton}>
-                <Ionicons name="arrow-back" size={24} color={textColor} />
-            </Pressable>
+            <BackButton />
 
             <ScrollView
                 contentContainerStyle={styles.scrollContent}
@@ -64,9 +64,8 @@ export default function RegisterScreen() {
                     <Ionicons name="eye-off-outline" size={20} color="#666" />
                 </View>
 
-                <Pressable style={styles.signUpButton}>
-                    <Text style={styles.signUpButtonText}>Sign Up</Text>
-                </Pressable>
+                <AppButton title="Sign Up" onPress={() => router.push('/(auth)/register')} />
+
 
                 <DefaultView style={styles.footer}>
                     <Text style={styles.footerText}>Already have an account? </Text>
@@ -87,11 +86,6 @@ const styles = StyleSheet.create({
     scrollContent: {
         flexGrow: 1,
         paddingVertical: 40,
-    },
-    backButton: {
-        marginTop: 50,
-        marginBottom: -20,
-        zIndex: 10,
     },
     headerSection: {
         marginBottom: 40,
@@ -129,19 +123,6 @@ const styles = StyleSheet.create({
     input: {
         fontSize: 16,
         padding: 0,
-    },
-    signUpButton: {
-        backgroundColor: '#6055D8',
-        borderRadius: 100,
-        height: 56,
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginTop: 20,
-    },
-    signUpButtonText: {
-        color: '#FFFFFF',
-        fontSize: 18,
-        fontWeight: 'bold',
     },
     footer: {
         flexDirection: 'row',

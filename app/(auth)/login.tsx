@@ -3,6 +3,7 @@ import { StyleSheet, Pressable, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { Text, View, useThemeColor } from '@/components/Themed';
+import AppButton from "@/components/ui/AppButton";
 
 export default function LoginScreen() {
     const textColor = useThemeColor({}, 'text');
@@ -20,7 +21,7 @@ export default function LoginScreen() {
                 <View style={styles.textInputWrapper} lightColor="transparent" darkColor="transparent">
                     <Text style={styles.inputLabel}>Email</Text>
                     <TextInput
-                        style={[styles.input, { color: textColor }]} // Встановлюємо динамічний колір
+                        style={[styles.input, { color: textColor }]}
                         placeholder="user@email.com"
                         placeholderTextColor="#999"
                         keyboardType="email-address"
@@ -34,7 +35,7 @@ export default function LoginScreen() {
                 <View style={styles.textInputWrapper} lightColor="transparent" darkColor="transparent">
                     <Text style={styles.inputLabel}>Password</Text>
                     <TextInput
-                        style={[styles.input, { color: textColor }]} // Встановлюємо динамічний колір
+                        style={[styles.input, { color: textColor }]}
                         secureTextEntry
                         placeholder="********"
                         placeholderTextColor="#999"
@@ -43,13 +44,11 @@ export default function LoginScreen() {
                 <Ionicons name="eye-off-outline" size={20} color="#666" />
             </View>
 
-            <Pressable style={styles.forgotPassword}>
+            <Pressable onPress={() => router.push('/(auth)/forgot-password')} style={styles.forgotPassword}>
                 <Text style={styles.forgotText}>Forgot Password?</Text>
             </Pressable>
 
-            <Pressable style={styles.loginButton}>
-                <Text style={styles.loginButtonText}>Login</Text>
-            </Pressable>
+            <AppButton title="Login" onPress={() => router.push('/(auth)/register')} />
 
             <View style={styles.footer}>
                 <Text style={styles.footerText}>Don't have an account? </Text>
@@ -111,18 +110,6 @@ const styles = StyleSheet.create({
     forgotText: {
         fontSize: 14,
         fontWeight: '600',
-    },
-    loginButton: {
-        backgroundColor: '#6055D8',
-        borderRadius: 100,
-        height: 56,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    loginButtonText: {
-        color: '#FFFFFF',
-        fontSize: 18,
-        fontWeight: 'bold',
     },
     footer: {
         flexDirection: 'row',
