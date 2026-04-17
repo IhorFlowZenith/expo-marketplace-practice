@@ -1,0 +1,42 @@
+import { useEffect } from 'react';
+import { Alert } from 'react-native';
+import * as Google from 'expo-auth-session/providers/google';
+import * as WebBrowser from 'expo-web-browser';
+import { GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
+import { auth } from '@/constants/firebase';
+
+WebBrowser.maybeCompleteAuthSession();
+
+const WEB_CLIENT_ID = '256935465203-1qp2al5dr565sdpg9r8desd7si1fo2k9.apps.googleusercontent.com';
+const ANDROID_CLIENT_ID = '256935465203-66h09b3gpd4pudt9q7miu85ji36cnjoa.apps.googleusercontent.com';
+
+export function useGoogleAuth() {
+    const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
+        clientId: WEB_CLIENT_ID,
+        androidClientId: ANDROID_CLIENT_ID || undefined,
+    });
+
+    useEffect(() => {
+        if (response?.type === 'success') {
+            const { id_token } = response.params;
+            const credential = GoogleAuthProvider.credential(id_token);
+            signInWithCredential(auth, credential).catch((error) => {
+                console.error('Google sign-in error:', error);
+                Alert.alert('Error', error.message);
+            });
+        }
+    }, [response]);
+
+    const signInWithGoogle = async () => {
+        if (!request) {
+            Alert.alert(
+                'Not configured',
+                'Google Sign-In requires valid Client IDs. Check hooks/useGoogleAuth.ts.'
+            );
+            return;
+        }
+        await promptAsync();
+    };
+
+    return { signInWithGoogle };
+}

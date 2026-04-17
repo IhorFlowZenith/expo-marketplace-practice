@@ -7,13 +7,25 @@ Mobile marketplace practice project on Expo.
 ## 📌 Зміст
 * [🟡 Міні-інформація](#info)
 * [🟣 Скріншоти](#screenshots)
-* [🟢 15.04.2026 -- Commit 6](#commit-6)
+* [🟢 17.04.2026 -- Commit 7](#commit-7)
+* [🔴 16.04.2026 -- Commit 6](#commit-6)
 * [🔴 15.04.2026 -- Commit 3, 4, 5](#commit-3-4-5)
 * [🔴 15.04.2026 -- Commit 2](#commit-2)
 * [🔴 15.04.2026 -- Commit 1](#commit-1)
 
+<a name="commit-7"></a>
+## 🟢 [17.04.2026] — Додаткові сторінки + компоненти
+* Видалено сторінки `reset-password` та `verify-code.tsx`.
+* Перероблено сторінки з папки (auth).
+* Підключено авторизація firebase. 
+* Підключено сам firebase.
+* Tab 1 — показує ім'я, email, кнопку Sign Out
+* 🟠 Авторизація через Google тимчасово не працює.
+* 🟠 Половина коду було розроблено за допомгою ШІ.
+
+
 <a name="commit-6"></a>
-## 🟢 [16.04.2026] — Додаткові сторінки + компоненти
+## 🔴 [16.04.2026] — Додаткові сторінки + компоненти
 * Розроблено сторінки: `forgot-password.tsx`, `reset-password.tsx`, `success.tsx` та `verify-code.tsx`.
 * Кнопку зроблено компонентом `src/components/ui/AppButton.tsx`.
 * Кнопку "Назад" зроблено компонентом `src/components/ui/BackButton.tsx`.

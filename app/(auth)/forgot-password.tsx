@@ -1,44 +1,78 @@
-import React from 'react';
-import { StyleSheet, TextInput, View as DefaultView } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
-
-import { Text, View, useThemeColor } from '@/components/Themed';
+import { Text, View } from '@/components/Themed';
 import AppButton from '@/components/ui/AppButton';
+import AppInput from '@/components/ui/AppInput';
 import BackButton from "@/components/ui/BackButton";
+import { router } from 'expo-router';
+import React, { useState } from 'react';
+import {
+    View as DefaultView,
+    KeyboardAvoidingView,
+    ScrollView,
+    StyleSheet,
+} from 'react-native';
+
+import { auth } from '@/constants/firebase';
+import { sendPasswordResetEmail } from 'firebase/auth';
 
 export default function ForgotPasswordScreen() {
-    const textColor = useThemeColor({}, 'text');
+    const [email, setEmail] = useState('');
+    const [error, setError] = useState('');
+
+    const handleResetPassword = async () => {
+        setError('');
+
+        if (!email || !email.includes('@')) {
+            setError('Please enter a valid email address');
+            return;
+        }
+
+        try {
+            await sendPasswordResetEmail(auth, email);
+            router.push({ pathname: '/(auth)/success', params: { email } });
+        } catch (e: any) {
+            switch (e.code) {
+                case 'auth/user-not-found':
+                    setError('No account found with this email');
+                    break;
+                default:
+                    setError('Something went wrong. Please try again.');
+            }
+        }
+    };
 
     return (
         <View style={styles.container}>
-
             <BackButton />
 
-            <DefaultView style={styles.content}>
-                <DefaultView style={styles.headerSection}>
-                    <Text style={styles.title}>Forgot Password?</Text>
-                    <Text style={styles.subtitle}>
-                        Enter your email address and we will send you a code to reset your password.
-                    </Text>
-                </DefaultView>
-
-                <View style={styles.inputContainer} lightColor="#F5F6F8" darkColor="#1C1C1E">
-                    <Ionicons name="mail-outline" size={20} color="#666" style={styles.icon} />
-                    <DefaultView style={styles.textInputWrapper}>
-                        <Text style={styles.inputLabel}>Email Address</Text>
-                        <TextInput
-                            style={[styles.input, { color: textColor }]}
-                            placeholder="user@email.com"
-                            placeholderTextColor="#999"
-                            keyboardType="email-address"
-                            autoCapitalize="none"
-                        />
+            <KeyboardAvoidingView style={styles.flex} behavior="height">
+                <ScrollView
+                    contentContainerStyle={styles.scrollContent}
+                    showsVerticalScrollIndicator={false}
+                    keyboardShouldPersistTaps="handled"
+                    bounces={false}
+                >
+                    <DefaultView style={styles.headerSection}>
+                        <Text style={styles.title}>Forgot Password?</Text>
+                        <Text style={styles.subtitle}>
+                            Enter your email address and we'll send you a link to reset your password.
+                        </Text>
                     </DefaultView>
-                </View>
 
-                <AppButton title="Send Code" onPress={() => router.push('/(auth)/verify-code')} />
-            </DefaultView>
+                    <AppInput
+                        label="Email Address"
+                        icon="mail-outline"
+                        placeholder="user@email.com"
+                        keyboardType="email-address"
+                        autoCapitalize="none"
+                        value={email}
+                        onChangeText={(t) => { setEmail(t); setError(''); }}
+                    />
+
+                    {error ? <Text style={styles.errorText}>{error}</Text> : null}
+
+                    <AppButton title="Send Reset Link" onPress={handleResetPassword} />
+                </ScrollView>
+            </KeyboardAvoidingView>
         </View>
     );
 }
@@ -48,8 +82,11 @@ const styles = StyleSheet.create({
         flex: 1,
         paddingHorizontal: 24,
     },
-    content: {
+    flex: {
         flex: 1,
+    },
+    scrollContent: {
+        flexGrow: 1,
         paddingBottom: 60,
     },
     headerSection: {
@@ -67,27 +104,11 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         lineHeight: 24,
     },
-    inputContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        borderRadius: 16,
-        paddingHorizontal: 16,
-        paddingVertical: 10,
-        marginBottom: 24,
-    },
-    icon: {
-        marginRight: 12,
-    },
-    textInputWrapper: {
-        flex: 1,
-    },
-    inputLabel: {
-        fontSize: 12,
-        opacity: 0.5,
-        marginBottom: 2,
-    },
-    input: {
-        fontSize: 16,
-        padding: 0,
+    errorText: {
+        color: '#FF4444',
+        fontSize: 14,
+        fontWeight: '500',
+        marginTop: -8,
+        marginBottom: 8,
     },
 });

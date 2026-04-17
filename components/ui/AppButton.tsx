@@ -10,7 +10,14 @@ interface AppButtonProps {
 
 export default function AppButton({ title, onPress, style }: AppButtonProps) {
     return (
-        <Pressable style={[styles.button, style]} onPress={onPress}>
+        <Pressable
+            style={({ pressed }) => [
+                styles.button,
+                style,
+                { opacity: pressed ? 0.85 : 1 },
+            ]}
+            onPress={onPress}
+        >
             <Text style={styles.buttonText}>{title}</Text>
         </Pressable>
     );

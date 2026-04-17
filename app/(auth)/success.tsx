@@ -1,45 +1,41 @@
-import React from 'react';
-import { StyleSheet, ScrollView, View as DefaultView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
+import React from 'react';
+import { View as DefaultView, Pressable, StyleSheet } from 'react-native';
 
-import { Text, View } from '@/components/Themed';
+import { Text, View, useThemeColor } from '@/components/Themed';
 import AppButton from '@/components/ui/AppButton';
 
-export default function StatesDemoScreen() {
+export default function SuccessScreen() {
+    const { email } = useLocalSearchParams();
+    const textColor = useThemeColor({}, 'text');
+
     return (
         <View style={styles.container}>
-            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+            <DefaultView style={styles.content}>
 
-                <DefaultView style={styles.stateWrapper}>
-                    <DefaultView style={[styles.iconCircle, { backgroundColor: '#4CAF50' }]}>
-                        <Ionicons name="checkmark" size={50} color="#FFFFFF" />
-                    </DefaultView>
-                    <Text style={styles.title}>Success!</Text>
-                    <Text style={styles.subtitle}>
-                        Your operation was successful. You can now continue using the app.
-                    </Text>
+                <DefaultView style={styles.iconCircle}>
+                    <Ionicons name="checkmark" size={50} color="#FFFFFF" />
                 </DefaultView>
 
-                <DefaultView style={styles.divider} />
-
-                <DefaultView style={styles.stateWrapper}>
-                    <DefaultView style={[styles.iconCircle, { backgroundColor: '#E53935' }]}>
-                        <Ionicons name="close" size={50} color="#FFFFFF" />
-                    </DefaultView>
-                    <Text style={styles.title}>Oops, Error!</Text>
-                    <Text style={styles.subtitle}>
-                        Something went wrong. Please check your connection or try again later.
-                    </Text>
-                </DefaultView>
+                <Text style={styles.title}>Check your email</Text>
+                <Text style={styles.subtitle}>
+                    We sent a password reset link to{' '}
+                    <Text style={[styles.emailHighlight, { color: textColor }]}>{email || 'your address'}</Text>.
+                    {'\n'}Follow the instructions in the email to reset your password.
+                </Text>
 
                 <AppButton
-                    title="Got it"
+                    title="Back to Login"
                     onPress={() => router.replace('/(auth)/login')}
-                    style={{ marginTop: 20 }}
+                    style={{ marginTop: 40 }}
                 />
 
-            </ScrollView>
+                <Pressable onPress={() => router.back()} style={styles.resendLink}>
+                    <Text style={[styles.resendText, { color: textColor }]}>Didn't receive it? Try again</Text>
+                </Pressable>
+
+            </DefaultView>
         </View>
     );
 }
@@ -47,42 +43,42 @@ export default function StatesDemoScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+    },
+    content: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
         paddingHorizontal: 24,
-    },
-    scrollContent: {
-        paddingVertical: 60,
-        alignItems: 'center',
-    },
-    stateWrapper: {
-        alignItems: 'center',
-        width: '100%',
-        marginBottom: 20,
     },
     iconCircle: {
         width: 90,
         height: 90,
         borderRadius: 45,
+        backgroundColor: '#4CAF50',
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 20,
+        marginBottom: 24,
     },
     title: {
-        fontSize: 26,
+        fontSize: 28,
         fontWeight: 'bold',
-        marginBottom: 8,
+        marginBottom: 10,
     },
     subtitle: {
         fontSize: 16,
         opacity: 0.6,
         textAlign: 'center',
         lineHeight: 24,
-        paddingHorizontal: 10,
     },
-    divider: {
-        height: 1,
-        backgroundColor: '#eee',
-        width: '100%',
-        marginVertical: 40,
-        opacity: 0.3,
+    emailHighlight: {
+        fontWeight: 'bold',
+    },
+    resendLink: {
+        marginTop: 20,
+    },
+    resendText: {
+        fontSize: 14,
+        fontWeight: '600',
+        opacity: 0.6,
     },
 });

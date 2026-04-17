@@ -1,79 +1,128 @@
-import React from 'react';
-import { StyleSheet, Pressable, TextInput, ScrollView, View as DefaultView } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
-
 import { Text, View, useThemeColor } from '@/components/Themed';
 import AppButton from "@/components/ui/AppButton";
+import AppInput from "@/components/ui/AppInput";
 import BackButton from "@/components/ui/BackButton";
+import GoogleButton from "@/components/ui/GoogleButton";
+import { useGoogleAuth } from '@/hooks/useGoogleAuth';
+import { router } from 'expo-router';
+import React, { useState } from 'react';
+import {
+    View as DefaultView,
+    KeyboardAvoidingView,
+    ScrollView,
+    StyleSheet,
+    Pressable,
+} from 'react-native';
+
+import { auth } from '@/constants/firebase';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 
 export default function RegisterScreen() {
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
     const textColor = useThemeColor({}, 'text');
+    const { signInWithGoogle } = useGoogleAuth();
+
+    const clearError = () => setError('');
+
+    const handleSignUp = async () => {
+        setError('');
+
+        if (name.trim().length < 2) {
+            setError('Please enter your full name');
+            return;
+        }
+        if (!email || !email.includes('@')) {
+            setError('Please enter a valid email address');
+            return;
+        }
+        if (password.length < 6) {
+            setError('Password must be at least 6 characters');
+            return;
+        }
+
+        try {
+            const result = await createUserWithEmailAndPassword(auth, email, password);
+            await updateProfile(result.user, { displayName: name.trim() });
+        } catch (e: any) {
+            switch (e.code) {
+                case 'auth/email-already-in-use':
+                    setError('An account with this email already exists');
+                    break;
+                case 'auth/weak-password':
+                    setError('Password is too weak. Use at least 6 characters.');
+                    break;
+                default:
+                    setError('Something went wrong. Please try again.');
+            }
+        }
+    };
 
     return (
         <View style={styles.container}>
-
             <BackButton />
 
-            <ScrollView
-                contentContainerStyle={styles.scrollContent}
-                showsVerticalScrollIndicator={false}
-            >
-                <DefaultView style={styles.headerSection}>
-                    <Text style={styles.title}>Create Account</Text>
-                    <Text style={styles.subtitle}>Fill your details or continue with social media</Text>
-                </DefaultView>
-
-                <View style={styles.inputContainer} lightColor="#F5F6F8" darkColor="#1C1C1E">
-                    <Ionicons name="person-outline" size={20} color="#666" style={styles.icon} />
-                    <DefaultView style={styles.textInputWrapper}>
-                        <Text style={styles.inputLabel}>Full Name</Text>
-                        <TextInput
-                            style={[styles.input, { color: textColor }]}
-                            placeholder="Your full name"
-                            placeholderTextColor="#999"
-                        />
+            <KeyboardAvoidingView style={styles.flex} behavior="height">
+                <ScrollView
+                    contentContainerStyle={styles.scrollContent}
+                    showsVerticalScrollIndicator={false}
+                    keyboardShouldPersistTaps="handled"
+                    bounces={false}
+                >
+                    <DefaultView style={styles.headerSection}>
+                        <Text style={styles.title}>Create Account</Text>
+                        <Text style={styles.subtitle}>Fill your details or continue with social media</Text>
                     </DefaultView>
-                </View>
 
-                <View style={styles.inputContainer} lightColor="#F5F6F8" darkColor="#1C1C1E">
-                    <Ionicons name="mail-outline" size={20} color="#666" style={styles.icon} />
-                    <DefaultView style={styles.textInputWrapper}>
-                        <Text style={styles.inputLabel}>Email Address</Text>
-                        <TextInput
-                            style={[styles.input, { color: textColor }]}
-                            placeholder="user@email.com"
-                            placeholderTextColor="#999"
-                            keyboardType="email-address"
-                            autoCapitalize="none"
-                        />
+                    <AppInput
+                        label="Full Name"
+                        icon="person-outline"
+                        placeholder="Your full name"
+                        value={name}
+                        onChangeText={(t) => { setName(t); clearError(); }}
+                    />
+
+                    <AppInput
+                        label="Email Address"
+                        icon="mail-outline"
+                        placeholder="user@email.com"
+                        keyboardType="email-address"
+                        autoCapitalize="none"
+                        value={email}
+                        onChangeText={(t) => { setEmail(t); clearError(); }}
+                    />
+
+                    <AppInput
+                        label="Password"
+                        icon="lock-closed-outline"
+                        placeholder="••••••••"
+                        isPassword
+                        value={password}
+                        onChangeText={(t) => { setPassword(t); clearError(); }}
+                    />
+
+                    {error ? <Text style={styles.errorText}>{error}</Text> : null}
+
+                    <AppButton title="Sign Up" onPress={handleSignUp} />
+
+                    <DefaultView style={styles.dividerContainer}>
+                        <DefaultView style={[styles.dividerLine, { backgroundColor: textColor, opacity: 0.15 }]} />
+                        <Text style={styles.dividerText}>or</Text>
+                        <DefaultView style={[styles.dividerLine, { backgroundColor: textColor, opacity: 0.15 }]} />
                     </DefaultView>
-                </View>
 
-                <View style={styles.inputContainer} lightColor="#F5F6F8" darkColor="#1C1C1E">
-                    <Ionicons name="lock-closed-outline" size={20} color="#666" style={styles.icon} />
-                    <DefaultView style={styles.textInputWrapper}>
-                        <Text style={styles.inputLabel}>Password</Text>
-                        <TextInput
-                            style={[styles.input, { color: textColor }]}
-                            secureTextEntry
-                            placeholder="********"
-                            placeholderTextColor="#999"
-                        />
+                    <GoogleButton onPress={signInWithGoogle} />
+
+                    <DefaultView style={styles.footer}>
+                        <Text style={styles.footerText}>Already have an account? </Text>
+                        <Pressable onPress={() => router.back()}>
+                            <Text style={styles.loginLinkText}>Log In</Text>
+                        </Pressable>
                     </DefaultView>
-                    <Ionicons name="eye-off-outline" size={20} color="#666" />
-                </View>
-
-                <AppButton title="Sign Up" onPress={() => router.push('/(auth)/register')} />
-
-
-                <DefaultView style={styles.footer}>
-                    <Text style={styles.footerText}>Already have an account? </Text>
-                    <Pressable onPress={() => router.push('/login')}>
-                        <Text style={styles.loginLinkText}>Log In</Text>
-                    </Pressable>
-                </DefaultView>
-            </ScrollView>
+                </ScrollView>
+            </KeyboardAvoidingView>
         </View>
     );
 }
@@ -82,6 +131,9 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         paddingHorizontal: 24,
+    },
+    flex: {
+        flex: 1,
     },
     scrollContent: {
         flexGrow: 1,
@@ -101,28 +153,27 @@ const styles = StyleSheet.create({
         opacity: 0.6,
         textAlign: 'center',
     },
-    inputContainer: {
+    errorText: {
+        color: '#FF4444',
+        fontSize: 14,
+        fontWeight: '500',
+        marginTop: -8,
+        marginBottom: 8,
+    },
+    dividerContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        borderRadius: 16,
-        paddingHorizontal: 16,
-        paddingVertical: 10,
-        marginBottom: 16,
+        marginTop: 24,
+        marginBottom: 8,
     },
-    icon: {
-        marginRight: 12,
-    },
-    textInputWrapper: {
+    dividerLine: {
         flex: 1,
+        height: 1,
     },
-    inputLabel: {
-        fontSize: 12,
+    dividerText: {
+        marginHorizontal: 16,
+        fontSize: 14,
         opacity: 0.5,
-        marginBottom: 2,
-    },
-    input: {
-        fontSize: 16,
-        padding: 0,
     },
     footer: {
         flexDirection: 'row',
@@ -134,5 +185,6 @@ const styles = StyleSheet.create({
     },
     loginLinkText: {
         fontWeight: 'bold',
+        color: '#6055D8',
     },
 });
