@@ -2,6 +2,7 @@ import { Text, View, useThemeColor } from '@/components/Themed';
 import AppButton from "@/components/ui/AppButton";
 import AppInput from "@/components/ui/AppInput";
 import GoogleButton from "@/components/ui/GoogleButton";
+import Colors from '@/constants/Colors';
 import { useGoogleAuth } from '@/hooks/useGoogleAuth';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
@@ -94,14 +95,14 @@ export default function LoginScreen() {
                         <DefaultView style={styles.errorContainer}>
                             <Text style={styles.errorText}>{error}</Text>
                             {notFound ? (
-                                <Pressable onPress={() => router.push('/(auth)/register')}>
+                                <Pressable onPress={() => router.push('/register')}>
                                     <Text style={styles.errorLink}>Create an account →</Text>
                                 </Pressable>
                             ) : null}
                         </DefaultView>
                     ) : null}
 
-                    <Pressable onPress={() => router.push('/(auth)/forgot-password')} style={styles.forgotPassword}>
+                    <Pressable onPress={() => router.push('/forgot-password')} style={styles.forgotPassword}>
                         <Text style={[styles.forgotText, { color: textColor }]}>Forgot Password?</Text>
                     </Pressable>
 
@@ -117,7 +118,7 @@ export default function LoginScreen() {
 
                     <DefaultView style={styles.footer}>
                         <Text style={styles.footerText}>Don't have an account? </Text>
-                        <Pressable onPress={() => router.push('/(auth)/register')}>
+                        <Pressable onPress={() => router.push('/register')}>
                             <Text style={styles.signUpText}>Sign Up</Text>
                         </Pressable>
                     </DefaultView>
@@ -158,12 +159,12 @@ const styles = StyleSheet.create({
         marginBottom: 8,
     },
     errorText: {
-        color: '#FF4444',
+        color: Colors.palette.error,
         fontSize: 14,
         fontWeight: '500',
     },
     errorLink: {
-        color: '#6055D8',
+        color: Colors.palette.primary,
         fontSize: 14,
         fontWeight: '600',
         marginTop: 4,
@@ -175,7 +176,6 @@ const styles = StyleSheet.create({
     forgotText: {
         fontSize: 14,
         fontWeight: '600',
-        color: '#6055D8',
     },
     dividerContainer: {
         flexDirection: 'row',
@@ -201,6 +201,6 @@ const styles = StyleSheet.create({
     },
     signUpText: {
         fontWeight: 'bold',
-        color: '#6055D8',
+        color: Colors.palette.primary,
     },
 });

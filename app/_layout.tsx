@@ -4,79 +4,85 @@ import { useFonts } from 'expo-font';
 import { Stack, router, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
+import { View } from 'react-native';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/components/useColorScheme';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
+import Colors from '@/constants/Colors';
 
-export {
-  // Catch any errors thrown by the Layout component.
-  ErrorBoundary
-} from 'expo-router';
+export { ErrorBoundary } from 'expo-router';
 
 export const unstable_settings = {
-  initialRouteName: '(auth)',
+    initialRouteName: '(auth)',
 };
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const [loaded, error] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-    ...FontAwesome.font,
-  });
+    const [loaded, error] = useFonts({
+        SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+        ...FontAwesome.font,
+    });
 
-  // Expo Router uses Error Boundaries to catch errors in the navigation tree.
-  useEffect(() => {
-    if (error) throw error;
-  }, [error]);
+    useEffect(() => {
+        if (error) throw error;
+    }, [error]);
 
-  if (!loaded) {
-    return null;
-  }
+    if (!loaded) return null;
 
-  return (
-    <AuthProvider>
-      <RootLayoutNav />
-    </AuthProvider>
-  );
+    return (
+        <AuthProvider>
+            <RootLayoutNav />
+        </AuthProvider>
+    );
 }
 
 function RootLayoutNav() {
-  const colorScheme = useColorScheme();
-  const { user, loading } = useAuth();
-  const segments = useSegments();
+    const colorScheme = useColorScheme();
+    const { user, loading } = useAuth();
+    const segments = useSegments();
 
-  // Hide splash screen when auth state is resolved
-  useEffect(() => {
-    if (!loading) {
-      SplashScreen.hideAsync();
-    }
-  }, [loading]);
+    const CustomDarkTheme = { ...DarkTheme, colors: { ...DarkTheme.colors, background: Colors.palette.black, card: Colors.palette.black } };
+    const CustomDefaultTheme = { ...DefaultTheme, colors: { ...DefaultTheme.colors, background: Colors.palette.white } };
+    const bgColor = colorScheme === 'dark' ? Colors.palette.black : Colors.palette.white;
 
-  // Auth-based navigation
-  useEffect(() => {
-    if (loading) return;
+    useEffect(() => {
+        if (!loading) {
+            SplashScreen.hideAsync();
+        }
+    }, [loading]);
 
-    const inAuthGroup = segments[0] === '(auth)';
+    useEffect(() => {
+        if (loading) return;
 
-    if (!user && !inAuthGroup) {
-      // Not signed in → go to login
-      router.replace('/(auth)/login');
-    } else if (user && inAuthGroup) {
-      // Signed in but still in auth screens → go to tabs
-      router.replace('/(tabs)');
-    }
-  }, [user, loading, segments]);
+        const inAuthGroup = segments[0] === '(auth)';
 
-  return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-      </Stack>
-    </ThemeProvider>
-  );
+        if (!user && !inAuthGroup) {
+            router.replace('/(auth)/login');
+        } else if (user && inAuthGroup) {
+            router.replace('/(tabs)');
+        }
+    }, [user, loading, segments]);
+
+    return (
+        <ThemeProvider value={colorScheme === 'dark' ? CustomDarkTheme : CustomDefaultTheme}>
+            <View style={{ flex: 1, backgroundColor: bgColor }}>
+                <Stack
+                    screenOptions={{
+                        headerShown: false,
+                        contentStyle: { backgroundColor: bgColor },
+                        animation: 'slide_from_right',
+                    }}
+                >
+                    <Stack.Screen name="(auth)" />
+                    <Stack.Screen name="(tabs)" />
+                    <Stack.Screen name="(settings)" />
+                    <Stack.Screen name="(support)" />
+                    <Stack.Screen name="(profile-extra)" />
+                    <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+                </Stack>
+            </View>
+        </ThemeProvider>
+    );
 }

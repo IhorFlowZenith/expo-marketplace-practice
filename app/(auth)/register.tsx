@@ -3,6 +3,7 @@ import AppButton from "@/components/ui/AppButton";
 import AppInput from "@/components/ui/AppInput";
 import BackButton from "@/components/ui/BackButton";
 import GoogleButton from "@/components/ui/GoogleButton";
+import Colors from '@/constants/Colors';
 import { useGoogleAuth } from '@/hooks/useGoogleAuth';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
@@ -154,7 +155,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     errorText: {
-        color: '#FF4444',
+        color: Colors.palette.error,
         fontSize: 14,
         fontWeight: '500',
         marginTop: -8,
@@ -185,6 +186,6 @@ const styles = StyleSheet.create({
     },
     loginLinkText: {
         fontWeight: 'bold',
-        color: '#6055D8',
+        color: Colors.palette.primary,
     },
 });

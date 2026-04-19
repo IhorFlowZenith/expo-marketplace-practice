@@ -2,6 +2,7 @@ import { Text, View } from '@/components/Themed';
 import AppButton from '@/components/ui/AppButton';
 import AppInput from '@/components/ui/AppInput';
 import BackButton from "@/components/ui/BackButton";
+import Colors from '@/constants/Colors';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
@@ -28,7 +29,7 @@ export default function ForgotPasswordScreen() {
 
         try {
             await sendPasswordResetEmail(auth, email);
-            router.push({ pathname: '/(auth)/success', params: { email } });
+            router.push({ pathname: '/success', params: { email } });
         } catch (e: any) {
             switch (e.code) {
                 case 'auth/user-not-found':
@@ -105,7 +106,7 @@ const styles = StyleSheet.create({
         lineHeight: 24,
     },
     errorText: {
-        color: '#FF4444',
+        color: Colors.palette.error,
         fontSize: 14,
         fontWeight: '500',
         marginTop: -8,

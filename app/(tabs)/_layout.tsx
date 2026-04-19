@@ -1,58 +1,75 @@
+import { Ionicons } from '@expo/vector-icons';
+import { Tabs } from 'expo-router';
 import React from 'react';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { Link, Tabs } from 'expo-router';
-import { Pressable } from 'react-native';
 
-import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
-
-// You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
-function TabBarIcon(props: {
-  name: React.ComponentProps<typeof FontAwesome>['name'];
-  color: string;
-}) {
-  return <FontAwesome size={28} style={{ marginBottom: -3 }} {...props} />;
-}
+import Colors from '@/constants/Colors';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
 
+  const theme = Colors[colorScheme ?? 'light'];
+
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        // Disable the static render of the header on web
-        // to prevent a hydration error in React Navigation v6.
-        headerShown: true,
+        tabBarActiveTintColor: Colors.palette.primaryLight,
+        tabBarInactiveTintColor: Colors.palette.textMuted,
+        tabBarShowLabel: false,
+        tabBarStyle: {
+          backgroundColor: colorScheme === 'dark' ? Colors.palette.cardDark : Colors.palette.white,
+          borderTopWidth: 0,
+          elevation: 20,
+          shadowColor: Colors.palette.black,
+          shadowOffset: { width: 0, height: -4 },
+          shadowOpacity: colorScheme === 'dark' ? 0.4 : 0.05,
+          shadowRadius: 12,
+          height: 65,
+          paddingBottom: 10,
+          paddingTop: 10,
+          borderTopLeftRadius: 25,
+          borderTopRightRadius: 25,
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+        },
+        headerShown: false,
       }}>
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Tab One',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
-          headerRight: () => (
-            <Link href="/modal" asChild>
-              <Pressable>
-                {({ pressed }) => (
-                  <FontAwesome
-                    name="info-circle"
-                    size={25}
-                    color={Colors[colorScheme ?? 'light'].text}
-                    style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-                  />
-                )}
-              </Pressable>
-            </Link>
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="home" size={26} color={color} />
           ),
         }}
       />
       <Tabs.Screen
-        name="two"
+        name="search"
         options={{
-          title: 'Tab Two',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="search" size={26} color={color} />
+          ),
         }}
       />
+      <Tabs.Screen
+        name="cart"
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="bag" size={26} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="person" size={26} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen name="orders" options={{ href: null }} />
+      <Tabs.Screen name="categories" options={{ href: null }} />
     </Tabs>
   );
 }

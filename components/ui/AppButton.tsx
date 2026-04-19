@@ -1,4 +1,5 @@
 import { Text } from "@/components/Themed";
+import Colors from "@/constants/Colors";
 import { Pressable, StyleSheet } from "react-native";
 import React from "react";
 
@@ -25,7 +26,7 @@ export default function AppButton({ title, onPress, style }: AppButtonProps) {
 
 const styles = StyleSheet.create({
     button: {
-        backgroundColor: '#6055D8',
+        backgroundColor: Colors.palette.primary,
         borderRadius: 100,
         height: 56,
         width: '100%',
@@ -34,7 +35,7 @@ const styles = StyleSheet.create({
         marginTop: 20,
     },
     buttonText: {
-        color: '#FFFFFF',
+        color: Colors.palette.white,
         fontSize: 18,
         fontWeight: 'bold',
     },

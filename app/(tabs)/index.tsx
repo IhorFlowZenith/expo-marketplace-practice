@@ -1,8 +1,9 @@
 import { StyleSheet, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-
 import { Text, View, useThemeColor } from '@/components/Themed';
 import { useAuth } from '@/context/AuthContext';
+import SettingsItem from "@/components/SettingsItem";
+import Colors from '@/constants/Colors';
 
 export default function TabOneScreen() {
   const { user, signOut } = useAuth();
@@ -11,8 +12,8 @@ export default function TabOneScreen() {
   return (
     <View style={styles.container}>
 
-      <View style={styles.avatarCircle} lightColor="#F0EEFF" darkColor="#2C2C2E">
-        <Ionicons name="person" size={40} color="#6055D8" />
+      <View style={styles.avatarCircle} lightColor={Colors.palette.accentBgLight} darkColor={Colors.palette.accentBgDark}>
+        <Ionicons name="person" size={40} color={Colors.palette.primary} />
       </View>
 
       <Text style={styles.name}>{user?.displayName || 'No name'}</Text>
@@ -25,9 +26,11 @@ export default function TabOneScreen() {
           { opacity: pressed ? 0.8 : 1 },
         ]}
       >
-        <Ionicons name="log-out-outline" size={20} color="#FF4444" style={{ marginRight: 8 }} />
+        <Ionicons name="log-out-outline" size={20} color={Colors.palette.error} style={{ marginRight: 8 }} />
         <Text style={styles.signOutText}>Sign Out</Text>
       </Pressable>
+
+      <SettingsItem icon="settings-outline" title="Setting" route="/settings" />
 
     </View>
   );
@@ -65,10 +68,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
     borderRadius: 100,
     borderWidth: 1.5,
-    borderColor: '#FF4444',
+    borderColor: Colors.palette.error,
   },
   signOutText: {
-    color: '#FF4444',
+    color: Colors.palette.error,
     fontSize: 16,
     fontWeight: '600',
   },

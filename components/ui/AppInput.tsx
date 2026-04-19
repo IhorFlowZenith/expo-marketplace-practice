@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { StyleSheet, TextInput, TextInputProps, Pressable, View as DefaultView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Text, View, useThemeColor } from '@/components/Themed';
+import Colors from '@/constants/Colors';
 
 interface AppInputProps {
     label: string;
@@ -19,13 +20,13 @@ export default function AppInput({ label, icon, isPassword = false, ...textInput
     const [isSecure, setIsSecure] = useState(isPassword);
 
     return (
-        <View style={styles.container} lightColor="#F5F6F8" darkColor="#1C1C1E">
-            <Ionicons name={icon} size={20} color="#666" style={styles.icon} />
+        <View style={styles.container} lightColor={Colors.palette.inputBgLight} darkColor={Colors.palette.cardDark}>
+            <Ionicons name={icon} size={20} color={Colors.palette.iconMuted} style={styles.icon} />
             <DefaultView style={styles.textInputWrapper}>
                 <Text style={styles.label}>{label}</Text>
                 <TextInput
                     style={[styles.input, { color: textColor }]}
-                    placeholderTextColor="#999"
+                    placeholderTextColor={Colors.palette.placeholder}
                     secureTextEntry={isSecure}
                     autoCapitalize={isPassword ? 'none' : textInputProps.autoCapitalize}
                     {...textInputProps}
@@ -39,7 +40,7 @@ export default function AppInput({ label, icon, isPassword = false, ...textInput
                     <Ionicons
                         name={isSecure ? 'eye-off-outline' : 'eye-outline'}
                         size={20}
-                        color="#666"
+                        color={Colors.palette.iconMuted}
                     />
                 </Pressable>
             )}

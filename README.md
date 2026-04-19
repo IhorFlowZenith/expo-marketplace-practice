@@ -7,14 +7,24 @@ Mobile marketplace practice project on Expo.
 ## 📌 Зміст
 * [🟡 Міні-інформація](#info)
 * [🟣 Скріншоти](#screenshots)
-* [🟢 17.04.2026 -- Commit 7](#commit-7)
+* [🟢 19.04.2026 -- Commit 8](#commit-8)
+* [🔴 17.04.2026 -- Commit 7](#commit-7)
 * [🔴 16.04.2026 -- Commit 6](#commit-6)
 * [🔴 15.04.2026 -- Commit 3, 4, 5](#commit-3-4-5)
 * [🔴 15.04.2026 -- Commit 2](#commit-2)
 * [🔴 15.04.2026 -- Commit 1](#commit-1)
 
+<a name="commit-8"></a>
+## 🟢 [19.04.2026] — Дуже багато нових сторінок
+* Створено групування сторінок `(auth)`, `(profile-extra)`, `(settings)`, `(support)` та `(tabs)`.
+* Розроблено повноцінні сторінки `about-us.tsx`, `help-center.tsx`, `language.tsx`, `notifications.tsx`, `privacy.tsx` та `settings.tsx`. Всі сторінки без функціоналу, лише фронт.
+* Розроблено сторінки-заглушки `search.tsx`, `cart.tsx`, `orders.tsx`, `categories.tsx`, `contact.tsx`, `help.tsx`, `share.tsx` та `profile-details.tsx`.
+* Розроблене нижнє tab-меню
+* Винесено всі кольори в окремий файл `src/constants/Colors.ts`
+* Оновлено всі скріншоти
+
 <a name="commit-7"></a>
-## 🟢 [17.04.2026] — Додаткові сторінки + компоненти
+## 🔴 [17.04.2026] — Змінено авторизацію + firebase
 * Видалено сторінки `reset-password` та `verify-code.tsx`.
 * Перероблено сторінки з папки (auth).
 * Підключено авторизація firebase. 
@@ -22,7 +32,6 @@ Mobile marketplace practice project on Expo.
 * Tab 1 — показує ім'я, email, кнопку Sign Out
 * 🟠 Авторизація через Google тимчасово не працює.
 * 🟠 Половина коду було розроблено за допомгою ШІ.
-
 
 <a name="commit-6"></a>
 ## 🔴 [16.04.2026] — Додаткові сторінки + компоненти
@@ -52,6 +61,7 @@ Mobile marketplace practice project on Expo.
 <a name="screenshots"></a>
 ##  🟣 Скріншоти
 
+### 🔐 Authentication Flow
 <table>
     <tr> 
         <td align="center"><b>Login Dark</b></td> 
@@ -60,34 +70,78 @@ Mobile marketplace practice project on Expo.
         <td align="center"><b>Register Light</b></td> 
     </tr> 
     <tr> 
-        <td><img src="https://github.com/IhorFlowZenith/expo-marketplace-practice/blob/main/assets/screenshots/login-dark.png" width="200"/></td>
-        <td><img src="https://github.com/IhorFlowZenith/expo-marketplace-practice/blob/main/assets/screenshots/login-light.png" width="200"/></td>
-        <td><img src="https://github.com/IhorFlowZenith/expo-marketplace-practice/blob/main/assets/screenshots/register-dark.png" width="200"/></td>
-        <td><img src="https://github.com/IhorFlowZenith/expo-marketplace-practice/blob/main/assets/screenshots/register-light.png" width="200"/></td>
+        <td><img src="./assets/screenshots/LoginScreen-dark.jpg" width="200"/></td>
+        <td><img src="./assets/screenshots/LoginScreen-light.jpg" width="200"/></td>
+        <td><img src="./assets/screenshots/RegisterScreen-dark.jpg" width="200"/></td>
+        <td><img src="./assets/screenshots/RegisterScreen-light.jpg" width="200"/></td>
     </tr>
     <tr>
         <td align="center"><b>Forgot Password Dark</b></td>
         <td align="center"><b>Forgot Password Light</b></td>
-        <td align="center"><b>Verify Code Dark</b></td>
-        <td align="center"><b>Verify Code Light</b></td>
-    </tr>
-    <tr>
-        <td><img src="https://github.com/IhorFlowZenith/expo-marketplace-practice/blob/main/assets/screenshots/forgot-password-dark.png" width="200"/></td>
-        <td><img src="https://github.com/IhorFlowZenith/expo-marketplace-practice/blob/main/assets/screenshots/forgot-password-light.png" width="200"/></td>
-        <td><img src="https://github.com/IhorFlowZenith/expo-marketplace-practice/blob/main/assets/screenshots/verify-code-dark.png" width="200"/></td>
-        <td><img src="https://github.com/IhorFlowZenith/expo-marketplace-practice/blob/main/assets/screenshots/verify-code-light.png" width="200"/></td>
-    </tr>
-<tr>
-        <td align="center"><b>Reset Password Dark</b></td>
-        <td align="center"><b>Reset Password Light</b></td>
         <td align="center"><b>Success Dark</b></td>
         <td align="center"><b>Success Light</b></td>
     </tr>
     <tr>
-        <td><img src="https://github.com/IhorFlowZenith/expo-marketplace-practice/blob/main/assets/screenshots/reset-password-dark.png" width="200"/></td>
-        <td><img src="https://github.com/IhorFlowZenith/expo-marketplace-practice/blob/main/assets/screenshots/reset-password-light.png" width="200"/></td>
-        <td><img src="https://github.com/IhorFlowZenith/expo-marketplace-practice/blob/main/assets/screenshots/success-dark.png" width="200"/></td>
-        <td><img src="https://github.com/IhorFlowZenith/expo-marketplace-practice/blob/main/assets/screenshots/success-light.png" width="200"/></td>
+        <td><img src="./assets/screenshots/ForgotPasswordScreen-dark.jpg" width="200"/></td>
+        <td><img src="./assets/screenshots/ForgotPasswordScreen-light.jpg" width="200"/></td>
+        <td><img src="./assets/screenshots/SuccessScreen-dark.jpg" width="200"/></td>
+        <td><img src="./assets/screenshots/SuccessScreen-light.jpg" width="200"/></td>
+    </tr>
+</table>
+
+### 👤 Profile & Details
+<table>
+    <tr> 
+        <td align="center"><b>Profile Dark</b></td> 
+        <td align="center"><b>Profile Light</b></td> 
+        <td align="center"><b>Profile Details Dark</b></td> 
+        <td align="center"><b>Profile Details Light</b></td> 
+    </tr> 
+    <tr> 
+        <td><img src="./assets/screenshots/ProfileScreen-dark.jpg" width="200"/></td>
+        <td><img src="./assets/screenshots/ProfileScreen-light.jpg" width="200"/></td>
+        <td><img src="./assets/screenshots/ProfileDetailsScreen-dark.jpg" width="200"/></td>
+        <td><img src="./assets/screenshots/ProfileDetailsScreen-light.jpg" width="200"/></td>
+    </tr>
+</table>
+
+### ⚙️ Settings & Support
+<table>
+    <tr> 
+        <td align="center"><b>Settings Dark</b></td> 
+        <td align="center"><b>Settings Light</b></td> 
+        <td align="center"><b>Notifications Dark</b></td> 
+        <td align="center"><b>Notifications Light</b></td> 
+    </tr> 
+    <tr> 
+        <td><img src="./assets/screenshots/SettingsScreen-dark.jpg" width="200"/></td>
+        <td><img src="./assets/screenshots/SettingsScreen-light.jpg" width="200"/></td>
+        <td><img src="./assets/screenshots/NotificationsScreen-dark.jpg" width="200"/></td>
+        <td><img src="./assets/screenshots/NotificationsScreen-light.jpg" width="200"/></td>
+    </tr>
+    <tr> 
+        <td align="center"><b>Language Dark</b></td> 
+        <td align="center"><b>Language Light</b></td> 
+        <td align="center"><b>Privacy Policy Dark</b></td> 
+        <td align="center"><b>Privacy Policy Light</b></td> 
+    </tr> 
+    <tr> 
+        <td><img src="./assets/screenshots/LanguageScreen-dark.jpg" width="200"/></td>
+        <td><img src="./assets/screenshots/LanguageScreen-light.jpg" width="200"/></td>
+        <td><img src="./assets/screenshots/PrivacyPoliciScreen-dark.jpg" width="200"/></td>
+        <td><img src="./assets/screenshots/PrivacyPoliciScreen-light.jpg" width="200"/></td>
+    </tr>
+    <tr> 
+        <td align="center"><b>Help Center Dark</b></td> 
+        <td align="center"><b>Help Center Light</b></td> 
+        <td align="center"><b>About Us Dark</b></td> 
+        <td align="center"><b>About Us Light</b></td> 
+    </tr> 
+    <tr> 
+        <td><img src="./assets/screenshots/HelpCenter-dark.jpg" width="200"/></td>
+        <td><img src="./assets/screenshots/HelpCenter-light.jpg" width="200"/></td>
+        <td><img src="./assets/screenshots/AboutUsScreen-dark.jpg" width="200"/></td>
+        <td><img src="./assets/screenshots/AboutUsScreen-light.jpg" width="200"/></td>
     </tr>
 </table>
 
