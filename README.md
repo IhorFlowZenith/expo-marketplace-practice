@@ -7,14 +7,8 @@
 ## 📌 Зміст
 * [🟡 Міні-інформація](#info)
 * [🚀 Tech Stack](#tech-stack)
-* [🏗 Architecture](#architecture)
 * [🗝 Key Features](#features)
 * [📈 Development Progress (Milestones)](#milestones)
-    * [🟢 Auth Validation & Refactoring](#new-commit)
-    * [🔴 Navigation Overhaul & Architecture](#architecture-update)
-    * [🔴 Firebase Auth Integration](#firebase-auth)
-    * [🔴 UI Construction & Components](#ui-components)
-    * [🔴 Initial Setup & Theme Fixes](#setup)
 * [🖼 Скріншоти](#screenshots)
 
 <a name="info"></a>
@@ -26,121 +20,128 @@
 
 ---
 
+<a name="tech-stack"></a>
 ## 🚀 Tech Stack
+* **Framework:** Expo SDK 54 / React Native.
+* **Navigation:** Expo Router (File-based).
+* **Backend & Auth:** Firebase v12 (Email, Google Auth).
+* **Form Management:** React Hook Form.
+* **Validation:** Zod.
+* **Animation:** Reanimated.
+* **Language:** TypeScript.
 
-*   **Framework:** Expo SDK 54 / React Native.
-*   **Navigation:** Expo Router (File-based).
-*   **Backend & Auth:** Firebase v12 (Email, Google Auth).
-*   **Form Management:** React Hook Form.
-*   **Validation:** Zod.
-*   **Animation:** Reanimated.
-*   **Language:** TypeScript.
+
+---
 
 <a name="features"></a>
 ## 🗝 Key Features
 
 ### 🔐 Authentication
-*   Firebase Auth (Email/Password).
-*   **Auth Guard:** Протекція маршрутів на основі стейту авторизації.
-*   Persistent sessions (AsyncStorage).
+* **Firebase Auth:** Email/Password авторизація.
+* **Auth Guard:** Протекція маршрутів на основі стейту авторизації.
+* **Persistent sessions:** Збереження сесій через AsyncStorage.
 
 ### 🛡 Validation
-*   Клієнтська валідація на Zod.
-*   Візуальна індикація помилок в реальному часі.
+* **Zod Schemas:** Клієнтська валідація на рівні схем.
+* **Real-time UI:** Візуальна індикація помилок в реальному часі.
 
 ### 🎨 UI & Theming
-*   Кастомна бібліотека UI-компонентів.
-*   Динамічна зміна кольорів (Dark/Light mode).
+* **Design System:** Кастомна бібліотека UI-компонентів.
+* **Themes:** Динамічна зміна кольорів (Dark/Light mode).
 
 ---
 
 <a name="milestones"></a>
 ## 📈 Development Progress (Milestones)
 
-<a name="new-commit"></a>
 ### 🟢 [21.04.2026] Auth Validation & Refactoring
+**Опис фічі**
+Реалізовано надійну клієнтську архітектуру валідації для авторизаційного флоу. Використано зв'язку **React Hook Form** та **Zod** для забезпечення Type-Safety та уникнення зайвих рендерів.
 
-#### Опис
-Впровадження клієнтської валідації форм із використанням **Zod** та **React Hook Form**.
+**Детальна документація по імплементації:**
+1.  **Zod Schemas (`schemas/authSchema.ts`)**: 
+    *   Створено централізовані схеми для перевірки даних: загальний `emailRule`, `passwordRule` (мінімум 6 символів), та підримка обов'язкової наявності цифр у `registerSchema`.
+    *   Ці схеми безпосередньо генерують TypeScript типи (через `z.infer`), що дозволяє гарантувати консистентність даних по проєкту.
+2.  **React Hook Form Integration**: 
+    *   Форми екранів (`login.tsx`, `register.tsx`, `forgot-password.tsx`) керуються хуком `useForm` із використанням `@hookform/resolvers/zod`.
+    *   Для підключення UI використана компонента `<Controller />`. Це суттєво оптимізує продуктивність: замість рендеру всієї сторінки, оновлюється виключно змінений інпут.
+3.  **UI Feedback (`components/ui/AppInput.tsx`)**: 
+    *   Кастомний компонент вводу було розширено пропом `error` (опціональний String).
+    *   При непроходженні валідації Zod, повідомлення миттєво підхоплюється UI-компонентом, що дозволяє динамічно підсвітити поле (червоний border) та вивести підказку користувачу.
 
-#### Технічні деталі
-*   **Validation:** Схеми для Login/Register у `schemas/authSchema.ts`.
-*   **UI Integration:** Використання `Controller` для інпутів та відображення помилок.
-*   **Features:** Додано екран обраного (`favorites.tsx`).
-*   **Documentation:** Повна реструктуризація `README.md` та перехід до формату технічної документації.
+**Зміни у файлах**
+*   🆕 `schemas/authSchema.ts` (нова валідація).
+*   🆕 `app/(tabs)/favorites.tsx` (екран обраного).
+*   🆕 `hooks/useGoogleAuth.ts` (заглушка/хук для Google Auth).
+*   🔄 `app/(auth)/login.tsx`, `app/(auth)/register.tsx`, `app/(auth)/forgot-password.tsx` (рефакторинг форм).
+*   🔄 `components/ui/AppInput.tsx` (візуалізація помилок валідації).
+*   🔄 `README.md` (нова структура документації).
 
-#### Зміни у файлах
-*   `schemas/authSchema.ts` (нова валідація).
-*   `app/(auth)/login.tsx`, `register.tsx`, `forgot-password.tsx` (рефакторинг форм).
-*   `README.md` (нова структура).
-
----
-
-<a name="architecture-update"></a>
 ### 🔴 [19.04.2026] Navigation Overhaul & Architecture
+**Опис**
+Реструктуризація роутингу на базі Expo Router Groups та впровадження Auth Guard.
 
-#### Опис
-Реструктуризація роутингу на базі **Expo Router Groups** та впровадження **Auth Guard**.
-
-#### Технічні деталі
+**Технічні деталі**
 *   **Routing:** Групування `(auth)`, `(tabs)`, `(settings)`, `(support)`, `(profile-extra)`.
 *   **Auth Middleware:** Логіка редиректів в роуті залежно від стану користувача.
-*   **Colors:** Рефакторинг `Colors.ts` під універсальну палітру.
+*   **Colors:** Рефакторинг Colors.ts під універсальну палітру.
 
-#### Зміни у файлах
-*   `app/_layout.tsx` (Redirect logic).
-*   `constants/Colors.ts` (Design system upgrade).
-*   Створено кілька додаткових екранів-заглушок.
+**Зміни у файлах**
+*   🔄 `app/_layout.tsx` (Redirect logic & Auth Guard).
+*   🔄 `constants/Colors.ts` (Design system upgrade).
+*   🆕 `components/SettingsItem.tsx` (універсальний компонент списку для налаштувань).
+*   🆕 `app/(tabs)/_layout.tsx`, `app/(tabs)/index.tsx` (налаштування нижнього Tab-меню).
+*   🆕 `app/(auth)/_layout.tsx`, `app/(settings)/_layout.tsx`, `app/(support)/_layout.tsx`, `app/(profile-extra)/_layout.tsx` (групування роутів навколо стеків).
+*   🆕 **Екрани (з повноцінним UI, але без логіки):** `app/(settings)/settings.tsx`, `notifications.tsx`, `language.tsx`, `privacy.tsx`, `about-us.tsx`, `app/(support)/help-center.tsx`.
+*   🆕 **Екрани-заглушки (пустишки/placeholders):** `app/(tabs)/search.tsx`, `cart.tsx`, `orders.tsx`, `categories.tsx`, `app/(support)/contact.tsx`, `help.tsx`, `share.tsx`, `app/(profile-extra)/profile-details.tsx`.
 
----
-
-<a name="firebase-auth"></a>
 ### 🔴 [17.04.2026] Firebase Auth Integration
+**Опис**
+Підключення Firebase SDK та реалізація глобального стейту авторизації.
 
-#### Опис
-Підключення **Firebase SDK** та реалізація глобального стейту авторизації.
+**Технічні деталі**
+*   **State:** Впровадження AuthContext.
+*   **Persistence:** Налаштування getReactNativePersistence через AsyncStorage.
+*   **Config:** Ініціалізація Firebase у constants/firebase.ts.
 
-#### Технічні деталі
-*   **State:** Впровадження `AuthContext`.
-*   **Persistence:** Налаштування `getReactNativePersistence` через `AsyncStorage`.
-*   **Config:** Ініціалізація Firebase у `constants/firebase.ts`.
+**Зміни у файлах**
+*   🆕 `context/AuthContext.tsx`
+*   🆕 `constants/firebase.ts`
+*   🆕 `components/ui/GoogleButton.tsx` (UI компонента для входу).
+*   🔄 `app/(tabs)/profile.tsx` (відображення даних користувача та Sign Out).
+*   ❌ `app/(auth)/reset-password.tsx`, `app/(auth)/verify-code.tsx` (видалено для заміни флоу).
 
-#### Зміни у файлах
-*   `context/AuthContext.tsx`.
-*   `constants/firebase.ts`.
-
----
-
-<a name="ui-components"></a>
 ### 🔴 [16.04.2026] UI Construction & Components
-
-#### Опис
+**Опис**
 Розробка базової бібліотеки UI-компонентів та конфігурація збірки.
 
-#### Технічні деталі
-*   **Components:** Створення `AppButton` та `BackButton` з кастомними стилями.
-*   **EAS:** Початкова конфігурація `eas.json` для Android/iOS збірок.
+**Технічні деталі**
+*   **Components:** Створення AppButton та BackButton з кастомними стилями.
+*   **EAS:** Початкова конфігурація eas.json для Android/iOS збірок.
 
-#### Зміни у файлах
-*   `components/ui/AppButton.tsx`.
-*   `app/(auth)/success.tsx`.
+**Зміни у файлах**
+*   🆕 `components/ui/AppButton.tsx`, `components/ui/BackButton.tsx` (базові компоненти).
+*   🆕 `components/ui/AppInput.tsx` (перша версія поля вводу).
+*   🆕 `app/(auth)/forgot-password.tsx`, `app/(auth)/success.tsx` (базовий UI екранів).
+*   🆕 `eas.json` (EAS setup).
 
----
-
-<a name="setup"></a>
 ### 🔴 [15.04.2026] Initial Setup & Theme Fixes
-
-#### Опис
+**Опис**
 Ініціалізація проєкту, видалення зайвого шаблону та виправлення рендерингу тем.
 
-#### Технічні деталі
+**Технічні деталі**
 *   **Fix:** Усунення білих блоків під текстом у світлій темі.
-*   **Cleaning:** Видалення дефолтних файлів з `tabs@54` шаблону.
-*   **Routing:** Налаштування базового `Stack` роутера.
+*   **Cleaning:** Видалення дефолтних файлів з tabs@54 шаблону.
+*   **Routing:** Налаштування базового Stack роутера.
 
-#### Зміни у файлах
-*   `app.json`, `package.json`.
-*   `.gitignore`, `tsconfig.json`.
+**Зміни у файлах**
+*   🆕 `app.json`, `package.json`, `tsconfig.json`, `.gitignore`, `expo-env.d.ts` (ініціалізація конфігів).
+*   🆕 `app/+html.tsx`, `app/+not-found.tsx` (базові системні екрани).
+*   🆕 `app/(auth)/login.tsx`, `app/(auth)/register.tsx` (базовий UI).
+*   🆕 `assets/fonts/SpaceMono-Regular.ttf`
+*   🆕 `assets/images/favicon.png`, `icon.png`, `splash-icon.png`, `adaptive-icon.png`
+*   🔄 `components/Themed.tsx`, `components/StyledText.tsx`, `components/useColorScheme.ts` (фікс тем).
+*   ❌ `components/EditScreenInfo.tsx`, `hooks/useClientOnlyValue.ts`, `hooks/useClientOnlyValue.web.ts`, `components/useColorScheme.web.ts` (видалено дефолтний шаблон).
 
 ---
 
@@ -156,6 +157,12 @@
         <td align="center"><b>Register Light</b></td> 
     </tr> 
     <tr> 
+        <td><img src="https://github.com/IhorFlowZenith/expo-marketplace-practice/blob/main/assets/screenshots/login-dark.png" width="200"/></td>
+        <td><img src="https://github.com/IhorFlowZenith/expo-marketplace-practice/blob/main/assets/screenshots/login-light.png" width="200"/></td>
+        <td><img src="https://github.com/IhorFlowZenith/expo-marketplace-practice/blob/main/assets/screenshots/register-dark.png" width="200"/></td>
+        <td><img src="https://github.com/IhorFlowZenith/expo-marketplace-practice/blob/main/assets/screenshots/register-light.png" width="200"/></td>
+    </tr>
+    <tr>
         <td><img src="./assets/screenshots/LoginScreen-dark.jpg" width="200"/></td>
         <td><img src="./assets/screenshots/LoginScreen-light.jpg" width="200"/></td>
         <td><img src="./assets/screenshots/RegisterScreen-dark.jpg" width="200"/></td>
@@ -205,28 +212,7 @@
         <td><img src="./assets/screenshots/NotificationsScreen-dark.jpg" width="200"/></td>
         <td><img src="./assets/screenshots/NotificationsScreen-light.jpg" width="200"/></td>
     </tr>
-    <tr> 
-        <td align="center"><b>Language Dark</b></td> 
-        <td align="center"><b>Language Light</b></td> 
-        <td align="center"><b>Privacy Policy Dark</b></td> 
-        <td align="center"><b>Privacy Policy Light</b></td> 
-    </tr> 
-    <tr> 
-        <td><img src="./assets/screenshots/LanguageScreen-dark.jpg" width="200"/></td>
-        <td><img src="./assets/screenshots/LanguageScreen-light.jpg" width="200"/></td>
-        <td><img src="./assets/screenshots/PrivacyPoliciScreen-dark.jpg" width="200"/></td>
-        <td><img src="./assets/screenshots/PrivacyPoliciScreen-light.jpg" width="200"/></td>
-    </tr>
-    <tr> 
-        <td align="center"><b>Help Center Dark</b></td> 
-        <td align="center"><b>Help Center Light</b></td> 
-        <td align="center"><b>About Us Dark</b></td> 
-        <td align="center"><b>About Us Light</b></td> 
-    </tr> 
-    <tr> 
-        <td><img src="./assets/screenshots/HelpCenter-dark.jpg" width="200"/></td>
-        <td><img src="./assets/screenshots/HelpCenter-light.jpg" width="200"/></td>
-        <td><img src="./assets/screenshots/AboutUsScreen-dark.jpg" width="200"/></td>
-        <td><img src="./assets/screenshots/AboutUsScreen-light.jpg" width="200"/></td>
-    </tr>
 </table>
+
+---
+*Практика розробки мобільних застосунків.*
