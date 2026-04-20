@@ -5,6 +5,7 @@ import { View as DefaultView, Pressable, StyleSheet } from 'react-native';
 
 import { Text, View, useThemeColor } from '@/components/Themed';
 import AppButton from '@/components/ui/AppButton';
+import Colors from '@/constants/Colors';
 
 export default function SuccessScreen() {
     const { email } = useLocalSearchParams();
@@ -15,7 +16,7 @@ export default function SuccessScreen() {
             <DefaultView style={styles.content}>
 
                 <DefaultView style={styles.iconCircle}>
-                    <Ionicons name="checkmark" size={50} color="#FFFFFF" />
+                    <Ionicons name="checkmark" size={50} color={Colors.palette.white} />
                 </DefaultView>
 
                 <Text style={styles.title}>Check your email</Text>
@@ -27,7 +28,7 @@ export default function SuccessScreen() {
 
                 <AppButton
                     title="Back to Login"
-                    onPress={() => router.replace('/(auth)/login')}
+                    onPress={() => router.replace('/login')}
                     style={{ marginTop: 40 }}
                 />
 
@@ -54,7 +55,7 @@ const styles = StyleSheet.create({
         width: 90,
         height: 90,
         borderRadius: 45,
-        backgroundColor: '#4CAF50',
+        backgroundColor: Colors.palette.success,
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: 24,

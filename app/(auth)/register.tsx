@@ -3,59 +3,73 @@ import AppButton from "@/components/ui/AppButton";
 import AppInput from "@/components/ui/AppInput";
 import BackButton from "@/components/ui/BackButton";
 import GoogleButton from "@/components/ui/GoogleButton";
+import Colors from '@/constants/Colors';
 import { useGoogleAuth } from '@/hooks/useGoogleAuth';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import {
-    View as DefaultView,
-    KeyboardAvoidingView,
-    ScrollView,
-    StyleSheet,
-    Pressable,
-} from 'react-native';
+import { View as DefaultView, KeyboardAvoidingView, ScrollView, StyleSheet, Pressable } from 'react-native';
 
 import { auth } from '@/constants/firebase';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import {Controller, useForm} from "react-hook-form";
+import {registerSchema, RegisterFormData, LoginFormData} from "@/schemas/authSchema";
+import {zodResolver} from "@hookform/resolvers/zod";
 
 export default function RegisterScreen() {
-    const [name, setName] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    // const [name, setName] = useState('');
+    // const [email, setEmail] = useState('');
+    // const [password, setPassword] = useState('');
+
     const [error, setError] = useState('');
+    const [serverError, setServerError] = useState('');
+    const [notFound, setNotFound] = useState(false);
     const textColor = useThemeColor({}, 'text');
     const { signInWithGoogle } = useGoogleAuth();
+    const clearError = () => setServerError('');
 
-    const clearError = () => setError('');
 
-    const handleSignUp = async () => {
-        setError('');
+    const {control, handleSubmit, formState: {errors}} = useForm<RegisterFormData>({
+        resolver: zodResolver(registerSchema),
+        defaultValues: {
+            fullName: '',
+            email: '',
+            password: '',
+        }
+    });
 
-        if (name.trim().length < 2) {
-            setError('Please enter your full name');
-            return;
-        }
-        if (!email || !email.includes('@')) {
-            setError('Please enter a valid email address');
-            return;
-        }
-        if (password.length < 6) {
-            setError('Password must be at least 6 characters');
-            return;
-        }
+
+    // const handleSignUp = async () => {
+    const onSubmit = async (data: RegisterFormData) => {
+        setServerError('');
+        setNotFound(false);
+
+        // if (name.trim().length < 2) {
+        //     setError('Please enter your full name');
+        //     return;
+        // }
+        // if (!email || !email.includes('@')) {
+        //     setError('Please enter a valid email address');
+        //     return;
+        // }
+        // if (password.length < 6) {
+        //     setError('Password must be at least 6 characters');
+        //     return;
+        // }
 
         try {
-            const result = await createUserWithEmailAndPassword(auth, email, password);
-            await updateProfile(result.user, { displayName: name.trim() });
+            const result = await createUserWithEmailAndPassword(auth, data.email, data.password);
+            await updateProfile(result.user, { displayName: data.fullName.trim() });
+            router.replace('/(tabs)');
         } catch (e: any) {
             switch (e.code) {
                 case 'auth/email-already-in-use':
-                    setError('An account with this email already exists');
+                    setServerError('An account with this email already exists');
                     break;
                 case 'auth/weak-password':
-                    setError('Password is too weak. Use at least 6 characters.');
+                    setServerError('Password is too weak. Use at least 6 characters.');
                     break;
                 default:
-                    setError('Something went wrong. Please try again.');
+                    setServerError('Something went wrong. Please try again.');
             }
         }
     };
@@ -76,36 +90,70 @@ export default function RegisterScreen() {
                         <Text style={styles.subtitle}>Fill your details or continue with social media</Text>
                     </DefaultView>
 
-                    <AppInput
-                        label="Full Name"
-                        icon="person-outline"
-                        placeholder="Your full name"
-                        value={name}
-                        onChangeText={(t) => { setName(t); clearError(); }}
+                    <Controller
+                        control={control}
+                        name="fullName"
+                        render={({ field: { onChange, value } }) => (
+                            <AppInput
+                                label="Full Name"
+                                icon="person-outline"
+                                placeholder="Your full name"
+                                value={value}
+                                onChangeText={(t) => {
+                                    onChange(t);
+                                    clearError();
+                                }}
+                                error={errors.fullName?.message}
+                            />
+                        )}
                     />
 
-                    <AppInput
-                        label="Email Address"
-                        icon="mail-outline"
-                        placeholder="user@email.com"
-                        keyboardType="email-address"
-                        autoCapitalize="none"
-                        value={email}
-                        onChangeText={(t) => { setEmail(t); clearError(); }}
+                    <Controller
+                        control={control}
+                        name="email"
+                        render={({field: {onChange, value}}) => (
+                            <AppInput
+                                label="Email"
+                                icon="mail-outline"
+                                placeholder="user@email.com"
+                                keyboardType="email-address"
+                                autoCapitalize="none"
+                                value={value}
+                                onChangeText={(t) => {
+                                    onChange(t);
+                                    if (serverError) setServerError('');
+                                }}
+                                error={errors.email?.message}
+                            />
+                        )}
                     />
 
-                    <AppInput
-                        label="Password"
-                        icon="lock-closed-outline"
-                        placeholder="••••••••"
-                        isPassword
-                        value={password}
-                        onChangeText={(t) => { setPassword(t); clearError(); }}
+                    <Controller
+                        control={control}
+                        name="password"
+                        render={({field: {onChange, value}}) => (
+                            <AppInput
+                                label="Password"
+                                icon="lock-closed-outline"
+                                placeholder="••••••••"
+                                isPassword
+                                value={value}
+                                onChangeText={(t) => {
+                                    onChange(t);
+                                    if (serverError) setServerError('');
+                                }}
+                                error={errors.password?.message}
+                            />
+                        )}
                     />
 
-                    {error ? <Text style={styles.errorText}>{error}</Text> : null}
+                    {serverError ? (
+                        <DefaultView style={styles.errorContainer}>
+                            <Text style={styles.errorText}>{serverError}</Text>
+                        </DefaultView>
+                    ) : null}
 
-                    <AppButton title="Sign Up" onPress={handleSignUp} />
+                    <AppButton title="Sign Up" onPress={handleSubmit(onSubmit)} />
 
                     <DefaultView style={styles.dividerContainer}>
                         <DefaultView style={[styles.dividerLine, { backgroundColor: textColor, opacity: 0.15 }]} />
@@ -154,7 +202,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     errorText: {
-        color: '#FF4444',
+        color: Colors.palette.error,
         fontSize: 14,
         fontWeight: '500',
         marginTop: -8,
@@ -185,6 +233,10 @@ const styles = StyleSheet.create({
     },
     loginLinkText: {
         fontWeight: 'bold',
-        color: '#6055D8',
+        color: Colors.palette.primary,
+    },
+    errorContainer: {
+        marginTop: -8,
+        marginBottom: 8,
     },
 });

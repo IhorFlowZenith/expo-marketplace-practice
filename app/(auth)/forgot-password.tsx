@@ -2,6 +2,7 @@ import { Text, View } from '@/components/Themed';
 import AppButton from '@/components/ui/AppButton';
 import AppInput from '@/components/ui/AppInput';
 import BackButton from "@/components/ui/BackButton";
+import Colors from '@/constants/Colors';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
@@ -11,31 +12,47 @@ import {
     StyleSheet,
 } from 'react-native';
 
+import {ForgotPasswordFormData, forgotPasswordSchema} from '@/schemas/authSchema';
+
 import { auth } from '@/constants/firebase';
 import { sendPasswordResetEmail } from 'firebase/auth';
+import {Controller, useForm} from "react-hook-form";
+import {zodResolver} from "@hookform/resolvers/zod";
+
 
 export default function ForgotPasswordScreen() {
-    const [email, setEmail] = useState('');
-    const [error, setError] = useState('');
+    // const [email, setEmail] = useState('');
+    // const [error, setError] = useState('');
+    const [serverError, setServerError] = useState('');
+    const [notFound, setNotFound] = useState(false);
 
-    const handleResetPassword = async () => {
-        setError('');
-
-        if (!email || !email.includes('@')) {
-            setError('Please enter a valid email address');
-            return;
+    const {control, handleSubmit, formState: {errors}} = useForm<ForgotPasswordFormData>({
+        resolver: zodResolver(forgotPasswordSchema),
+        defaultValues: {
+            email: '',
         }
+    });
+
+    // const handleResetPassword = async () => {
+    const onSubmit = async (data: ForgotPasswordFormData) => {
+        setServerError('');
+        setNotFound(false);
+
+        // if (!email || !email.includes('@')) {
+        //     setError('Please enter a valid email address');
+        //     return;
+        // }
 
         try {
-            await sendPasswordResetEmail(auth, email);
-            router.push({ pathname: '/(auth)/success', params: { email } });
+            await sendPasswordResetEmail(auth, data.email);
+            router.push({ pathname: '/success', params: { email: data.email } });
         } catch (e: any) {
             switch (e.code) {
                 case 'auth/user-not-found':
-                    setError('No account found with this email');
+                    setServerError('No account found with this email');
                     break;
                 default:
-                    setError('Something went wrong. Please try again.');
+                    setServerError('Something went wrong. Please try again.');
             }
         }
     };
@@ -58,19 +75,27 @@ export default function ForgotPasswordScreen() {
                         </Text>
                     </DefaultView>
 
-                    <AppInput
-                        label="Email Address"
-                        icon="mail-outline"
-                        placeholder="user@email.com"
-                        keyboardType="email-address"
-                        autoCapitalize="none"
-                        value={email}
-                        onChangeText={(t) => { setEmail(t); setError(''); }}
+                    <Controller
+                        control={control}
+                        name="email"
+                        render={({field: {onChange, value}}) => (
+                            <AppInput
+                                label="Email"
+                                icon="mail-outline"
+                                placeholder="user@email.com"
+                                keyboardType="email-address"
+                                autoCapitalize="none"
+                                value={value}
+                                onChangeText={(t) => {
+                                    onChange(t);
+                                    if (serverError) setServerError('');
+                                }}
+                                error={errors.email?.message}
+                            />
+                        )}
                     />
 
-                    {error ? <Text style={styles.errorText}>{error}</Text> : null}
-
-                    <AppButton title="Send Reset Link" onPress={handleResetPassword} />
+                    <AppButton title="Send Reset Link" onPress={handleSubmit(onSubmit)} />
                 </ScrollView>
             </KeyboardAvoidingView>
         </View>
@@ -105,7 +130,7 @@ const styles = StyleSheet.create({
         lineHeight: 24,
     },
     errorText: {
-        color: '#FF4444',
+        color: Colors.palette.error,
         fontSize: 14,
         fontWeight: '500',
         marginTop: -8,

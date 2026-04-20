@@ -4,7 +4,7 @@ import { Text, View } from '@/components/Themed';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '@/constants/Colors';
 
-export default function IndexScreen() {
+export default function FavoritesScreen() {
   return (
       <View style={styles.container}>
         <ScrollView contentContainerStyle={styles.content}>

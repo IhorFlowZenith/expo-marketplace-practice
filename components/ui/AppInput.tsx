@@ -2,59 +2,78 @@ import React, { useState } from 'react';
 import { StyleSheet, TextInput, TextInputProps, Pressable, View as DefaultView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Text, View, useThemeColor } from '@/components/Themed';
+import Colors from '@/constants/Colors';
 
-interface AppInputProps {
+interface AppInputProps extends TextInputProps {
     label: string;
     icon: any;
     isPassword?: boolean;
-    placeholder?: string;
-    keyboardType?: any;
-    autoCapitalize?: any;
-    value?: string;
-    onChangeText?: (text: string) => void;
+    error?: string;
 }
 
-export default function AppInput({ label, icon, isPassword = false, ...textInputProps }: AppInputProps) {
+export default function AppInput({label, icon, isPassword = false, error, ...textInputProps }: AppInputProps) {
     const textColor = useThemeColor({}, 'text');
     const [isSecure, setIsSecure] = useState(isPassword);
 
     return (
-        <View style={styles.container} lightColor="#F5F6F8" darkColor="#1C1C1E">
-            <Ionicons name={icon} size={20} color="#666" style={styles.icon} />
-            <DefaultView style={styles.textInputWrapper}>
-                <Text style={styles.label}>{label}</Text>
-                <TextInput
-                    style={[styles.input, { color: textColor }]}
-                    placeholderTextColor="#999"
-                    secureTextEntry={isSecure}
-                    autoCapitalize={isPassword ? 'none' : textInputProps.autoCapitalize}
-                    {...textInputProps}
-                />
-            </DefaultView>
-            {isPassword && (
-                <Pressable
-                    onPress={() => setIsSecure(prev => !prev)}
-                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                >
-                    <Ionicons
-                        name={isSecure ? 'eye-off-outline' : 'eye-outline'}
-                        size={20}
-                        color="#666"
+        <DefaultView style={styles.outerContainer}>
+            <View
+                style={[
+                    styles.container,
+                    error ? styles.containerError : {}
+                ]}
+                lightColor={Colors.palette.inputBgLight}
+                darkColor={Colors.palette.cardDark}
+            >
+                <Ionicons name={icon} size={20} color={Colors.palette.iconMuted} style={styles.icon} />
+                <DefaultView style={styles.textInputWrapper}>
+                    <Text style={styles.label}>{label}</Text>
+                    <TextInput
+                        style={[styles.input, { color: textColor }]}
+                        placeholderTextColor={Colors.palette.placeholder}
+                        secureTextEntry={isSecure}
+                        autoCapitalize={isPassword ? 'none' : textInputProps.autoCapitalize}
+                        {...textInputProps}
                     />
-                </Pressable>
-            )}
-        </View>
+                </DefaultView>
+                {isPassword && (
+                    <Pressable
+                        onPress={() => setIsSecure(prev => !prev)}
+                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    >
+                        <Ionicons
+                            name={isSecure ? 'eye-off-outline' : 'eye-outline'}
+                            size={20}
+                            color={Colors.palette.iconMuted}
+                        />
+                    </Pressable>
+                )}
+            </View>
+
+            {/* ДОДАНО: Вивід тексту помилки під інпутом */}
+            {error ? (
+                <Text style={styles.errorText}>{error}</Text>
+            ) : null}
+        </DefaultView>
     );
 }
 
 const styles = StyleSheet.create({
+    outerContainer: {
+        marginBottom: 16,
+        backgroundColor: 'transparent',
+    },
     container: {
         flexDirection: 'row',
         alignItems: 'center',
         borderRadius: 16,
         paddingHorizontal: 16,
         paddingVertical: 10,
-        marginBottom: 16,
+        borderWidth: 1, // Обов'язково для відображення рамки
+        borderColor: 'transparent',
+    },
+    containerError: {
+        borderColor: Colors.palette.error, // Червоний колір при помилці
     },
     icon: {
         marginRight: 12,
@@ -70,5 +89,11 @@ const styles = StyleSheet.create({
     input: {
         fontSize: 16,
         padding: 0,
+    },
+    errorText: {
+        color: Colors.palette.error,
+        fontSize: 12,
+        marginTop: 4,
+        marginLeft: 4,
     },
 });

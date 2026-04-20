@@ -1,131 +1,156 @@
+import React, { useState } from 'react';
+import { View as DefaultView, KeyboardAvoidingView, ScrollView, StyleSheet, Pressable } from 'react-native';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { router } from 'expo-router';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import { Text, View, useThemeColor } from '@/components/Themed';
 import AppButton from "@/components/ui/AppButton";
 import AppInput from "@/components/ui/AppInput";
 import GoogleButton from "@/components/ui/GoogleButton";
+import Colors from '@/constants/Colors';
 import { useGoogleAuth } from '@/hooks/useGoogleAuth';
-import { router } from 'expo-router';
-import React, { useState } from 'react';
-import {
-    View as DefaultView,
-    KeyboardAvoidingView,
-    ScrollView,
-    StyleSheet,
-    Pressable,
-} from 'react-native';
-
 import { auth } from '@/constants/firebase';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { loginSchema, LoginFormData } from '@/schemas/authSchema';
 
 export default function LoginScreen() {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
+    // const [email, setEmail] = useState('');
+    // const [password, setPassword] = useState('');
+    // const [error, setError] = useState('');
+    const [serverError, setServerError] = useState('');
     const [notFound, setNotFound] = useState(false);
     const textColor = useThemeColor({}, 'text');
-    const { signInWithGoogle } = useGoogleAuth();
+    const {signInWithGoogle} = useGoogleAuth();
 
-    const handleLogin = async () => {
-        setError('');
+    const {control, handleSubmit, formState: {errors}} = useForm<LoginFormData>({
+        resolver: zodResolver(loginSchema),
+        defaultValues: {
+            email: '',
+            password: '',
+        }
+    });
+
+    // const handleLogin = async () => {
+    const onSubmit = async (data: LoginFormData) => {
+        setServerError('');
         setNotFound(false);
 
-        if (!email || !email.includes('@')) {
-            setError('Please enter a valid email address');
-            return;
-        }
-        if (password.length < 6) {
-            setError('Password must be at least 6 characters');
-            return;
-        }
+        //     if (!email || !email.includes('@')) {
+        //         setError('Please enter a valid email address');
+        //         return;
+        //     }
+        //     if (password.length < 6) {
+        //         setError('Password must be at least 6 characters');
+        //         return;
+        //     }
 
         try {
-            await signInWithEmailAndPassword(auth, email, password);
+            await signInWithEmailAndPassword(auth, data.email, data.password)
         } catch (e: any) {
             switch (e.code) {
                 case 'auth/user-not-found':
-                    setError('No account found with this email.');
+                    setServerError('No account found with this email.');
                     setNotFound(true);
                     break;
                 case 'auth/invalid-credential':
                 case 'auth/wrong-password':
-                    setError('Invalid email or password');
+                    setServerError('Invalid email or password');
                     break;
                 case 'auth/too-many-requests':
-                    setError('Too many attempts. Please try again later.');
+                    setServerError('Too many attempts. Please try again later.');
                     break;
                 default:
-                    setError('Something went wrong. Please try again.');
+                    setServerError('Something went wrong. Please try again.');
             }
         }
     };
-
     return (
         <View style={styles.container}>
             <KeyboardAvoidingView style={styles.flex} behavior="height">
                 <ScrollView
                     contentContainerStyle={styles.scrollContent}
                     showsVerticalScrollIndicator={false}
-                    keyboardShouldPersistTaps="handled"
-                >
+                    keyboardShouldPersistTaps="handled">
                     <View style={styles.headerSection}>
                         <Text style={styles.title}>Welcome Back!</Text>
                         <Text style={styles.subtitle}>Login to your account to continue</Text>
                     </View>
 
-                    <AppInput
-                        label="Email"
-                        icon="mail-outline"
-                        placeholder="user@email.com"
-                        keyboardType="email-address"
-                        autoCapitalize="none"
-                        value={email}
-                        onChangeText={(t) => { setEmail(t); setError(''); }}
+                    <Controller
+                        control={control}
+                        name="email"
+                        render={({field: {onChange, value}}) => (
+                            <AppInput
+                                label="Email"
+                                icon="mail-outline"
+                                placeholder="user@email.com"
+                                keyboardType="email-address"
+                                autoCapitalize="none"
+                                value={value}
+                                onChangeText={(t) => {
+                                    onChange(t);
+                                    if (serverError) setServerError('');
+                                }}
+                                error={errors.email?.message}
+                            />
+                        )}
                     />
 
-                    <AppInput
-                        label="Password"
-                        icon="lock-closed-outline"
-                        placeholder="••••••••"
-                        isPassword
-                        value={password}
-                        onChangeText={(t) => { setPassword(t); setError(''); }}
+                    <Controller
+                        control={control}
+                        name="password"
+                        render={({field: {onChange, value}}) => (
+                            <AppInput
+                                label="Password"
+                                icon="lock-closed-outline"
+                                placeholder="••••••••"
+                                isPassword
+                                value={value}
+                                onChangeText={(t) => {
+                                    onChange(t);
+                                    if (serverError) setServerError('');
+                                }}
+                                error={errors.password?.message}
+                            />
+                        )}
                     />
 
-                    {error ? (
-                        <DefaultView style={styles.errorContainer}>
-                            <Text style={styles.errorText}>{error}</Text>
-                            {notFound ? (
-                                <Pressable onPress={() => router.push('/(auth)/register')}>
-                                    <Text style={styles.errorLink}>Create an account →</Text>
-                                </Pressable>
-                            ) : null}
-                        </DefaultView>
-                    ) : null}
+                        {serverError ? (
+                            <DefaultView style={styles.errorContainer}>
+                                <Text style={styles.errorText}>{serverError}</Text>
+                                {notFound && (
+                                    <Pressable onPress={() => router.push('/register')}>
+                                        <Text style={styles.errorLink}>Create an account →</Text>
+                                    </Pressable>
+                                )}
+                            </DefaultView>
+                        ) : null}
 
-                    <Pressable onPress={() => router.push('/(auth)/forgot-password')} style={styles.forgotPassword}>
-                        <Text style={[styles.forgotText, { color: textColor }]}>Forgot Password?</Text>
-                    </Pressable>
-
-                    <AppButton title="Login" onPress={handleLogin} />
-
-                    <DefaultView style={styles.dividerContainer}>
-                        <DefaultView style={[styles.dividerLine, { backgroundColor: textColor, opacity: 0.15 }]} />
-                        <Text style={styles.dividerText}>or</Text>
-                        <DefaultView style={[styles.dividerLine, { backgroundColor: textColor, opacity: 0.15 }]} />
-                    </DefaultView>
-
-                    <GoogleButton onPress={signInWithGoogle} />
-
-                    <DefaultView style={styles.footer}>
-                        <Text style={styles.footerText}>Don't have an account? </Text>
-                        <Pressable onPress={() => router.push('/(auth)/register')}>
-                            <Text style={styles.signUpText}>Sign Up</Text>
+                        <Pressable onPress={() => router.push('/forgot-password')} style={styles.forgotPassword}>
+                            <Text style={[styles.forgotText, {color: textColor}]}>Forgot Password?</Text>
                         </Pressable>
-                    </DefaultView>
-                </ScrollView>
-            </KeyboardAvoidingView>
-        </View>
-    );
-}
+
+                        <AppButton title="Login" onPress={handleSubmit(onSubmit)} />
+
+                        <DefaultView style={styles.dividerContainer}>
+                            <DefaultView style={[styles.dividerLine, {backgroundColor: textColor, opacity: 0.15}]}/>
+                            <Text style={styles.dividerText}>or</Text>
+                            <DefaultView style={[styles.dividerLine, {backgroundColor: textColor, opacity: 0.15}]}/>
+                        </DefaultView>
+
+                        <GoogleButton onPress={signInWithGoogle}/>
+
+                        <DefaultView style={styles.footer}>
+                            <Text style={styles.footerText}>Don't have an account? </Text>
+                            <Pressable onPress={() => router.push('/register')}>
+                                <Text style={styles.signUpText}>Sign Up</Text>
+                            </Pressable>
+                        </DefaultView>
+                    </ScrollView>
+                </KeyboardAvoidingView>
+            </View>
+        );
+    }
 
 const styles = StyleSheet.create({
     container: {
@@ -158,12 +183,12 @@ const styles = StyleSheet.create({
         marginBottom: 8,
     },
     errorText: {
-        color: '#FF4444',
+        color: Colors.palette.error,
         fontSize: 14,
         fontWeight: '500',
     },
     errorLink: {
-        color: '#6055D8',
+        color: Colors.palette.primary,
         fontSize: 14,
         fontWeight: '600',
         marginTop: 4,
@@ -175,7 +200,6 @@ const styles = StyleSheet.create({
     forgotText: {
         fontSize: 14,
         fontWeight: '600',
-        color: '#6055D8',
     },
     dividerContainer: {
         flexDirection: 'row',
@@ -201,6 +225,6 @@ const styles = StyleSheet.create({
     },
     signUpText: {
         fontWeight: 'bold',
-        color: '#6055D8',
+        color: Colors.palette.primary,
     },
 });

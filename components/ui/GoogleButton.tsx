@@ -1,4 +1,5 @@
 import { Text, View, useThemeColor } from '@/components/Themed';
+import Colors from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { View as DefaultView, Pressable, StyleSheet } from 'react-native';
@@ -11,7 +12,7 @@ interface GoogleButtonProps {
 
 export default function GoogleButton({ onPress, title = 'Continue with Google', style }: GoogleButtonProps) {
     const textColor = useThemeColor({}, 'text');
-    const borderColor = useThemeColor({ light: '#DADCE0', dark: '#3A3A3C' }, 'text');
+    const borderColor = useThemeColor({ light: Colors.palette.borderLight, dark: Colors.palette.borderDark }, 'text');
 
     return (
         <Pressable
@@ -23,11 +24,11 @@ export default function GoogleButton({ onPress, title = 'Continue with Google', 
         >
             <View
                 style={[styles.button, { borderColor }]}
-                lightColor="#FFFFFF"
-                darkColor="#2C2C2E"
+                lightColor={Colors.palette.white}
+                darkColor={Colors.palette.accentBgDark}
             >
                 <DefaultView style={styles.iconWrapper}>
-                    <Ionicons name="logo-google" size={20} color="#DB4437" />
+                    <Ionicons name="logo-google" size={20} color={Colors.palette.google} />
                 </DefaultView>
 
                 <Text style={styles.buttonText}>{title}</Text>
