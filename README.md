@@ -1,75 +1,151 @@
 # 👟 Expo Marketplace Practice
 
-Mobile marketplace practice project on Expo.
+Комплексний мобільний маркетплейс на **Expo SDK 54**, з фокусом на архітектуру, UI/UX та типізовану валідацію.
 
 ---
 
 ## 📌 Зміст
 * [🟡 Міні-інформація](#info)
-* [🟣 Скріншоти](#screenshots)
-* [🟢 20.04.2026 -- Commit 9](#commit-9)
-* [🔴 19.04.2026 -- Commit 8](#commit-8)
-* [🔴 17.04.2026 -- Commit 7](#commit-7)
-* [🔴 16.04.2026 -- Commit 6](#commit-6)
-* [🔴 15.04.2026 -- Commit 3, 4, 5](#commit-3-4-5)
-* [🔴 15.04.2026 -- Commit 2](#commit-2)
-* [🔴 15.04.2026 -- Commit 1](#commit-1)
+* [🚀 Tech Stack](#tech-stack)
+* [🏗 Architecture](#architecture)
+* [🗝 Key Features](#features)
+* [📈 Development Progress (Milestones)](#milestones)
+    * [🟢 Auth Validation & Refactoring](#new-commit)
+    * [🔴 Navigation Overhaul & Architecture](#architecture-update)
+    * [🔴 Firebase Auth Integration](#firebase-auth)
+    * [🔴 UI Construction & Components](#ui-components)
+    * [🔴 Initial Setup & Theme Fixes](#setup)
+* [🖼 Скріншоти](#screenshots)
 
-<a name="commit-9"></a>
-## 🟢 [20.04.2026]
-* Підключено `Zod`.
-* Створено файл `schemas/authSchema.ts`.
-* Перероблено сторінки `login.tsx`, `forgot-password.tsx` та `register.tsx`.
-* Створено файл `favorites.tsx`
-* 🟠 Документація фіч буде трішки пізніше
-    
+<a name="info"></a>
+## 🟡 Міні-інформація
+* 🟢 — Останній коміт.
+* 🔴 — Попередні етапи розробки.
+* 🟠 — Технічні примітки.
+* Автоматична підтримка Dark/Light тем.
 
-<a name="commit-8"></a>
-## 🔴 [19.04.2026]
-* Створено групування сторінок `(auth)`, `(profile-extra)`, `(settings)`, `(support)` та `(tabs)`.
-* Розроблено повноцінні сторінки `about-us.tsx`, `help-center.tsx`, `language.tsx`, `notifications.tsx`, `privacy.tsx` та `settings.tsx`. Всі сторінки без функціоналу, лише фронт.
-* Розроблено сторінки-заглушки `search.tsx`, `cart.tsx`, `orders.tsx`, `categories.tsx`, `contact.tsx`, `help.tsx`, `share.tsx` та `profile-details.tsx`.
-* Розроблене нижнє tab-меню
-* Винесено всі кольори в окремий файл `src/constants/Colors.ts`
-* Оновлено всі скріншоти
+---
 
-<a name="commit-7"></a>
-## 🔴 [17.04.2026]
-* Видалено сторінки `reset-password` та `verify-code.tsx`.
-* Перероблено сторінки з папки (auth).
-* Підключено авторизація firebase. 
-* Підключено сам firebase.
-* Tab 1 — показує ім'я, email, кнопку Sign Out
-* 🟠 Авторизація через Google тимчасово не працює.
-* 🟠 Половина коду було розроблено за допомгою ШІ.
+## 🚀 Tech Stack
 
-<a name="commit-6"></a>
-## 🔴 [16.04.2026]
-* Розроблено сторінки: `forgot-password.tsx`, `reset-password.tsx`, `success.tsx` та `verify-code.tsx`.
-* Кнопку зроблено компонентом `src/components/ui/AppButton.tsx`.
-* Кнопку "Назад" зроблено компонентом `src/components/ui/BackButton.tsx`.
-* Всі сторінки без функціоналу (З базовим router)
-* Встановлено `eas-cli` для збірки APK файлів. (Просто встановив) 
+*   **Framework:** Expo SDK 54 / React Native.
+*   **Navigation:** Expo Router (File-based).
+*   **Backend & Auth:** Firebase v12 (Email, Google Auth).
+*   **Form Management:** React Hook Form.
+*   **Validation:** Zod.
+*   **Animation:** Reanimated.
+*   **Language:** TypeScript.
 
-<a name="commit-3-4-5"></a>
-## 🔴 [15.04.2026]
-* Виправлено відображення тексту на світлій темі (Прибрано білі контейнери під текстом на світлій темі).
-* Добавлено скріншоти.
-* 🟠 Помилку з відображення виправив ШІ.
+<a name="features"></a>
+## 🗝 Key Features
 
-<a name="commit-2"></a>
-## 🔴 [15.04.2026]
-* Видалено файли `EditScreenInfo.tsx`, `useClientOnlyValue.ts`, `useClientOnlyValue.web.ts` та `useColorScheme.web.ts`.
-* Розроблено сторінку входу, без функціоналу.
-* Розроблено сторінку реєстрації, без функціоналу.
+### 🔐 Authentication
+*   Firebase Auth (Email/Password).
+*   **Auth Guard:** Протекція маршрутів на основі стейту авторизації.
+*   Persistent sessions (AsyncStorage).
 
-<a name="commit-1"></a>
-## 🔴 [15.04.2026]
-* Створено базовий проєкт за допомогою `npx create-expo-app@latest my-tabs-app --template tabs@54`.
-* Реалізована зрозуміла та структурована схема `README.md` з клікабельним змістом та журналом змін.
+### 🛡 Validation
+*   Клієнтська валідація на Zod.
+*   Візуальна індикація помилок в реальному часі.
+
+### 🎨 UI & Theming
+*   Кастомна бібліотека UI-компонентів.
+*   Динамічна зміна кольорів (Dark/Light mode).
+
+---
+
+<a name="milestones"></a>
+## 📈 Development Progress (Milestones)
+
+<a name="new-commit"></a>
+### 🟢 [21.04.2026] Auth Validation & Refactoring
+
+#### Опис
+Впровадження клієнтської валідації форм із використанням **Zod** та **React Hook Form**.
+
+#### Технічні деталі
+*   **Validation:** Схеми для Login/Register у `schemas/authSchema.ts`.
+*   **UI Integration:** Використання `Controller` для інпутів та відображення помилок.
+*   **Features:** Додано екран обраного (`favorites.tsx`).
+*   **Documentation:** Повна реструктуризація `README.md` та перехід до формату технічної документації.
+
+#### Зміни у файлах
+*   `schemas/authSchema.ts` (нова валідація).
+*   `app/(auth)/login.tsx`, `register.tsx`, `forgot-password.tsx` (рефакторинг форм).
+*   `README.md` (нова структура).
+
+---
+
+<a name="architecture-update"></a>
+### 🔴 [19.04.2026] Navigation Overhaul & Architecture
+
+#### Опис
+Реструктуризація роутингу на базі **Expo Router Groups** та впровадження **Auth Guard**.
+
+#### Технічні деталі
+*   **Routing:** Групування `(auth)`, `(tabs)`, `(settings)`, `(support)`, `(profile-extra)`.
+*   **Auth Middleware:** Логіка редиректів в роуті залежно від стану користувача.
+*   **Colors:** Рефакторинг `Colors.ts` під універсальну палітру.
+
+#### Зміни у файлах
+*   `app/_layout.tsx` (Redirect logic).
+*   `constants/Colors.ts` (Design system upgrade).
+*   Створено кілька додаткових екранів-заглушок.
+
+---
+
+<a name="firebase-auth"></a>
+### 🔴 [17.04.2026] Firebase Auth Integration
+
+#### Опис
+Підключення **Firebase SDK** та реалізація глобального стейту авторизації.
+
+#### Технічні деталі
+*   **State:** Впровадження `AuthContext`.
+*   **Persistence:** Налаштування `getReactNativePersistence` через `AsyncStorage`.
+*   **Config:** Ініціалізація Firebase у `constants/firebase.ts`.
+
+#### Зміни у файлах
+*   `context/AuthContext.tsx`.
+*   `constants/firebase.ts`.
+
+---
+
+<a name="ui-components"></a>
+### 🔴 [16.04.2026] UI Construction & Components
+
+#### Опис
+Розробка базової бібліотеки UI-компонентів та конфігурація збірки.
+
+#### Технічні деталі
+*   **Components:** Створення `AppButton` та `BackButton` з кастомними стилями.
+*   **EAS:** Початкова конфігурація `eas.json` для Android/iOS збірок.
+
+#### Зміни у файлах
+*   `components/ui/AppButton.tsx`.
+*   `app/(auth)/success.tsx`.
+
+---
+
+<a name="setup"></a>
+### 🔴 [15.04.2026] Initial Setup & Theme Fixes
+
+#### Опис
+Ініціалізація проєкту, видалення зайвого шаблону та виправлення рендерингу тем.
+
+#### Технічні деталі
+*   **Fix:** Усунення білих блоків під текстом у світлій темі.
+*   **Cleaning:** Видалення дефолтних файлів з `tabs@54` шаблону.
+*   **Routing:** Налаштування базового `Stack` роутера.
+
+#### Зміни у файлах
+*   `app.json`, `package.json`.
+*   `.gitignore`, `tsconfig.json`.
+
+---
 
 <a name="screenshots"></a>
-##  🟣 Скріншоти
+## 🖼 Скріншоти
 
 ### 🔐 Authentication Flow
 <table>
@@ -154,10 +230,3 @@ Mobile marketplace practice project on Expo.
         <td><img src="./assets/screenshots/AboutUsScreen-light.jpg" width="200"/></td>
     </tr>
 </table>
-
-<a name="info"></a>
-## 🟡 Міні-інформація
-* Одразу адаптація під світлу й темну теми.
-* 🟢 - Останній коміт
-* 🔴 - Старі коміти 
-* 🟠 - Міні-інформація/Коментар до коміту
