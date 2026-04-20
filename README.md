@@ -9,6 +9,11 @@
 * [🚀 Tech Stack](#tech-stack)
 * [🗝 Key Features](#features)
 * [📈 Development Progress (Milestones)](#milestones)
+    * [🟢 Auth Validation & Refactoring](#commit-9)
+    * [🔴 Navigation Overhaul & Architecture](#commit-8)
+    * [🔴 Firebase Auth Integration](#commit-7)
+    * [🔴 UI Construction & Components](#commit-6)
+    * [🔴 Initial Setup & Theme Fixes](#commit-1)
 * [🖼 Скріншоти](#screenshots)
 
 <a name="info"></a>
@@ -54,7 +59,8 @@
 <a name="milestones"></a>
 ## 📈 Development Progress (Milestones)
 
-### 🟢 [21.04.2026] Auth Validation & Refactoring
+<a name="commit-9"></a>
+### 🟢 [20.04.2026] Auth Validation & Refactoring
 **Опис фічі**
 Реалізовано надійну клієнтську архітектуру валідації для авторизаційного флоу. Використано зв'язку **React Hook Form** та **Zod** для забезпечення Type-Safety та уникнення зайвих рендерів.
 
@@ -77,6 +83,7 @@
 *   🔄 `components/ui/AppInput.tsx` (візуалізація помилок валідації).
 *   🔄 `README.md` (нова структура документації).
 
+<a name="commit-8"></a>
 ### 🔴 [19.04.2026] Navigation Overhaul & Architecture
 **Опис**
 Реструктуризація роутингу на базі Expo Router Groups та впровадження Auth Guard.
@@ -95,6 +102,7 @@
 *   🆕 **Екрани (з повноцінним UI, але без логіки):** `app/(settings)/settings.tsx`, `notifications.tsx`, `language.tsx`, `privacy.tsx`, `about-us.tsx`, `app/(support)/help-center.tsx`.
 *   🆕 **Екрани-заглушки (пустишки/placeholders):** `app/(tabs)/search.tsx`, `cart.tsx`, `orders.tsx`, `categories.tsx`, `app/(support)/contact.tsx`, `help.tsx`, `share.tsx`, `app/(profile-extra)/profile-details.tsx`.
 
+<a name="commit-7"></a>
 ### 🔴 [17.04.2026] Firebase Auth Integration
 **Опис**
 Підключення Firebase SDK та реалізація глобального стейту авторизації.
@@ -111,6 +119,7 @@
 *   🔄 `app/(tabs)/profile.tsx` (відображення даних користувача та Sign Out).
 *   ❌ `app/(auth)/reset-password.tsx`, `app/(auth)/verify-code.tsx` (видалено для заміни флоу).
 
+<a name="commit-6"></a>
 ### 🔴 [16.04.2026] UI Construction & Components
 **Опис**
 Розробка базової бібліотеки UI-компонентів та конфігурація збірки.
@@ -125,6 +134,7 @@
 *   🆕 `app/(auth)/forgot-password.tsx`, `app/(auth)/success.tsx` (базовий UI екранів).
 *   🆕 `eas.json` (EAS setup).
 
+<a name="commit-1"></a>
 ### 🔴 [15.04.2026] Initial Setup & Theme Fixes
 **Опис**
 Ініціалізація проєкту, видалення зайвого шаблону та виправлення рендерингу тем.
