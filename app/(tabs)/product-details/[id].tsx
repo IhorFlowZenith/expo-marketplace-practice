@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
-import { Image, StyleSheet, ScrollView, TouchableOpacity, Dimensions, Modal } from "react-native";
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Ionicons } from "@expo/vector-icons";
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import ImageZoom from 'react-native-image-pan-zoom';
-import { FlashList } from "@shopify/flash-list";
-import { View, Text, useThemeColor } from "@/components/Themed";
+import { Text, useThemeColor, View } from "@/components/Themed";
 import AppButton from "@/components/ui/AppButton";
 import Colors from "@/constants/Colors";
 import { MOCK_PRODUCTS } from '@/constants/products';
+import { Ionicons } from "@expo/vector-icons";
+import { FlashList } from "@shopify/flash-list";
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import React, { useState } from 'react';
+import { Dimensions, Image, Modal, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
+import ImageZoom from 'react-native-image-pan-zoom';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width, height } = Dimensions.get('window');
 
@@ -23,7 +23,7 @@ export default function ProductDetailsScreen() {
 
     const product = MOCK_PRODUCTS.find(p => p.id === id) || MOCK_PRODUCTS[0];
 
-    const bgColor = useThemeColor({ light: '#F8F8F8', dark: '#000000' }, 'background');
+    const bgColor = useThemeColor({ light: '#FFFFFF', dark: '#000000' }, 'background');
     const cardBg = useThemeColor({ light: '#FFFFFF', dark: '#1C1C1E' }, 'background');
     const textColor = useThemeColor({}, 'text');
     const iconBtnBg = useThemeColor({ light: 'rgba(255,255,255,0.9)', dark: 'rgba(44,44,46,0.8)' }, 'background');
@@ -33,7 +33,7 @@ export default function ProductDetailsScreen() {
 
     return (
         <View style={[styles.container, { backgroundColor: bgColor }]}>
-            <ScrollView bounces={false} showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent} style={{ backgroundColor: bgColor }} >
+            <ScrollView bounces={true} showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent} style={{ backgroundColor: bgColor }} >
 
                 <View style={styles.imageSection}>
 
@@ -44,8 +44,8 @@ export default function ProductDetailsScreen() {
                         keyExtractor={(_, i) => i.toString()}
                         estimatedItemSize={width}
                         style={{ width, height: width * 1.1 }}
-                        onMomentumScrollEnd={(e) =>{
-                            const index = Math.round(e.nativeEvent.contentOffset.x/width);
+                        onMomentumScrollEnd={(e) => {
+                            const index = Math.round(e.nativeEvent.contentOffset.x / width);
                             setCurrentIndex(index);
                         }}
                         data={product.images}
@@ -138,7 +138,7 @@ export default function ProductDetailsScreen() {
 
             <View style={[styles.bottomBar, { backgroundColor: cardBg, paddingBottom: insets.bottom + 10 }]}>
                 <View style={{ flex: 1, backgroundColor: 'transparent' }}>
-                    <AppButton title="Buy Now" onPress={() => {}} style={{marginTop: 0}}/>
+                    <AppButton title="Buy Now" onPress={() => { }} style={{ marginTop: 0 }} />
                 </View>
                 <TouchableOpacity style={[styles.addToCartBtn, { backgroundColor: iconBtnBg }]}>
                     <Ionicons name="bag-outline" size={24} color={textColor} />
@@ -164,7 +164,7 @@ export default function ProductDetailsScreen() {
                         >
                             <Image
                                 style={{ width: width, height: width * 1.1 }}
-                                source={{ uri: product.image }}
+                                source={{ uri: product.images[currentIndex] }}
                                 resizeMode="contain"
                             />
                         </ImageZoom>
@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
         flex: 1
     },
     scrollContent: {
-        paddingBottom: 120
+        paddingBottom: 0
     },
     imageSection: {
         height: width * 1.1,
@@ -208,10 +208,11 @@ const styles = StyleSheet.create({
     },
     detailsSection: {
         padding: 24,
+        paddingBottom: 140,
         marginTop: -30,
         borderTopLeftRadius: 32,
         borderTopRightRadius: 32,
-        minHeight: height * 0.5,
+        minHeight: height * 0.6,
     },
     titleRow: {
         flexDirection: 'row',
