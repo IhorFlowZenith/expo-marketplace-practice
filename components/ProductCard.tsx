@@ -3,6 +3,7 @@ import { Image, StyleSheet, TouchableOpacity, Dimensions, ViewStyle } from 'reac
 import { Ionicons } from '@expo/vector-icons';
 import { Text, View, useThemeColor } from '@/components/Themed';
 import Colors from '@/constants/Colors';
+import { useRouter } from 'expo-router';
 
 const { width } = Dimensions.get('window');
 
@@ -25,6 +26,15 @@ export default function ProductCard({item, numColumns}: Props) {
     const iconBg = useThemeColor({ light: 'rgba(0,0,0,0.05)', dark: 'rgba(255,255,255,0.1)' }, 'text');
     const heartColor = useThemeColor({ light: '#1A1A1A', dark: '#FFFFFF' }, 'text');
 
+    const router = useRouter();
+
+    const handlePress = () => {
+        router.push({
+            pathname: "/product-details/[id]",
+            params: { id: item.id } // Передаємо ID товару
+        });
+    };
+
     return (
         <View style={[styles.card, {backgroundColor: cardBg}, isGrid ? styles.gridCard : styles.sliderCard ]}>
             <View style={styles.imageContainer}>
@@ -41,7 +51,7 @@ export default function ProductCard({item, numColumns}: Props) {
                     <Text style={styles.title} numberOfLines={1}>{item.name}</Text>
                     <Text style={styles.price} >{item.price}</Text>
                 </View>
-                <TouchableOpacity activeOpacity={0.7}>
+                <TouchableOpacity activeOpacity={0.7} onPress={handlePress}>
                     <Ionicons name="add-circle" size={34} color={Colors.palette.primary}/>
                 </TouchableOpacity>
             </View>

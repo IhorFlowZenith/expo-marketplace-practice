@@ -1,200 +1,263 @@
 # 👟 Expo Marketplace Practice
 
-Комплексний мобільний маркетплейс на **Expo SDK 54**, з фокусом на архітектуру, UI/UX та типізовану валідацію.
+Мобільний маркетплейс на **Expo SDK 54**. Практичний проєкт для освоєння архітектури, UI/UX та типізованої валідації в React Native.
+
+**Stack:** Expo SDK 54 · Expo Router · Firebase v12 · React Hook Form · Zod · Reanimated · TypeScript
 
 ---
 
-## 📌 Зміст
-* [🟡 Міні-інформація](#info)
-* [🚀 Tech Stack](#tech-stack)
-* [🗝 Key Features](#features)
-* [📈 Development Progress (Milestones)](#milestones)
-    * [🟢 New ](#home-screen-sliders)
-    * [🔴 Auth Validation & Refactoring](#auth-validation-and-refactoring)
-    * [🔴 Navigation Overhaul & Architecture](#navigation-overhaul-and-architecture)
-    * [🔴 Firebase Auth Integration](#firebase-auth-integration)
-    * [🔴 UI Construction & Components](#ui-construction-and-components)
-    * [🔴 Initial Setup & Theme Fixes](#initial-setup-and-theme-fixes)
-* [🖼 Скріншоти](#screenshots)
-
-<a name="info"></a>
-## 🟡 Міні-інформація
-* 🟢 — Останній коміт.
-* 🔴 — Попередні етапи розробки.
-* 🟠 — Технічні примітки.
-* Автоматична підтримка Dark/Light тем.
+## 📋 Зміст
+- [Ключові фічі](#ключові-фічі)
+- [Журнал змін](#журнал-змін)
+- [Скріншоти](#скріншоти)
 
 ---
 
-<a name="tech-stack"></a>
-## 🚀 Tech Stack
-* **Framework:** Expo SDK 54 / React Native.
-* **Navigation:** Expo Router (File-based).
-* **Backend & Auth:** Firebase v12 (Email, Google Auth).
-* **Form Management:** React Hook Form.
-* **Validation:** Zod.
-* **Animation:** Reanimated.
-* **Language:** TypeScript.
+## Ключові фічі
 
+| Область | Що реалізовано |
+|---------|----------------|
+| 🔐 Auth | Email/Password + Google via Firebase. Auth Guard на рівні роутера. Persistent sessions через AsyncStorage |
+| 🛡 Валідація | Zod-схеми + React Hook Form. Real-time підсвітка помилок у полях |
+| 🎨 Теми | Автоматична Dark/Light тема через системний колірний режим |
+| 🗺 Навігація | File-based routing (Expo Router). Групи: `(auth)`, `(tabs)`, `(settings)`, `(support)`, `(profile-extra)` |
 
 ---
 
-<a name="features"></a>
-## 🗝 Key Features
+## Журнал змін
 
-### 🔐 Authentication
-* **Firebase Auth:** Email/Password авторизація + Google + Telegram(В майбутньому).
-* **Auth Guard:** Протекція маршрутів на основі стейту авторизації.
-* **Persistent sessions:** Збереження сесій через AsyncStorage.
-
-### 🛡 Validation
-* **Zod Schemas:** Клієнтська валідація на рівні схем.
-* **Real-time UI:** Візуальна індикація помилок в реальному часі.
-
-### 🎨 UI & Theming
-* **Themes:** Динамічна зміна кольорів (Dark/Light mode).
+> 🟢 — Останній коміт · 🔴 — Попередні етапи · Читається зверху вниз (нове → старе)
 
 ---
 
-<a name="milestones"></a>
-## 📈 Development Progress (Milestones)
+### 🟢 [21.04.2026] Home Screen · Product Details · Image Gallery
 
-<a name="home-screen-layout"></a>
-### 🟢 [21.04.2026] Home Screen Layout & Optimization
-**Опис фічі**
-Реалізовано структуру головного екрана з використанням високопродуктивних списків. Проведено рефакторинг слайдерів та закладено дорожню карту для системи динамічних банерів.
+**Що зроблено:** Головний екран із горизонтальними слайдерами + повноцінний екран деталей товару (галерея, зум, вибір розміру, bottom bar).
 
-**Детальна документація по імплементації:**
-1.  **Оптимізація рендерингу (FlashList)**:
-    * Виконано перехід з `react-native-reanimated-carousel` на `@shopify/flash-list`.
-    * **Причина**: Карусель спричиняла значні дьоргання інтерфейсу.
-2.  **Поточний стан слайдерів**:
-    * Реалізовано горизонтальну прокрутку для секцій **Featured** та **Most Popular**.
-    * **Обмеження**: На даний момент останній товар у слайдері не обрізаний рамкою смартфона (Добавлю пізніше 😔).
-3.  **Система Промо-банерів**:
-    * **Поточний стан**: Інтегровано статичний банер згідно з макетом.
-    * **План автоматизації**: У майбутньому банер буде переведено на динамічне управління через БД. Заплановано розробку **4-х варіантів дизайну**.
-4.  **UI Структура**:
-    * Впроваджено `SectionHeader` для консистентних заголовків.
-    * Дані фільтруються за категоріями та обмежені (`.slice(0, 5)`).
+---
 
-**Зміни у файлах**
-* 🆕 `app/(tabs)/index.tsx` (головна сторінка, інтеграція FlashList).
-* 🔄 `components/ProductCard.tsx` (адаптація під горизонтальні списки).
-* 🔄 `package.json` (додано залежність `@shopify/flash-list`).
+#### Рішення та обґрунтування
 
-<a name="auth-validation-and-refactoring"></a>
+**🔄 FlashList замість Carousel**
+- **Проблема:** `react-native-reanimated-carousel` спричиняв дьоргання інтерфейсу при скролі.
+- **Рішення:** `@shopify/flash-list` — рендерить тільки видимі елементи, не конфліктує з жестами вкладених `ScrollView`.
+- **Компроміс:** Останній елемент слайдера поки не обрізається краєм екрана — виправлю окремо.
+
+**🖼 Галерея на екрані деталей**
+- `FlashList` з `pagingEnabled` → посторінковий горизонтальний свайп між фото.
+- Dots-індикатор: активна крапка розширюється до `width: 18` (стандартний патерн).
+- Поточний індекс відстежується через `onMomentumScrollEnd`.
+- **Чому FlashList, а не FlatList?** Відсутність конфліктів жестів при вкладенні в зовнішній `ScrollView`.
+
+**🔍 Зум зображення**
+- Тап на фото → `Modal` з `react-native-image-pan-zoom` (pinch / pan / double-tap).
+
+**🔢 OptionSelector (вибір розміру)**
+- Винесено в окремий компонент для подальшого повторного використання.
+- Недоступні розміри: `opacity: 0.3` + діагональна лінія поверх елемента.
+
+**📦 Зміна інтерфейсу `ProductItem`**
+```ts
+// Було
+image: string
+
+// Стало — зворотна сумісність збережена
+image: string     // картки на головному екрані (без змін)
+images: string[]  // галерея на екрані деталей (нове поле)
+```
+
+---
+
+#### Змінені файли
+
+| # | Файл | Зміна |
+|---|------|-------|
+| 🆕 | `app/(tabs)/index.tsx` | Головна сторінка, FlashList слайдери |
+| 🆕 | `app/(tabs)/product-details/[id].tsx` | Екран деталей товару |
+| 🔄 | `components/ProductCard.tsx` | Адаптація під горизонтальні списки |
+| 🔄 | `constants/products.ts` | Поле `images: string[]` в інтерфейсі та моках |
+| 🔄 | `package.json` | + `@shopify/flash-list`, + `react-native-image-pan-zoom` |
+
+#### Заплановано
+- [ ] Обрізка останнього елемента слайдера краєм екрана
+- [ ] Промо-банери: перехід на динамічне управління з БД (4 варіанти дизайну)
+
+---
+
 ### 🔴 [20.04.2026] Auth Validation & Refactoring
-**Опис фічі**
-Реалізовано клієнтську архітектуру валідації для авторизаційного флоу. Використано зв'язку **React Hook Form** та **Zod** для забезпечення Type-Safety та уникнення зайвих рендерів.
 
-**Детальна документація по імплементації:**
-1.  **Zod Schemas (`schemas/authSchema.ts`)**: 
-    *   Створено централізовані схеми для перевірки даних: загальний `emailRule`, `passwordRule` (мінімум 6 символів), та підримка обов'язкової наявності цифр у `registerSchema`.
-    *   Ці схеми безпосередньо генерують TypeScript типи (через `z.infer`), що дозволяє гарантувати консистентність даних по проєкту.
-2.  **React Hook Form Integration**: 
-    *   Форми екранів (`login.tsx`, `register.tsx`, `forgot-password.tsx`) керуються хуком `useForm` із використанням `@hookform/resolvers/zod`.
-    *   Для підключення UI використана компонента `<Controller />`. 
-3.  **UI Feedback (`components/ui/AppInput.tsx`)**: 
-    *   Кастомний компонент вводу було розширено пропом `error` (опціональний String).
-    *   При непроходженні валідації Zod, повідомлення миттєво підхоплюється UI-компонентом, що дозволяє динамічно підсвітити поле (червоний border) та вивести підказку користувачу.
-
-**Зміни у файлах**
-*   🆕 `schemas/authSchema.ts` (нова валідація).
-*   🆕 `app/(tabs)/favorites.tsx` (екран обраного).
-*   🆕 `hooks/useGoogleAuth.ts` (заглушка/хук для Google Auth).
-*   🔄 `app/(auth)/login.tsx`, `app/(auth)/register.tsx`, `app/(auth)/forgot-password.tsx` (рефакторинг форм).
-*   🔄 `components/ui/AppInput.tsx` (візуалізація помилок валідації).
-*   🔄 `README.md` (нова структура документації).
-
-<a name="navigation-overhaul-and-architecture"></a>
-### 🔴 [19.04.2026] Navigation Overhaul & Architecture
-**Опис**
-Реструктуризація роутингу на базі Expo Router Groups та впровадження Auth Guard.
-
-**Технічні деталі**
-*   **Routing:** Групування `(auth)`, `(tabs)`, `(settings)`, `(support)`, `(profile-extra)`.
-*   **Auth Middleware:** Логіка редиректів в роуті залежно від стану користувача.
-*   **Colors:** Рефакторинг Colors.ts під універсальну палітру.
-
-**Зміни у файлах**
-*   🔄 `app/_layout.tsx` (Redirect logic & Auth Guard).
-*   🔄 `constants/Colors.ts` (Design system upgrade).
-*   🆕 `components/SettingsItem.tsx` (універсальний компонент списку для налаштувань).
-*   🆕 `app/(tabs)/_layout.tsx`, `app/(tabs)/index.tsx` (налаштування нижнього Tab-меню).
-*   🆕 `app/(auth)/_layout.tsx`, `app/(settings)/_layout.tsx`, `app/(support)/_layout.tsx`, `app/(profile-extra)/_layout.tsx` (групування роутів навколо стеків).
-*   🆕 **Екрани (з повноцінним UI, але без логіки):** `app/(settings)/settings.tsx`, `notifications.tsx`, `language.tsx`, `privacy.tsx`, `about-us.tsx`, `app/(support)/help-center.tsx`.
-*   🆕 **Екрани-заглушки (пустишки/placeholders):** `app/(tabs)/search.tsx`, `cart.tsx`, `orders.tsx`, `categories.tsx`, `app/(support)/contact.tsx`, `help.tsx`, `share.tsx`, `app/(profile-extra)/profile-details.tsx`.
-
-<a name="firebase-auth-integration"></a>
-### 🔴 [17.04.2026] Firebase Auth Integration
-**Опис**
-Підключення Firebase SDK та реалізація глобального стейту авторизації.
-
-**Технічні деталі**
-*   **State:** Впровадження AuthContext.
-*   **Persistence:** Налаштування getReactNativePersistence через AsyncStorage.
-*   **Config:** Ініціалізація Firebase у constants/firebase.ts.
-
-**Зміни у файлах**
-*   🆕 `context/AuthContext.tsx`
-*   🆕 `constants/firebase.ts`
-*   🆕 `components/ui/GoogleButton.tsx` (UI компонента для входу).
-*   🔄 `app/(tabs)/profile.tsx` (відображення даних користувача та Sign Out).
-*   ❌ `app/(auth)/reset-password.tsx`, `app/(auth)/verify-code.tsx` (видалено для заміни флоу).
-
-<a name="ui-construction-and-components"></a>
-### 🔴 [16.04.2026] UI Construction & Components
-**Опис**
-Розробка базової бібліотеки UI-компонентів та конфігурація збірки.
-
-**Технічні деталі**
-*   **Components:** Створення AppButton та BackButton з кастомними стилями.
-*   **EAS:** Початкова конфігурація eas.json для Android/iOS збірок.
-
-**Зміни у файлах**
-*   🆕 `components/ui/AppButton.tsx`, `components/ui/BackButton.tsx` (базові компоненти).
-*   🆕 `components/ui/AppInput.tsx` (перша версія поля вводу).
-*   🆕 `app/(auth)/forgot-password.tsx`, `app/(auth)/success.tsx` (базовий UI екранів).
-*   🆕 `eas.json` (EAS setup).
-
-<a name="initial-setup-and-theme-fixes"></a>
-### 🔴 [15.04.2026] Initial Setup & Theme Fixes
-**Опис**
-Ініціалізація проєкту, видалення зайвого шаблону та виправлення рендерингу тем.
-
-**Технічні деталі**
-*   **Fix:** Усунення білих блоків під текстом у світлій темі.
-*   **Cleaning:** Видалення дефолтних файлів з tabs@54 шаблону.
-*   **Routing:** Налаштування базового Stack роутера.
-
-**Зміни у файлах**
-*   🆕 `app.json`, `package.json`, `tsconfig.json`, `.gitignore`, `expo-env.d.ts` (ініціалізація конфігів).
-*   🆕 `app/+html.tsx`, `app/+not-found.tsx` (базові системні екрани).
-*   🆕 `app/(auth)/login.tsx`, `app/(auth)/register.tsx` (базовий UI).
-*   🆕 `assets/fonts/SpaceMono-Regular.ttf`
-*   🆕 `assets/images/favicon.png`, `icon.png`, `splash-icon.png`, `adaptive-icon.png`
-*   🔄 `components/Themed.tsx`, `components/StyledText.tsx`, `components/useColorScheme.ts` (фікс тем).
-*   ❌ `components/EditScreenInfo.tsx`, `hooks/useClientOnlyValue.ts`, `hooks/useClientOnlyValue.web.ts`, `components/useColorScheme.web.ts` (видалено дефолтний шаблон).
+**Що зроблено:** Клієнтська валідація авторизаційного флоу через зв'язку React Hook Form + Zod.
 
 ---
 
-<a name="screenshots"></a>
-## 🖼 Скріншоти
+#### Рішення та обґрунтування
 
-### 🔐 Authentication Flow
+**🛡 Zod замість ручної валідації**
+- **Чому Zod?** Схеми автоматично генерують TypeScript-типи через `z.infer` — один source of truth для валідації і типізації одночасно.
+- Централізовані правила: `emailRule`, `passwordRule` (мін. 6 символів + обов'язкова цифра в `registerSchema`).
+
+**📋 React Hook Form + Controller**
+- `useForm` з `@hookform/resolvers/zod` → Zod-схема напряму підключається як resolver.
+- `<Controller />` зв'язує UI-компоненти з формою без зайвих ре-рендерів (на відміну від `useState` на кожне поле).
+
+**🔴 Real-time feedback в `AppInput`**
+- Доданий проп `error?: string`.
+- При помилці валідації: червоний border + текст підказки з'являються миттєво, без сабміту форми.
+
+---
+
+#### Змінені файли
+
+| # | Файл | Зміна |
+|---|------|-------|
+| 🆕 | `schemas/authSchema.ts` | Zod-схеми для login / register / forgot-password |
+| 🆕 | `app/(tabs)/favorites.tsx` | Екран обраного |
+| 🆕 | `hooks/useGoogleAuth.ts` | Заглушка-хук для Google Auth |
+| 🔄 | `app/(auth)/login.tsx` | Рефакторинг форми під RHF + Zod |
+| 🔄 | `app/(auth)/register.tsx` | Рефакторинг форми під RHF + Zod |
+| 🔄 | `app/(auth)/forgot-password.tsx` | Рефакторинг форми під RHF + Zod |
+| 🔄 | `components/ui/AppInput.tsx` | Prop `error`, візуалізація помилок |
+
+---
+
+### 🔴 [19.04.2026] Navigation Overhaul & Architecture
+
+**Що зроблено:** Реструктуризація роутингу на Expo Router Groups + Auth Guard.
+
+---
+
+#### Рішення та обґрунтування
+
+**🗺 File-based групи замість ручного Stack**
+- Групи `(auth)`, `(tabs)`, `(settings)`, `(support)`, `(profile-extra)` — кожна має свій `_layout.tsx`.
+- Це дає ізольовані стеки навігації без prop drilling і без конфліктів між екранами.
+
+**🔒 Auth Guard в `_layout.tsx`**
+- Редирект з кореневого `_layout.tsx` залежно від стану `AuthContext`.
+- Неавторизований користувач фізично не може потрапити в `(tabs)` — редирект відбувається до рендеру.
+
+**🎨 Рефакторинг `Colors.ts`**
+- Перехід до єдиної палітри замість розрізнених значень — основа для консистентної теми по всьому проєкту.
+
+---
+
+#### Змінені файли
+
+| # | Файл | Зміна |
+|---|------|-------|
+| 🔄 | `app/_layout.tsx` | Redirect logic, Auth Guard |
+| 🔄 | `constants/Colors.ts` | Design system палітра |
+| 🆕 | `components/SettingsItem.tsx` | Універсальний компонент рядка налаштувань |
+| 🆕 | `app/(tabs)/_layout.tsx` | Bottom Tab навігація |
+| 🆕 | `app/(auth)/_layout.tsx` | Auth stack |
+| 🆕 | `app/(settings)/_layout.tsx` | Settings stack |
+| 🆕 | `app/(support)/_layout.tsx` | Support stack |
+| 🆕 | `app/(profile-extra)/_layout.tsx` | Profile extra stack |
+| 🆕 | `app/(settings)/settings.tsx` | Повноцінний UI, без логіки |
+| 🆕 | `app/(settings)/notifications.tsx` | Повноцінний UI, без логіки |
+| 🆕 | `app/(settings)/language.tsx` | Повноцінний UI, без логіки |
+| 🆕 | `app/(settings)/privacy.tsx` | Повноцінний UI, без логіки |
+| 🆕 | `app/(settings)/about-us.tsx` | Повноцінний UI, без логіки |
+| 🆕 | `app/(support)/help-center.tsx` | Повноцінний UI, без логіки |
+| 🆕 | `app/(tabs)/search.tsx` | Placeholder |
+| 🆕 | `app/(tabs)/cart.tsx` | Placeholder |
+| 🆕 | `app/(tabs)/orders.tsx` | Placeholder |
+| 🆕 | `app/(tabs)/categories.tsx` | Placeholder |
+| 🆕 | `app/(support)/contact.tsx` | Placeholder |
+| 🆕 | `app/(profile-extra)/profile-details.tsx` | Placeholder |
+
+---
+
+### 🔴 [17.04.2026] Firebase Auth Integration
+
+**Що зроблено:** Підключення Firebase SDK + глобальний стейт авторизації.
+
+---
+
+#### Рішення та обґрунтування
+
+**🔥 Firebase + AsyncStorage Persistence**
+- `getReactNativePersistence(AsyncStorage)` → сесія зберігається після перезапуску додатку.
+- Ініціалізація винесена в `constants/firebase.ts` — один інстанс на весь проєкт.
+
+**🌐 AuthContext**
+- Глобальний контекст замість передачі стану пропами.
+- Підписка на `onAuthStateChanged` → UI реагує на зміну авторизації автоматично.
+
+---
+
+#### Змінені файли
+
+| # | Файл | Зміна |
+|---|------|-------|
+| 🆕 | `context/AuthContext.tsx` | Глобальний стейт авторизації |
+| 🆕 | `constants/firebase.ts` | Ініціалізація Firebase |
+| 🆕 | `components/ui/GoogleButton.tsx` | UI кнопка Google Sign-In |
+| 🔄 | `app/(tabs)/profile.tsx` | Відображення даних юзера + Sign Out |
+| ❌ | `app/(auth)/reset-password.tsx` | Видалено — замінено на новий флоу |
+| ❌ | `app/(auth)/verify-code.tsx` | Видалено — замінено на новий флоу |
+
+---
+
+### 🔴 [16.04.2026] UI Construction & Components
+
+**Що зроблено:** Базова бібліотека UI-компонентів + конфігурація EAS збірок.
+
+---
+
+#### Змінені файли
+
+| # | Файл | Зміна |
+|---|------|-------|
+| 🆕 | `components/ui/AppButton.tsx` | Базова кнопка з кастомними стилями |
+| 🆕 | `components/ui/BackButton.tsx` | Кнопка назад |
+| 🆕 | `components/ui/AppInput.tsx` | Перша версія поля вводу |
+| 🆕 | `app/(auth)/forgot-password.tsx` | Базовий UI |
+| 🆕 | `app/(auth)/success.tsx` | Базовий UI |
+| 🆕 | `eas.json` | EAS конфігурація для Android/iOS |
+
+---
+
+### 🔴 [15.04.2026] Initial Setup & Theme Fixes
+
+**Що зроблено:** Ініціалізація проєкту, чистка дефолтного шаблону, виправлення рендерингу тем.
+
+---
+
+#### Рішення та обґрунтування
+
+**🎨 Фікс білих блоків під текстом (Light тема)**
+- Дефолтний шаблон `tabs@54` мав hardcoded кольори в кількох компонентах — замінено на `useColorScheme`-залежні значення.
+
+---
+
+#### Змінені файли
+
+| # | Файл | Зміна |
+|---|------|-------|
+| 🆕 | `app.json`, `package.json`, `tsconfig.json` | Конфіги проєкту |
+| 🆕 | `app/+html.tsx`, `app/+not-found.tsx` | Системні екрани |
+| 🆕 | `app/(auth)/login.tsx`, `register.tsx` | Базовий UI |
+| 🆕 | `assets/fonts/SpaceMono-Regular.ttf` | Шрифт |
+| 🔄 | `components/Themed.tsx` | Фікс тем |
+| 🔄 | `components/StyledText.tsx` | Фікс тем |
+| 🔄 | `components/useColorScheme.ts` | Фікс тем |
+| ❌ | `components/EditScreenInfo.tsx` | Видалено дефолтний шаблон |
+| ❌ | `hooks/useClientOnlyValue.ts` | Видалено дефолтний шаблон |
+| ❌ | `hooks/useClientOnlyValue.web.ts` | Видалено дефолтний шаблон |
+| ❌ | `components/useColorScheme.web.ts` | Видалено дефолтний шаблон |
+
+---
+
+## Скріншоти
+
+### 🔐 Auth Flow
 <table>
-    <tr> 
-        <td align="center"><b>Login Dark</b></td> 
-        <td align="center"><b>Login Light</b></td> 
-        <td align="center"><b>Register Dark</b></td> 
-        <td align="center"><b>Register Light</b></td> 
-    </tr> 
-    <tr> 
-        <td><img src="https://github.com/IhorFlowZenith/expo-marketplace-practice/blob/main/assets/screenshots/login-dark.png" width="200"/></td>
-        <td><img src="https://github.com/IhorFlowZenith/expo-marketplace-practice/blob/main/assets/screenshots/login-light.png" width="200"/></td>
-        <td><img src="https://github.com/IhorFlowZenith/expo-marketplace-practice/blob/main/assets/screenshots/register-dark.png" width="200"/></td>
-        <td><img src="https://github.com/IhorFlowZenith/expo-marketplace-practice/blob/main/assets/screenshots/register-light.png" width="200"/></td>
+    <tr>
+        <td align="center"><b>Login Dark</b></td>
+        <td align="center"><b>Login Light</b></td>
+        <td align="center"><b>Register Dark</b></td>
+        <td align="center"><b>Register Light</b></td>
     </tr>
     <tr>
         <td><img src="./assets/screenshots/LoginScreen-dark.jpg" width="200"/></td>
@@ -218,13 +281,13 @@
 
 ### 👤 Profile & Details
 <table>
-    <tr> 
-        <td align="center"><b>Profile Dark</b></td> 
-        <td align="center"><b>Profile Light</b></td> 
-        <td align="center"><b>Profile Details Dark</b></td> 
-        <td align="center"><b>Profile Details Light</b></td> 
-    </tr> 
-    <tr> 
+    <tr>
+        <td align="center"><b>Profile Dark</b></td>
+        <td align="center"><b>Profile Light</b></td>
+        <td align="center"><b>Profile Details Dark</b></td>
+        <td align="center"><b>Profile Details Light</b></td>
+    </tr>
+    <tr>
         <td><img src="./assets/screenshots/ProfileScreen-dark.jpg" width="200"/></td>
         <td><img src="./assets/screenshots/ProfileScreen-light.jpg" width="200"/></td>
         <td><img src="./assets/screenshots/ProfileDetailsScreen-dark.jpg" width="200"/></td>
@@ -234,19 +297,16 @@
 
 ### ⚙️ Settings & Support
 <table>
-    <tr> 
-        <td align="center"><b>Settings Dark</b></td> 
-        <td align="center"><b>Settings Light</b></td> 
-        <td align="center"><b>Notifications Dark</b></td> 
-        <td align="center"><b>Notifications Light</b></td> 
-    </tr> 
-    <tr> 
+    <tr>
+        <td align="center"><b>Settings Dark</b></td>
+        <td align="center"><b>Settings Light</b></td>
+        <td align="center"><b>Notifications Dark</b></td>
+        <td align="center"><b>Notifications Light</b></td>
+    </tr>
+    <tr>
         <td><img src="./assets/screenshots/SettingsScreen-dark.jpg" width="200"/></td>
         <td><img src="./assets/screenshots/SettingsScreen-light.jpg" width="200"/></td>
         <td><img src="./assets/screenshots/NotificationsScreen-dark.jpg" width="200"/></td>
         <td><img src="./assets/screenshots/NotificationsScreen-light.jpg" width="200"/></td>
     </tr>
 </table>
-
----
-*Практика розробки мобільних застосунків.*
