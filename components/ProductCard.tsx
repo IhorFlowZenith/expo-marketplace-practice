@@ -1,9 +1,9 @@
-import React from 'react';
-import { Image, StyleSheet, TouchableOpacity, Dimensions, ViewStyle } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { Text, View, useThemeColor } from '@/components/Themed';
 import Colors from '@/constants/Colors';
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import React from 'react';
+import { Dimensions, Image, StyleSheet, TouchableOpacity } from 'react-native';
 
 const { width } = Dimensions.get('window');
 
@@ -19,7 +19,7 @@ interface Props {
     numColumns?: number;
 }
 
-export default function ProductCard({item, numColumns}: Props) {
+export default function ProductCard({ item, numColumns }: Props) {
     const isGrid = numColumns === 2;
 
     const cardBg = useThemeColor({ light: '#F5F5F7', dark: '#1C1C1E' }, 'background');
@@ -31,17 +31,17 @@ export default function ProductCard({item, numColumns}: Props) {
     const handlePress = () => {
         router.push({
             pathname: "/product-details/[id]",
-            params: { id: item.id } // Передаємо ID товару
+            params: { id: item.id }
         });
     };
 
     return (
-        <View style={[styles.card, {backgroundColor: cardBg}, isGrid ? styles.gridCard : styles.sliderCard ]}>
+        <View style={[styles.card, { backgroundColor: cardBg }, isGrid ? styles.gridCard : styles.sliderCard]}>
             <View style={styles.imageContainer}>
                 <Image style={styles.image}
-                       source={{uri: item.image}}
-                       resizeMode='cover' />
-                <TouchableOpacity style={[styles.heartButton, {backgroundColor: iconBg}]} activeOpacity={0.7}>
+                    source={{ uri: item.image }}
+                    resizeMode='cover' />
+                <TouchableOpacity style={[styles.heartButton, { backgroundColor: iconBg }]} activeOpacity={0.7}>
                     <Ionicons name="heart-outline" size={20} color={heartColor} />
                 </TouchableOpacity>
             </View>
@@ -52,7 +52,7 @@ export default function ProductCard({item, numColumns}: Props) {
                     <Text style={styles.price} >{item.price}</Text>
                 </View>
                 <TouchableOpacity activeOpacity={0.7} onPress={handlePress}>
-                    <Ionicons name="add-circle" size={34} color={Colors.palette.primary}/>
+                    <Ionicons name="add-circle" size={34} color={Colors.palette.primary} />
                 </TouchableOpacity>
             </View>
         </View>
@@ -66,12 +66,10 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
     },
     gridCard: {
-        width: '48%',
-        marginHorizontal: '1%',
+        flex: 1,
     },
     sliderCard: {
         width: "100%",
-        marginRight: 16,
     },
     imageContainer: {
         width: '100%',

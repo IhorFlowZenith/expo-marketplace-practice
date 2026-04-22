@@ -1,28 +1,28 @@
-import React from 'react';
-import { StyleSheet, ScrollView, View as DefaultView } from 'react-native';
 import { Text, View } from '@/components/Themed';
-import { Ionicons } from '@expo/vector-icons';
 import Colors from '@/constants/Colors';
+import { Ionicons } from '@expo/vector-icons';
+import React from 'react';
+import { View as DefaultView, ScrollView, StyleSheet } from 'react-native';
 
 export default function FavoritesScreen() {
   return (
-      <View style={styles.container}>
-        <ScrollView contentContainerStyle={styles.content}>
+    <View style={styles.container}>
+      <ScrollView contentContainerStyle={styles.content}>
 
-          <DefaultView style={styles.headerSection}>
-            <Text style={styles.headerTitle}>Screen Name</Text>
-          </DefaultView>
+        <DefaultView style={styles.headerSection}>
+          <Text style={styles.headerTitle}>Screen Name</Text>
+        </DefaultView>
 
-          <DefaultView style={styles.infoBox}>
-            <Ionicons name="construct-outline" size={60} color={Colors.palette.primary} style={{ marginBottom: 20 }} />
-            <Text style={styles.message}>This section is under development</Text>
-            <Text style={styles.subMessage}>
-              We are working hard to bring you new features. Stay tuned!
-            </Text>
-          </DefaultView>
+        <DefaultView style={styles.infoBox}>
+          <Ionicons name="construct-outline" size={60} color={Colors.palette.primary} style={{ marginBottom: 20 }} />
+          <Text style={styles.message}>This section is under development</Text>
+          <Text style={styles.subMessage}>
+            We are working hard to bring you new features. Stay tuned!
+          </Text>
+        </DefaultView>
 
-        </ScrollView>
-      </View>
+      </ScrollView>
+    </View>
   );
 }
 

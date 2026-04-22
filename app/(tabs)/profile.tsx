@@ -1,12 +1,12 @@
-import React from 'react';
-import { StyleSheet, ScrollView, TouchableOpacity, Image, View as DefaultView } from 'react-native';
-import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import React from 'react';
+import { View as DefaultView, Image, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 
-import { Text, View, useThemeColor } from '@/components/Themed';
-import { useAuth } from '@/context/AuthContext';
 import SettingsItem from '@/components/SettingsItem';
+import { Text, View, useThemeColor } from '@/components/Themed';
 import Colors from '@/constants/Colors';
+import { useAuth } from '@/context/AuthContext';
 
 export default function ProfileScreen() {
     const router = useRouter();

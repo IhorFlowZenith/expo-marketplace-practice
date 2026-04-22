@@ -7,13 +7,13 @@ import Colors from '@/constants/Colors';
 import { useGoogleAuth } from '@/hooks/useGoogleAuth';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { View as DefaultView, KeyboardAvoidingView, ScrollView, StyleSheet, Pressable } from 'react-native';
+import { View as DefaultView, KeyboardAvoidingView, Pressable, ScrollView, StyleSheet } from 'react-native';
 
 import { auth } from '@/constants/firebase';
+import { RegisterFormData, registerSchema } from "@/schemas/authSchema";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
-import {Controller, useForm} from "react-hook-form";
-import {registerSchema, RegisterFormData, LoginFormData} from "@/schemas/authSchema";
-import {zodResolver} from "@hookform/resolvers/zod";
+import { Controller, useForm } from "react-hook-form";
 
 export default function RegisterScreen() {
     // const [name, setName] = useState('');
@@ -28,7 +28,7 @@ export default function RegisterScreen() {
     const clearError = () => setServerError('');
 
 
-    const {control, handleSubmit, formState: {errors}} = useForm<RegisterFormData>({
+    const { control, handleSubmit, formState: { errors } } = useForm<RegisterFormData>({
         resolver: zodResolver(registerSchema),
         defaultValues: {
             fullName: '',
@@ -111,7 +111,7 @@ export default function RegisterScreen() {
                     <Controller
                         control={control}
                         name="email"
-                        render={({field: {onChange, value}}) => (
+                        render={({ field: { onChange, value } }) => (
                             <AppInput
                                 label="Email"
                                 icon="mail-outline"
@@ -131,7 +131,7 @@ export default function RegisterScreen() {
                     <Controller
                         control={control}
                         name="password"
-                        render={({field: {onChange, value}}) => (
+                        render={({ field: { onChange, value } }) => (
                             <AppInput
                                 label="Password"
                                 icon="lock-closed-outline"

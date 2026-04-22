@@ -1,15 +1,16 @@
 import { Text } from "@/components/Themed";
 import Colors from "@/constants/Colors";
-import { Pressable, StyleSheet } from "react-native";
 import React from "react";
+import { Pressable, StyleSheet } from "react-native";
 
 interface AppButtonProps {
     title: string;
     onPress: () => void;
     style?: any;
+    textStyle?: any;
 }
 
-export default function AppButton({ title, onPress, style }: AppButtonProps) {
+export default function AppButton({ title, onPress, style, textStyle }: AppButtonProps) {
     return (
         <Pressable
             style={({ pressed }) => [
@@ -19,7 +20,7 @@ export default function AppButton({ title, onPress, style }: AppButtonProps) {
             ]}
             onPress={onPress}
         >
-            <Text style={styles.buttonText}>{title}</Text>
+            <Text style={[styles.buttonText, textStyle]}>{title}</Text>
         </Pressable>
     );
 }

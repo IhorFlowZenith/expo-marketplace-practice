@@ -12,12 +12,12 @@ import {
     StyleSheet,
 } from 'react-native';
 
-import {ForgotPasswordFormData, forgotPasswordSchema} from '@/schemas/authSchema';
+import { ForgotPasswordFormData, forgotPasswordSchema } from '@/schemas/authSchema';
 
 import { auth } from '@/constants/firebase';
+import { zodResolver } from "@hookform/resolvers/zod";
 import { sendPasswordResetEmail } from 'firebase/auth';
-import {Controller, useForm} from "react-hook-form";
-import {zodResolver} from "@hookform/resolvers/zod";
+import { Controller, useForm } from "react-hook-form";
 
 
 export default function ForgotPasswordScreen() {
@@ -26,7 +26,7 @@ export default function ForgotPasswordScreen() {
     const [serverError, setServerError] = useState('');
     const [notFound, setNotFound] = useState(false);
 
-    const {control, handleSubmit, formState: {errors}} = useForm<ForgotPasswordFormData>({
+    const { control, handleSubmit, formState: { errors } } = useForm<ForgotPasswordFormData>({
         resolver: zodResolver(forgotPasswordSchema),
         defaultValues: {
             email: '',
@@ -78,7 +78,7 @@ export default function ForgotPasswordScreen() {
                     <Controller
                         control={control}
                         name="email"
-                        render={({field: {onChange, value}}) => (
+                        render={({ field: { onChange, value } }) => (
                             <AppInput
                                 label="Email"
                                 icon="mail-outline"

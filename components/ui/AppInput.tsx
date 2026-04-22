@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { StyleSheet, TextInput, TextInputProps, Pressable, View as DefaultView } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { Text, View, useThemeColor } from '@/components/Themed';
 import Colors from '@/constants/Colors';
+import { Ionicons } from '@expo/vector-icons';
+import React, { useState } from 'react';
+import { View as DefaultView, Pressable, StyleSheet, TextInput, TextInputProps } from 'react-native';
 
 interface AppInputProps extends TextInputProps {
     label: string;
@@ -11,7 +11,7 @@ interface AppInputProps extends TextInputProps {
     error?: string;
 }
 
-export default function AppInput({label, icon, isPassword = false, error, ...textInputProps }: AppInputProps) {
+export default function AppInput({ label, icon, isPassword = false, error, ...textInputProps }: AppInputProps) {
     const textColor = useThemeColor({}, 'text');
     const [isSecure, setIsSecure] = useState(isPassword);
 

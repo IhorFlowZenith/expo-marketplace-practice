@@ -1,8 +1,8 @@
-import React from 'react';
-import { StyleSheet, ScrollView, View as DefaultView } from 'react-native';
 import { Text, View } from '@/components/Themed';
-import { Ionicons } from '@expo/vector-icons';
 import Colors from '@/constants/Colors';
+import { Ionicons } from '@expo/vector-icons';
+import React from 'react';
+import { View as DefaultView, ScrollView, StyleSheet } from 'react-native';
 
 export default function OrderScreen() {
     return (

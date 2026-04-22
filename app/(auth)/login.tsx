@@ -1,17 +1,17 @@
-import React, { useState } from 'react';
-import { View as DefaultView, KeyboardAvoidingView, ScrollView, StyleSheet, Pressable } from 'react-native';
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { router } from 'expo-router';
-import { signInWithEmailAndPassword } from 'firebase/auth';
 import { Text, View, useThemeColor } from '@/components/Themed';
 import AppButton from "@/components/ui/AppButton";
 import AppInput from "@/components/ui/AppInput";
 import GoogleButton from "@/components/ui/GoogleButton";
 import Colors from '@/constants/Colors';
-import { useGoogleAuth } from '@/hooks/useGoogleAuth';
 import { auth } from '@/constants/firebase';
-import { loginSchema, LoginFormData } from '@/schemas/authSchema';
+import { useGoogleAuth } from '@/hooks/useGoogleAuth';
+import { LoginFormData, loginSchema } from '@/schemas/authSchema';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { router } from 'expo-router';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import React, { useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import { View as DefaultView, KeyboardAvoidingView, Pressable, ScrollView, StyleSheet } from 'react-native';
 
 export default function LoginScreen() {
     // const [email, setEmail] = useState('');
@@ -20,9 +20,9 @@ export default function LoginScreen() {
     const [serverError, setServerError] = useState('');
     const [notFound, setNotFound] = useState(false);
     const textColor = useThemeColor({}, 'text');
-    const {signInWithGoogle} = useGoogleAuth();
+    const { signInWithGoogle } = useGoogleAuth();
 
-    const {control, handleSubmit, formState: {errors}} = useForm<LoginFormData>({
+    const { control, handleSubmit, formState: { errors } } = useForm<LoginFormData>({
         resolver: zodResolver(loginSchema),
         defaultValues: {
             email: '',
@@ -79,7 +79,7 @@ export default function LoginScreen() {
                     <Controller
                         control={control}
                         name="email"
-                        render={({field: {onChange, value}}) => (
+                        render={({ field: { onChange, value } }) => (
                             <AppInput
                                 label="Email"
                                 icon="mail-outline"
@@ -99,7 +99,7 @@ export default function LoginScreen() {
                     <Controller
                         control={control}
                         name="password"
-                        render={({field: {onChange, value}}) => (
+                        render={({ field: { onChange, value } }) => (
                             <AppInput
                                 label="Password"
                                 icon="lock-closed-outline"
@@ -115,42 +115,42 @@ export default function LoginScreen() {
                         )}
                     />
 
-                        {serverError ? (
-                            <DefaultView style={styles.errorContainer}>
-                                <Text style={styles.errorText}>{serverError}</Text>
-                                {notFound && (
-                                    <Pressable onPress={() => router.push('/register')}>
-                                        <Text style={styles.errorLink}>Create an account →</Text>
-                                    </Pressable>
-                                )}
-                            </DefaultView>
-                        ) : null}
+                    {serverError ? (
+                        <DefaultView style={styles.errorContainer}>
+                            <Text style={styles.errorText}>{serverError}</Text>
+                            {notFound && (
+                                <Pressable onPress={() => router.push('/register')}>
+                                    <Text style={styles.errorLink}>Create an account →</Text>
+                                </Pressable>
+                            )}
+                        </DefaultView>
+                    ) : null}
 
-                        <Pressable onPress={() => router.push('/forgot-password')} style={styles.forgotPassword}>
-                            <Text style={[styles.forgotText, {color: textColor}]}>Forgot Password?</Text>
+                    <Pressable onPress={() => router.push('/forgot-password')} style={styles.forgotPassword}>
+                        <Text style={[styles.forgotText, { color: textColor }]}>Forgot Password?</Text>
+                    </Pressable>
+
+                    <AppButton title="Login" onPress={handleSubmit(onSubmit)} />
+
+                    <DefaultView style={styles.dividerContainer}>
+                        <DefaultView style={[styles.dividerLine, { backgroundColor: textColor, opacity: 0.15 }]} />
+                        <Text style={styles.dividerText}>or</Text>
+                        <DefaultView style={[styles.dividerLine, { backgroundColor: textColor, opacity: 0.15 }]} />
+                    </DefaultView>
+
+                    <GoogleButton onPress={signInWithGoogle} />
+
+                    <DefaultView style={styles.footer}>
+                        <Text style={styles.footerText}>Don't have an account? </Text>
+                        <Pressable onPress={() => router.push('/register')}>
+                            <Text style={styles.signUpText}>Sign Up</Text>
                         </Pressable>
-
-                        <AppButton title="Login" onPress={handleSubmit(onSubmit)} />
-
-                        <DefaultView style={styles.dividerContainer}>
-                            <DefaultView style={[styles.dividerLine, {backgroundColor: textColor, opacity: 0.15}]}/>
-                            <Text style={styles.dividerText}>or</Text>
-                            <DefaultView style={[styles.dividerLine, {backgroundColor: textColor, opacity: 0.15}]}/>
-                        </DefaultView>
-
-                        <GoogleButton onPress={signInWithGoogle}/>
-
-                        <DefaultView style={styles.footer}>
-                            <Text style={styles.footerText}>Don't have an account? </Text>
-                            <Pressable onPress={() => router.push('/register')}>
-                                <Text style={styles.signUpText}>Sign Up</Text>
-                            </Pressable>
-                        </DefaultView>
-                    </ScrollView>
-                </KeyboardAvoidingView>
-            </View>
-        );
-    }
+                    </DefaultView>
+                </ScrollView>
+            </KeyboardAvoidingView>
+        </View>
+    );
+}
 
 const styles = StyleSheet.create({
     container: {

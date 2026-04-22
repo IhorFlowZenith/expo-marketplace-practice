@@ -1,4 +1,6 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import 'react-native-gesture-handler';
+
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack, router, useSegments } from 'expo-router';
@@ -7,9 +9,12 @@ import { useEffect } from 'react';
 import { View } from 'react-native';
 import 'react-native-reanimated';
 
+import '@/components/sheets';
 import { useColorScheme } from '@/components/useColorScheme';
-import { AuthProvider, useAuth } from '@/context/AuthContext';
 import Colors from '@/constants/Colors';
+import { AuthProvider, useAuth } from '@/context/AuthContext';
+import { SheetProvider } from 'react-native-actions-sheet';
+
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -67,22 +72,24 @@ function RootLayoutNav() {
 
     return (
         <ThemeProvider value={colorScheme === 'dark' ? CustomDarkTheme : CustomDefaultTheme}>
-            <View style={{ flex: 1, backgroundColor: bgColor }}>
-                <Stack
-                    screenOptions={{
-                        headerShown: false,
-                        contentStyle: { backgroundColor: bgColor },
-                        animation: 'slide_from_right',
-                    }}
-                >
-                    <Stack.Screen name="(auth)" />
-                    <Stack.Screen name="(tabs)" />
-                    <Stack.Screen name="(settings)" />
-                    <Stack.Screen name="(support)" />
-                    <Stack.Screen name="(profile-extra)" />
-                    <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-                </Stack>
-            </View>
+            <SheetProvider>
+                <View style={{ flex: 1, backgroundColor: bgColor }}>
+                    <Stack
+                        screenOptions={{
+                            headerShown: false,
+                            contentStyle: { backgroundColor: bgColor },
+                            animation: 'slide_from_right',
+                        }}
+                    >
+                        <Stack.Screen name="(auth)" />
+                        <Stack.Screen name="(tabs)" />
+                        <Stack.Screen name="(settings)" />
+                        <Stack.Screen name="(support)" />
+                        <Stack.Screen name="(profile-extra)" />
+                        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+                    </Stack>
+                </View>
+            </SheetProvider>
         </ThemeProvider>
     );
 }

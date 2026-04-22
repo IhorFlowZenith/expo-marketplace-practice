@@ -1,9 +1,9 @@
-import { useEffect } from 'react';
-import { Alert } from 'react-native';
+import { auth } from '@/constants/firebase';
 import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
 import { GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
-import { auth } from '@/constants/firebase';
+import { useEffect } from 'react';
+import { Alert } from 'react-native';
 
 WebBrowser.maybeCompleteAuthSession();
 

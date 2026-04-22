@@ -79,12 +79,12 @@ export default function TabLayout() {
       <Tabs.Screen name="orders" options={{ href: null }} />
       <Tabs.Screen name="categories" options={{ href: null }} />
       <Tabs.Screen name="products" options={{ href: null }} />
-      <Tabs.Screen 
-        name="product-details/[id]" 
-        options={{ 
+      <Tabs.Screen
+        name="product-details/[id]"
+        options={{
           href: null,
           tabBarStyle: { display: 'none' }
-        }} 
+        }}
       />
     </Tabs>
   );

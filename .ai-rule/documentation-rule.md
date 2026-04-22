@@ -1,8 +1,5 @@
 # Documentation Rule — Expo Marketplace Practice
 
-> Універсальне правило для будь-якого AI-асистента (Cursor, Claude, ChatGPT, Copilot тощо).  
-> Зберігай у корені проєкту та передавай у контекст при запиті на документацію або коміт.
-
 ## Context
 This project uses a structured README.md as the primary documentation for a mentor
 who reads it before reviewing code. The mentor has limited time, so every milestone

@@ -1,9 +1,9 @@
-import React from 'react';
-import { StyleSheet, ScrollView, View as DefaultView } from 'react-native';
 import { useRouter } from 'expo-router';
+import React from 'react';
+import { View as DefaultView, ScrollView, StyleSheet } from 'react-native';
 
-import { Text, View, useThemeColor } from '@/components/Themed';
 import SettingsItem from '@/components/SettingsItem';
+import { View, useThemeColor } from '@/components/Themed';
 
 export default function SettingsScreen() {
     const router = useRouter();

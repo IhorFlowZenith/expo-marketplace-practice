@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { StyleSheet, ScrollView, Switch, View as DefaultView } from 'react-native';
 import { Text, View, useThemeColor } from '@/components/Themed';
 import Colors from '@/constants/Colors';
+import React, { useState } from 'react';
+import { View as DefaultView, ScrollView, StyleSheet, Switch } from 'react-native';
 
 function NotificationOption({ title, description, value, onValueChange }: any) {
     const textColor = useThemeColor({}, 'text');

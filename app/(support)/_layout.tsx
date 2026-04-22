@@ -1,6 +1,6 @@
-import { Stack } from 'expo-router';
-import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
+import Colors from '@/constants/Colors';
+import { Stack } from 'expo-router';
 
 export default function SupportLayout() {
     const colorScheme = useColorScheme();

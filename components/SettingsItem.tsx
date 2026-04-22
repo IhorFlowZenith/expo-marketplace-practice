@@ -1,6 +1,6 @@
-import { TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter, Href } from 'expo-router';
+import { Href, useRouter } from 'expo-router';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 
 import { Text, View, useThemeColor } from '@/components/Themed';
 import Colors from '@/constants/Colors';
