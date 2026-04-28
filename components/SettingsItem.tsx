@@ -1,12 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Href, useRouter } from 'expo-router';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet, Pressable } from 'react-native';
 
 import { Text, View, useThemeColor } from '@/components/Themed';
 import Colors from '@/constants/Colors';
 
 interface SettingsItemProps {
-    icon: any;
+    icon: keyof typeof Ionicons.glyphMap;
     title: string;
     route: Href;
     value?: string;
@@ -19,9 +19,9 @@ export default function SettingsItem({ icon, title, route, value }: SettingsItem
     const cardBackground = useThemeColor({ light: Colors.palette.cardLight, dark: Colors.palette.cardDark }, 'background');
 
     return (
-        <TouchableOpacity
+        <Pressable
             onPress={() => router.push(route)}
-            activeOpacity={0.7}
+            style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}
         >
             <View style={[styles.item, { backgroundColor: cardBackground }]}>
                 <View style={styles.leftPart}>
@@ -34,7 +34,7 @@ export default function SettingsItem({ icon, title, route, value }: SettingsItem
                     <Ionicons name="chevron-forward" size={20} color={Colors.palette.gray} />
                 </View>
             </View>
-        </TouchableOpacity>
+        </Pressable>
     );
 }
 

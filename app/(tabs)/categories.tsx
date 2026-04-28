@@ -1,4 +1,4 @@
-import { Text, View } from '@/components/Themed';
+import { Text, View, SafeAreaView } from '@/components/Themed';
 import Colors from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
@@ -6,7 +6,7 @@ import { View as DefaultView, ScrollView, StyleSheet } from 'react-native';
 
 export default function CategoriesScreen() {
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
             <ScrollView contentContainerStyle={styles.content}>
 
                 <DefaultView style={styles.headerSection}>
@@ -22,7 +22,7 @@ export default function CategoriesScreen() {
                 </DefaultView>
 
             </ScrollView>
-        </View>
+        </SafeAreaView>
     );
 }
 
@@ -32,7 +32,6 @@ const styles = StyleSheet.create({
     },
     content: {
         paddingHorizontal: 20,
-        paddingTop: 40,
         alignItems: 'center',
     },
     headerSection: {

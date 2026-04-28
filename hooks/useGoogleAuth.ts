@@ -7,8 +7,8 @@ import { Alert } from 'react-native';
 
 WebBrowser.maybeCompleteAuthSession();
 
-const WEB_CLIENT_ID = '256935465203-1qp2al5dr565sdpg9r8desd7si1fo2k9.apps.googleusercontent.com';
-const ANDROID_CLIENT_ID = '256935465203-66h09b3gpd4pudt9q7miu85ji36cnjoa.apps.googleusercontent.com';
+const WEB_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
+const ANDROID_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID;
 
 export function useGoogleAuth() {
     const [request, response, promptAsync] = Google.useIdTokenAuthRequest({

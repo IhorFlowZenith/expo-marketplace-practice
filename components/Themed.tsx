@@ -4,6 +4,7 @@
  */
 
 import { Text as DefaultText, View as DefaultView } from 'react-native';
+import { SafeAreaView as DefaultSafeAreaView } from 'react-native-safe-area-context';
 
 import Colors from '@/constants/Colors';
 import { useColorScheme } from './useColorScheme';
@@ -15,6 +16,7 @@ type ThemeProps = {
 
 export type TextProps = ThemeProps & DefaultText['props'];
 export type ViewProps = ThemeProps & DefaultView['props'];
+export type SafeAreaViewProps = ThemeProps & React.ComponentProps<typeof DefaultSafeAreaView>;
 
 export function useThemeColor(
   props: { light?: string; dark?: string },
@@ -42,4 +44,11 @@ export function View(props: ViewProps) {
   const backgroundColor = useThemeColor({ light: lightColor, dark: darkColor }, 'background');
 
   return <DefaultView style={[{ backgroundColor }, style]} {...otherProps} />;
+}
+
+export function SafeAreaView(props: SafeAreaViewProps) {
+  const { style, lightColor, darkColor, ...otherProps } = props;
+  const backgroundColor = useThemeColor({ light: lightColor, dark: darkColor }, 'background');
+
+  return <DefaultSafeAreaView style={[{ backgroundColor }, style]} {...otherProps} />;
 }

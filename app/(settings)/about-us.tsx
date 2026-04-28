@@ -1,10 +1,10 @@
-import { Text, View } from '@/components/Themed';
+import { Text, View, SafeAreaView } from '@/components/Themed';
 import Colors from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { View as DefaultView, ScrollView, StyleSheet } from 'react-native';
 
-function TechItem({ icon, title, description }: { icon: any, title: string, description: string }) {
+function TechItem({ icon, title, description }: { icon: keyof typeof Ionicons.glyphMap, title: string, description: string }) {
     return (
         <DefaultView style={styles.techItem}>
             <DefaultView style={styles.iconContainer}>
@@ -20,7 +20,7 @@ function TechItem({ icon, title, description }: { icon: any, title: string, desc
 
 export default function AboutUsScreen() {
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
 
                 <DefaultView style={styles.textSection}>
@@ -51,7 +51,7 @@ export default function AboutUsScreen() {
                 <Text style={styles.footerText}>© 2026 MarketPlace Inc. All rights reserved.</Text>
 
             </ScrollView>
-        </View>
+        </SafeAreaView>
     );
 }
 
@@ -61,7 +61,6 @@ const styles = StyleSheet.create({
     },
     content: {
         paddingHorizontal: 20,
-        paddingTop: 40,
         paddingBottom: 40,
     },
     textSection: {

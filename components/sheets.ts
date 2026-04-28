@@ -1,14 +1,23 @@
 import { registerSheet, SheetDefinition } from "react-native-actions-sheet";
 import FiltersSheet from "./FiltersSheet";
 
+export interface FilterOptions {
+  category?: string;
+  gender?: string;
+  brand?: string;
+  color?: string;
+  minPrice?: number;
+  maxPrice?: number;
+}
+
 registerSheet("filters-sheet", FiltersSheet);
 
 declare module "react-native-actions-sheet" {
   interface Sheets {
     "filters-sheet": SheetDefinition<{
       payload: {
-        onApply: (filters: any) => void;
-        initialFilters?: any;
+        onApply: (filters: FilterOptions) => void;
+        initialFilters?: FilterOptions;
       };
     }>;
   }

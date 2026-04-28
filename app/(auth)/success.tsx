@@ -3,7 +3,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import React from 'react';
 import { View as DefaultView, Pressable, StyleSheet } from 'react-native';
 
-import { Text, View, useThemeColor } from '@/components/Themed';
+import { SafeAreaView, Text, useThemeColor } from '@/components/Themed';
 import AppButton from '@/components/ui/AppButton';
 import Colors from '@/constants/Colors';
 
@@ -12,7 +12,7 @@ export default function SuccessScreen() {
     const textColor = useThemeColor({}, 'text');
 
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
             <DefaultView style={styles.content}>
 
                 <DefaultView style={styles.iconCircle}>
@@ -37,7 +37,7 @@ export default function SuccessScreen() {
                 </Pressable>
 
             </DefaultView>
-        </View>
+        </SafeAreaView>
     );
 }
 

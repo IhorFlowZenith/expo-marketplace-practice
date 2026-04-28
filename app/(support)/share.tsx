@@ -1,62 +1,109 @@
-import { Text, View } from '@/components/Themed';
+import { Text, View, useThemeColor } from '@/components/Themed';
 import Colors from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { View as DefaultView, ScrollView, StyleSheet } from 'react-native';
+import { View as DefaultView, Pressable, ScrollView, Share, StyleSheet } from 'react-native';
 
-export default function PlaceholderScreen() {
+const APP_URL = 'https://play.google.com/store/apps/details?id=com.marketplace.app';
+
+const handleShare = () => {
+    Share.share({
+        message: `Check out this awesome marketplace app! 🛍️\n${APP_URL}`,
+    });
+};
+
+export default function ShareScreen() {
+    const cardBg = useThemeColor({ light: Colors.palette.cardLight, dark: Colors.palette.cardDark }, 'background');
+
     return (
-        <View style={styles.container}>
-            <ScrollView contentContainerStyle={styles.content}>
+        <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+            <DefaultView style={styles.heroSection}>
+                <View
+                    style={styles.heroIcon}
+                    lightColor={Colors.palette.accentBgLight}
+                    darkColor={Colors.palette.accentBgDark}
+                >
+                    <Ionicons name="share-social" size={44} color={Colors.palette.primary} />
+                </View>
+                <Text style={styles.heroTitle}>Share the App</Text>
+                <Text style={styles.heroSubtitle}>
+                    Invite your friends to discover amazing deals on our marketplace!
+                </Text>
+            </DefaultView>
 
+            <View style={[styles.linkCard, { backgroundColor: cardBg }]}>
+                <Ionicons name="link-outline" size={20} color={Colors.palette.primary} />
+                <Text style={styles.linkText} numberOfLines={1}>{APP_URL}</Text>
+            </View>
 
-
-                <DefaultView style={styles.infoBox}>
-                    <Ionicons name="construct-outline" size={60} color={Colors.palette.primary} style={{ marginBottom: 20 }} />
-                    <Text style={styles.message}>This section is under development</Text>
-                    <Text style={styles.subMessage}>
-                        We are working hard to bring you new features. Stay tuned!
-                    </Text>
-                </DefaultView>
-
-            </ScrollView>
-        </View>
+            <Pressable
+                onPress={handleShare}
+                style={({ pressed }) => [styles.shareBtn, { opacity: pressed ? 0.85 : 1 }]}
+            >
+                <Ionicons name="share-outline" size={20} color={Colors.palette.white} style={{ marginRight: 8 }} />
+                <Text style={styles.shareBtnText}>Share with Friends</Text>
+            </Pressable>
+        </ScrollView>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
     content: {
         paddingHorizontal: 20,
-        paddingTop: 40,
+        paddingBottom: 40,
         alignItems: 'center',
     },
-    headerSection: {
-        width: '100%',
-        marginBottom: 40,
+    heroSection: {
+        alignItems: 'center',
+        marginBottom: 32,
+        marginTop: 20,
     },
-    headerTitle: {
-        fontSize: 28,
-        fontWeight: '700',
-    },
-    infoBox: {
+    heroIcon: {
+        width: 90,
+        height: 90,
+        borderRadius: 45,
         alignItems: 'center',
         justifyContent: 'center',
-        marginTop: 50,
-        backgroundColor: 'transparent',
+        marginBottom: 20,
     },
-    message: {
-        fontSize: 20,
-        fontWeight: '600',
-        textAlign: 'center',
+    heroTitle: {
+        fontSize: 24,
+        fontWeight: '700',
         marginBottom: 10,
     },
-    subMessage: {
+    heroSubtitle: {
         fontSize: 15,
         color: Colors.palette.textMuted,
         textAlign: 'center',
-        paddingHorizontal: 30,
+        lineHeight: 22,
+        paddingHorizontal: 20,
+    },
+    linkCard: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        width: '100%',
+        padding: 16,
+        borderRadius: 14,
+        marginBottom: 20,
+        gap: 10,
+    },
+    linkText: {
+        flex: 1,
+        fontSize: 14,
+        color: Colors.palette.textMuted,
+    },
+    shareBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '100%',
+        height: 54,
+        borderRadius: 27,
+        backgroundColor: Colors.palette.primary,
+    },
+    shareBtnText: {
+        fontSize: 17,
+        fontWeight: '700',
+        color: Colors.palette.white,
     },
 });

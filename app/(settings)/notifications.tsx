@@ -1,9 +1,16 @@
-import { Text, View, useThemeColor } from '@/components/Themed';
+import { Text, View, SafeAreaView, useThemeColor } from '@/components/Themed';
 import Colors from '@/constants/Colors';
 import React, { useState } from 'react';
 import { View as DefaultView, ScrollView, StyleSheet, Switch } from 'react-native';
 
-function NotificationOption({ title, description, value, onValueChange }: any) {
+interface NotificationOptionProps {
+    title: string;
+    description?: string;
+    value: boolean;
+    onValueChange: (value: boolean) => void;
+}
+
+function NotificationOption({ title, description, value, onValueChange }: NotificationOptionProps) {
     const textColor = useThemeColor({}, 'text');
     const cardBg = useThemeColor({ light: Colors.palette.cardLight, dark: Colors.palette.cardDark }, 'background');
 
@@ -29,7 +36,7 @@ export default function NotificationsScreen() {
     const [offersEnabled, setOffersEnabled] = useState(true);
 
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
             <ScrollView contentContainerStyle={styles.content}>
 
 
@@ -44,7 +51,7 @@ export default function NotificationsScreen() {
                 </DefaultView>
 
             </ScrollView>
-        </View>
+        </SafeAreaView>
     );
 }
 
@@ -54,7 +61,6 @@ const styles = StyleSheet.create({
     },
     content: {
         paddingHorizontal: 20,
-        paddingTop: 40,
         paddingBottom: 40,
     },
     headerSection: {

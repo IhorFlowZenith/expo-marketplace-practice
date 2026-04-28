@@ -1,12 +1,12 @@
 import ProductCard from '@/components/ProductCard';
-import { Text, View, useThemeColor } from '@/components/Themed';
+import { Text, View, SafeAreaView, useThemeColor } from '@/components/Themed';
 import Colors from '@/constants/Colors';
 import { BRAND_OPTIONS, COLOR_OPTIONS, GENDER_OPTIONS, MOCK_PRODUCTS, PRODUCT_CATEGORIES, ProductItem, SORT_OPTIONS } from '@/constants/products';
 import { Ionicons } from '@expo/vector-icons';
 import { FlashList } from "@shopify/flash-list";
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { StyleSheet, TextInput, Pressable } from 'react-native';
 import { SheetManager } from 'react-native-actions-sheet';
 
 export default function SearchScreen() {
@@ -62,11 +62,11 @@ export default function SearchScreen() {
     };
 
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
             <View style={styles.header}>
-                <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+                <Pressable onPress={() => router.back()} style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}>
                     <Ionicons name="arrow-back" size={24} color={colors.text} />
-                </TouchableOpacity>
+                </Pressable>
                 <View style={[styles.searchBar, { backgroundColor: colors.input }]}>
                     <Ionicons name="search" size={20} color="#888" />
                     <TextInput
@@ -78,17 +78,17 @@ export default function SearchScreen() {
                         onChangeText={setQuery}
                     />
                     {query.length > 0 && (
-                        <TouchableOpacity onPress={() => setQuery('')}>
+                        <Pressable onPress={() => setQuery('')} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
                             <Ionicons name="close-circle" size={20} color={colors.text} />
-                        </TouchableOpacity>
+                        </Pressable>
                     )}
                 </View>
-                <TouchableOpacity
-                    style={styles.filterBtn}
+                <Pressable
+                    style={({ pressed }) => [styles.filterBtn, { opacity: pressed ? 0.7 : 1 }]}
                     onPress={() => SheetManager.show('filters-sheet', { payload: { onApply: setFilters, initialFilters: filters } })}
                 >
                     <Ionicons name="options-outline" size={22} color="#FFF" />
-                </TouchableOpacity>
+                </Pressable>
             </View>
             <View style={styles.summaryRow}>
                 <Text style={styles.resultsFor}>
@@ -114,21 +114,20 @@ export default function SearchScreen() {
                     <View style={styles.empty}>
                         <Ionicons name="search-outline" size={80} color="#888" />
                         <Text style={styles.emptyText}>No products found</Text>
-                        <TouchableOpacity style={styles.clearBtn} onPress={reset}>
+                        <Pressable style={({ pressed }) => [styles.clearBtn, { opacity: pressed ? 0.7 : 1 }]} onPress={reset}>
                             <Text style={{ color: Colors.palette.primary, fontWeight: 'bold' }}>Clear all</Text>
-                        </TouchableOpacity>
+                        </Pressable>
                     </View>
                 )}
             </View>
-        </View>
+        </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingTop: 50
-    },
+        },
     header: {
         flexDirection: 'row',
         alignItems: 'center',

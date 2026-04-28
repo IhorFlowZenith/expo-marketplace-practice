@@ -1,10 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { View as DefaultView, Image, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import { View as DefaultView, Image, Pressable, ScrollView, StyleSheet } from 'react-native';
 
 import SettingsItem from '@/components/SettingsItem';
-import { Text, View, useThemeColor } from '@/components/Themed';
+import { SafeAreaView, Text, useThemeColor, View } from '@/components/Themed';
 import Colors from '@/constants/Colors';
 import { useAuth } from '@/context/AuthContext';
 
@@ -14,7 +14,7 @@ export default function ProfileScreen() {
     const textColor = useThemeColor({}, 'text');
 
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
             <ScrollView contentContainerStyle={styles.content}>
                 <DefaultView style={styles.header}>
                     <View style={styles.avatarContainer} lightColor={Colors.palette.accentBgLight} darkColor={Colors.palette.accentBgDark}>
@@ -34,14 +34,14 @@ export default function ProfileScreen() {
                     <SettingsItem icon="settings-outline" title="Setting" route="/settings" />
                     <SettingsItem icon="mail-outline" title="Contact" route="/contact" />
                     <SettingsItem icon="share-social-outline" title="Share App" route="/share" />
-                    <SettingsItem icon="help-circle-outline" title="Help" route="/help" />
+                    <SettingsItem icon="help-circle-outline" title="Help" route="/help-center" />
                 </DefaultView>
 
-                <TouchableOpacity style={styles.signOutButton} onPress={signOut}>
+                <Pressable style={({ pressed }) => [styles.signOutButton, { opacity: pressed ? 0.7 : 1 }]} onPress={signOut}>
                     <Text style={styles.signOutText}>Sign Out</Text>
-                </TouchableOpacity>
+                </Pressable>
             </ScrollView>
-        </View>
+        </SafeAreaView>
     );
 }
 
@@ -51,7 +51,6 @@ const styles = StyleSheet.create({
     },
     content: {
         paddingHorizontal: 20,
-        paddingTop: 60,
         paddingBottom: 40,
         alignItems: 'center',
     },

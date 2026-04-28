@@ -3,9 +3,7 @@ import Colors from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { Dimensions, Image, StyleSheet, TouchableOpacity } from 'react-native';
-
-const { width } = Dimensions.get('window');
+import { Image, StyleSheet, Pressable, useWindowDimensions } from 'react-native';
 
 interface ProductItem {
     id: string;
@@ -20,6 +18,7 @@ interface Props {
 }
 
 export default function ProductCard({ item, numColumns }: Props) {
+    const { width } = useWindowDimensions();
     const isGrid = numColumns === 2;
 
     const cardBg = useThemeColor({ light: '#F5F5F7', dark: '#1C1C1E' }, 'background');
@@ -41,9 +40,9 @@ export default function ProductCard({ item, numColumns }: Props) {
                 <Image style={styles.image}
                     source={{ uri: item.image }}
                     resizeMode='cover' />
-                <TouchableOpacity style={[styles.heartButton, { backgroundColor: iconBg }]} activeOpacity={0.7}>
+                <Pressable style={({ pressed }) => [[styles.heartButton, { backgroundColor: iconBg }], { opacity: pressed ? 0.7 : 1 }]}>
                     <Ionicons name="heart-outline" size={20} color={heartColor} />
-                </TouchableOpacity>
+                </Pressable>
             </View>
 
             <View style={styles.infoContainer}>
@@ -51,9 +50,9 @@ export default function ProductCard({ item, numColumns }: Props) {
                     <Text style={styles.title} numberOfLines={1}>{item.name}</Text>
                     <Text style={styles.price} >{item.price}</Text>
                 </View>
-                <TouchableOpacity activeOpacity={0.7} onPress={handlePress}>
+                <Pressable style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]} onPress={handlePress}>
                     <Ionicons name="add-circle" size={34} color={Colors.palette.primary} />
-                </TouchableOpacity>
+                </Pressable>
             </View>
         </View>
     );

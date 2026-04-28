@@ -1,18 +1,18 @@
 import { Text, useThemeColor, View } from "@/components/Themed";
 import AppButton from "@/components/ui/AppButton";
+import VariantSelector from "@/components/ui/VariantSelector";
 import Colors from "@/constants/Colors";
 import { MOCK_PRODUCTS } from '@/constants/products';
 import { Ionicons } from "@expo/vector-icons";
 import { FlashList } from "@shopify/flash-list";
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Dimensions, Image, Modal, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
+import { Image, Modal, ScrollView, StyleSheet, Pressable, useWindowDimensions } from "react-native";
 import ImageZoom from 'react-native-image-pan-zoom';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const { width, height } = Dimensions.get('window');
-
 export default function ProductDetailsScreen() {
+    const { width, height } = useWindowDimensions();
     const { id } = useLocalSearchParams();
     const router = useRouter();
     const insets = useSafeAreaInsets();
@@ -50,9 +50,9 @@ export default function ProductDetailsScreen() {
                         }}
                         data={product.images}
                         renderItem={({ item }) => (
-                            <TouchableOpacity activeOpacity={0.8} onPress={() => setIsZoomVisible(true)}>
+                            <Pressable style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1 }, { width, height: width * 1.1 }]} onPress={() => setIsZoomVisible(true)}>
                                 <Image source={{ uri: item }} style={styles.mainImage} resizeMode='cover' />
-                            </TouchableOpacity>
+                            </Pressable>
                         )} />
 
                     <View style={styles.dotsContainer}>
@@ -65,12 +65,12 @@ export default function ProductDetailsScreen() {
                     </View>
 
                     <View style={[styles.topButtonsContainer, { top: insets.top + 10, backgroundColor: 'transparent' }]}>
-                        <TouchableOpacity onPress={() => router.back()} style={[styles.roundBtn, { backgroundColor: iconBtnBg }]}>
+                        <Pressable onPress={() => router.back()} style={({ pressed }) => [[styles.roundBtn, { backgroundColor: iconBtnBg }], { opacity: pressed ? 0.7 : 1 }]}>
                             <Ionicons name="chevron-back" size={24} color={textColor} />
-                        </TouchableOpacity>
-                        <TouchableOpacity style={[styles.roundBtn, { backgroundColor: iconBtnBg }]}>
+                        </Pressable>
+                        <Pressable style={({ pressed }) => [[styles.roundBtn, { backgroundColor: iconBtnBg }], { opacity: pressed ? 0.7 : 1 }]}>
                             <Ionicons name="heart-outline" size={24} color={textColor} />
-                        </TouchableOpacity>
+                        </Pressable>
                     </View>
                 </View>
 
@@ -93,46 +93,22 @@ export default function ProductDetailsScreen() {
                     </Text>
 
                     <Text style={[styles.sectionLabel, { color: textColor }]}>Size</Text>
-                    <View style={[styles.sizeGrid, { backgroundColor: 'transparent' }]}>
-                        {sizes.map((size) => (
-                            <TouchableOpacity
-                                key={size}
-                                style={[
-                                    styles.sizeItem,
-                                    { borderColor: textColor + '20' },
-                                    selectedSize === size && { backgroundColor: Colors.palette.primary, borderColor: Colors.palette.primary },
-                                    size === '40' && styles.disabledSizeItem
-                                ]}
-                                onPress={() => size !== '40' && setSelectedSize(size)}
-                            >
-                                <Text style={[styles.sizeText, { color: textColor }, selectedSize === size && { color: '#FFF' }]}>
-                                    {size}
-                                </Text>
-                                {size === '40' && <View style={[styles.diagonalLine, { backgroundColor: textColor + '40' }]} />}
-                            </TouchableOpacity>
-                        ))}
-                    </View>
+                    <VariantSelector
+                        options={sizes}
+                        selectedValue={selectedSize}
+                        onSelect={setSelectedSize}
+                        type="text"
+                        disabledOptions={['40']}
+                    />
 
                     <Text style={[styles.sectionLabel, { color: textColor }]}>Color</Text>
-                    <View style={[styles.sizeGrid, { backgroundColor: 'transparent' }]}>
-                        {colors.map((color) => (
-                            <TouchableOpacity
-                                key={color}
-                                style={[
-                                    styles.sizeItem,
-                                    { borderColor: textColor + '20' },
-                                    selectedColor === color && { backgroundColor: Colors.palette.primary, borderColor: Colors.palette.primary },
-                                    color === '40' && styles.disabledSizeItem
-                                ]}
-                                onPress={() => color !== '40' && setSelectedColor(color)}
-                            >
-                                <Text style={[styles.sizeText, { color: textColor }, selectedSize === color && { color: '#FFF' }]}>
-                                    {color}
-                                </Text>
-                                {color === '40' && <View style={[styles.diagonalLine, { backgroundColor: textColor + '40' }]} />}
-                            </TouchableOpacity>
-                        ))}
-                    </View>
+                    <VariantSelector
+                        options={colors}
+                        selectedValue={selectedColor}
+                        onSelect={setSelectedColor}
+                        type="color"
+                        disabledOptions={['40']}
+                    />
                 </View>
             </ScrollView>
 
@@ -140,19 +116,19 @@ export default function ProductDetailsScreen() {
                 <View style={{ flex: 1, backgroundColor: 'transparent' }}>
                     <AppButton title="Buy Now" onPress={() => { }} style={{ marginTop: 0 }} />
                 </View>
-                <TouchableOpacity style={[styles.addToCartBtn, { backgroundColor: iconBtnBg }]}>
+                <Pressable style={({ pressed }) => [[styles.addToCartBtn, { backgroundColor: iconBtnBg }], { opacity: pressed ? 0.7 : 1 }]}>
                     <Ionicons name="bag-outline" size={24} color={textColor} />
-                </TouchableOpacity>
+                </Pressable>
             </View>
 
             <Modal visible={isZoomVisible} transparent={true} animationType="fade" onRequestClose={() => setIsZoomVisible(false)}>
                 <View style={styles.modalContainer}>
-                    <TouchableOpacity
-                        style={[styles.closeModalBtn, { marginTop: insets.top + 10 }]}
+                    <Pressable
+                        style={({ pressed }) => [[styles.closeModalBtn, { marginTop: insets.top + 10 }], { opacity: pressed ? 0.7 : 1 }]}
                         onPress={() => setIsZoomVisible(false)}
                     >
                         <Ionicons name="close" size={28} color="white" />
-                    </TouchableOpacity>
+                    </Pressable>
 
                     <View style={styles.modalImageWrapper}>
                         {/* @ts-ignore */}
@@ -183,13 +159,13 @@ const styles = StyleSheet.create({
         paddingBottom: 0
     },
     imageSection: {
-        height: width * 1.1,
-        width: width,
+        aspectRatio: 1 / 1.1,
+        width: '100%',
         backgroundColor: 'transparent',
     },
     mainImage: {
-        width: width,
-        height: width * 1.1,
+        width: '100%',
+        height: '100%',
     },
     topButtonsContainer: {
         position: 'absolute',
@@ -212,7 +188,7 @@ const styles = StyleSheet.create({
         marginTop: -30,
         borderTopLeftRadius: 32,
         borderTopRightRadius: 32,
-        minHeight: height * 0.6,
+        minHeight: '60%',
     },
     titleRow: {
         flexDirection: 'row',
@@ -252,35 +228,6 @@ const styles = StyleSheet.create({
         lineHeight: 24,
         opacity: 0.6,
         fontSize: 15
-    },
-    sizeGrid: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-    },
-    sizeItem: {
-        width: 56,
-        height: 56,
-        borderRadius: 16,
-        borderWidth: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginRight: 12,
-        marginBottom: 12,
-        position: 'relative',
-        overflow: 'hidden',
-    },
-    sizeText: {
-        fontSize: 16,
-        fontWeight: '600'
-    },
-    disabledSizeItem: {
-        opacity: 0.3
-    },
-    diagonalLine: {
-        position: 'absolute',
-        width: '140%',
-        height: 1,
-        transform: [{ rotate: '45deg' }]
     },
     bottomBar: {
         position: 'absolute',

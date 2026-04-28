@@ -1,13 +1,13 @@
 import { Text } from "@/components/Themed";
 import Colors from "@/constants/Colors";
 import React from "react";
-import { Pressable, StyleSheet } from "react-native";
+import { Pressable, StyleSheet, StyleProp, ViewStyle, TextStyle } from "react-native";
 
 interface AppButtonProps {
     title: string;
     onPress: () => void;
-    style?: any;
-    textStyle?: any;
+    style?: StyleProp<ViewStyle>;
+    textStyle?: StyleProp<TextStyle>;
 }
 
 export default function AppButton({ title, onPress, style, textStyle }: AppButtonProps) {

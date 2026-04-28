@@ -3,14 +3,14 @@ import React from 'react';
 import { View as DefaultView, ScrollView, StyleSheet } from 'react-native';
 
 import SettingsItem from '@/components/SettingsItem';
-import { View, useThemeColor } from '@/components/Themed';
+import { SafeAreaView, useThemeColor } from '@/components/Themed';
 
 export default function SettingsScreen() {
     const router = useRouter();
     const textColor = useThemeColor({}, 'text');
 
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
             <ScrollView contentContainerStyle={styles.content}>
 
 
@@ -45,7 +45,7 @@ export default function SettingsScreen() {
                 </DefaultView>
 
             </ScrollView>
-        </View>
+        </SafeAreaView>
     );
 }
 
@@ -55,7 +55,6 @@ const styles = StyleSheet.create({
     },
     content: {
         paddingHorizontal: 20,
-        paddingTop: 40,
         paddingBottom: 40,
     },
     headerSection: {

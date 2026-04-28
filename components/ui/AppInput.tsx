@@ -6,7 +6,7 @@ import { View as DefaultView, Pressable, StyleSheet, TextInput, TextInputProps }
 
 interface AppInputProps extends TextInputProps {
     label: string;
-    icon: any;
+    icon: keyof typeof Ionicons.glyphMap;
     isPassword?: boolean;
     error?: string;
 }
@@ -49,8 +49,6 @@ export default function AppInput({ label, icon, isPassword = false, error, ...te
                     </Pressable>
                 )}
             </View>
-
-            {/* ДОДАНО: Вивід тексту помилки під інпутом */}
             {error ? (
                 <Text style={styles.errorText}>{error}</Text>
             ) : null}
@@ -69,11 +67,11 @@ const styles = StyleSheet.create({
         borderRadius: 16,
         paddingHorizontal: 16,
         paddingVertical: 10,
-        borderWidth: 1, // Обов'язково для відображення рамки
+        borderWidth: 1,
         borderColor: 'transparent',
     },
     containerError: {
-        borderColor: Colors.palette.error, // Червоний колір при помилці
+        borderColor: Colors.palette.error,
     },
     icon: {
         marginRight: 12,

@@ -1,35 +1,40 @@
 import ProductCard from '@/components/ProductCard';
-import { Text, View, useThemeColor } from '@/components/Themed';
+import { Text, View, SafeAreaView, useThemeColor } from '@/components/Themed';
 import Colors from "@/constants/Colors";
-import { MOCK_PRODUCTS, ProductItem } from '@/constants/products';
+import { MOCK_PRODUCTS, ProductItem, MOCK_BANNERS } from '@/constants/products';
 import { Ionicons } from '@expo/vector-icons';
 import { FlashList } from "@shopify/flash-list";
 import { useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
-import { Dimensions, Image, ScrollView, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { Image, ScrollView, StyleSheet, TextInput, Pressable, useWindowDimensions } from 'react-native';
+import PromoBanner from '@/components/PromoBanner';
 
-const { width } = Dimensions.get('window');
 const SECTION_PADDING = 24;
-const CARD_WIDTH = width * 0.40;
 const CARD_GAP = 12;
+const HOME_CATEGORIES = [
+  { label: 'All Products', value: 'All', icon: 'grid-outline' as const },
+  { label: 'Shoes', value: 'Shoes', icon: 'footsteps-outline' as const },
+  { label: 'Clothing', value: 'Clothing', icon: 'shirt-outline' as const },
+  { label: 'Accessories', value: 'Accessories', icon: 'watch-outline' as const },
+  { label: 'Electronics', value: 'Electronics', icon: 'headset-outline' as const },
+];
 
 const SectionHeader = ({ title, onPress }: { title: string, onPress?: () => void }) => (
   <View style={styles.sectionHeader}>
     <Text style={styles.sectionTitle}>{title}</Text>
-    <TouchableOpacity onPress={onPress}>
+    <Pressable onPress={onPress} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
       <Text style={styles.seeAll}>See All</Text>
-    </TouchableOpacity>
+    </Pressable>
   </View>
 );
 
-const ProductCarousel = ({ data }: { data: ProductItem[] }) => (
+const ProductCarousel = ({ data, cardWidth }: { data: ProductItem[], cardWidth: number }) => (
   <FlashList<ProductItem>
     data={data}
     horizontal
     keyExtractor={(item) => item.id.toString()}
     showsHorizontalScrollIndicator={false}
-    estimatedItemSize={CARD_WIDTH}
-    snapToInterval={CARD_WIDTH + CARD_GAP}
+    snapToInterval={cardWidth + CARD_GAP}
     snapToAlignment="start"
     decelerationRate="fast"
     nestedScrollEnabled
@@ -39,7 +44,7 @@ const ProductCarousel = ({ data }: { data: ProductItem[] }) => (
     }}
     style={{ marginBottom: 25 }}
     renderItem={({ item }) => (
-      <View style={{ width: CARD_WIDTH, marginRight: CARD_GAP }}>
+      <View style={{ width: cardWidth, marginRight: CARD_GAP }}>
         <ProductCard item={item} />
       </View>
     )}
@@ -47,6 +52,9 @@ const ProductCarousel = ({ data }: { data: ProductItem[] }) => (
 );
 
 export default function HomeScreen() {
+  const { width } = useWindowDimensions();
+  const CARD_WIDTH = width * 0.40;
+  
   const iconColor = useThemeColor({}, 'text');
   const inputBg = useThemeColor({ light: '#F5F5F7', dark: '#1C1C1E' }, 'background');
 
@@ -62,7 +70,7 @@ export default function HomeScreen() {
     [searchQuery]);
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <View style={styles.userInfo}>
           <Image source={{ uri: 'https://i.pravatar.cc/150?u=john' }} style={styles.avatar} />
@@ -71,15 +79,14 @@ export default function HomeScreen() {
             <Text style={styles.userName}>Ihor</Text>
           </View>
         </View>
-        <TouchableOpacity style={styles.notificationBtn}>
+        <Pressable style={({ pressed }) => [styles.notificationBtn, { opacity: pressed ? 0.7 : 1 }]}>
           <Ionicons name='notifications-outline' size={24} color={iconColor} />
-        </TouchableOpacity>
+        </Pressable>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollBody} nestedScrollEnabled>
-        <TouchableOpacity
-          activeOpacity={0.9}
-          style={[styles.searchSection, { backgroundColor: inputBg, marginHorizontal: SECTION_PADDING, marginBottom: 25 }]}
+        <Pressable
+          style={({ pressed }) => [[styles.searchSection, { backgroundColor: inputBg, marginHorizontal: SECTION_PADDING, marginBottom: 25 }], { opacity: pressed ? 0.9 : 1 }]}
           onPress={() => router.push('/search')}
         >
           <Ionicons name="search" size={20} color="#888" style={{ marginRight: 10 }} />
@@ -90,28 +97,43 @@ export default function HomeScreen() {
             editable={false}
             pointerEvents="none"
           />
-        </TouchableOpacity>
+        </Pressable>
 
-        <View style={styles.banner}>
-          <View style={styles.bannerTextContainer}>
-            <Text style={styles.bannerTitle}>Get Winter Discount</Text>
-            <Text style={styles.bannerOffer}>20% Off</Text>
-            <Text style={styles.bannerTarget}>For Children</Text>
-          </View>
-          <Image style={styles.bannerImage} source={{ uri: 'https://i.ibb.co/99QptdFT/image-1.png' }} />
+        <PromoBanner data={MOCK_BANNERS} />
+
+        <View style={styles.categoriesSection}>
+          <Text style={styles.categoriesTitle}>Categories</Text>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.categoriesList}
+          >
+            {HOME_CATEGORIES.map((category) => (
+              <Pressable
+                key={category.value}
+                onPress={() => router.push({ pathname: '/products', params: { category: category.value } })}
+                style={({ pressed }) => [styles.categoryItem, { opacity: pressed ? 0.75 : 1 }]}
+              >
+                <View style={styles.categoryCircle}>
+                  <Ionicons name={category.icon} size={22} color={Colors.palette.primary} />
+                </View>
+                <Text style={styles.categoryLabel}>{category.label}</Text>
+              </Pressable>
+            ))}
+          </ScrollView>
         </View>
 
         {(filteredFeatured.length > 0 || searchQuery === '') && (
           <>
-            <SectionHeader title="Featured" onPress={() => router.push({ pathname: '/search', params: { category: 'Featured' } })} />
-            <ProductCarousel data={filteredFeatured} />
+            <SectionHeader title="Featured" onPress={() => router.push({ pathname: '/products', params: { category: 'Featured' } })} />
+            <ProductCarousel data={filteredFeatured} cardWidth={CARD_WIDTH} />
           </>
         )}
 
         {(filteredPopular.length > 0 || searchQuery === '') && (
           <>
-            <SectionHeader title="Most Popular" onPress={() => router.push({ pathname: '/search', params: { category: 'Most Popular' } })} />
-            <ProductCarousel data={filteredPopular} />
+            <SectionHeader title="Most Popular" onPress={() => router.push({ pathname: '/products', params: { category: 'Most Popular' } })} />
+            <ProductCarousel data={filteredPopular} cardWidth={CARD_WIDTH} />
           </>
         )}
 
@@ -122,15 +144,14 @@ export default function HomeScreen() {
         )}
 
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 60,
-  },
+    },
   scrollBody: {
     paddingBottom: 40,
   },
@@ -179,41 +200,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
   },
-  banner: {
-    marginHorizontal: SECTION_PADDING,
-    height: 160,
-    backgroundColor: Colors.palette.primary,
-    borderRadius: 25,
-    flexDirection: 'row',
-    overflow: 'hidden',
-    marginBottom: 30,
-  },
-  bannerTextContainer: {
-    flex: 1,
-    padding: 20,
-    justifyContent: 'center',
-    backgroundColor: 'transparent',
-  },
-  bannerTitle: {
-    color: '#FFF',
-    fontSize: 14,
-  },
-  bannerOffer: {
-    color: '#FFF',
-    fontSize: 26,
-    fontWeight: 'bold',
-    marginVertical: 4,
-  },
-  bannerTarget: {
-    color: '#FFF',
-    fontSize: 12,
-    opacity: 0.8,
-  },
-  bannerImage: {
-    width: 130,
-    height: '100%',
-    resizeMode: 'contain',
-  },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -230,5 +216,38 @@ const styles = StyleSheet.create({
     color: Colors.palette.primary,
     fontSize: 14,
     fontWeight: '600',
+  },
+  categoriesSection: {
+    marginBottom: 18,
+    backgroundColor: 'transparent',
+  },
+  categoriesTitle: {
+    marginHorizontal: SECTION_PADDING,
+    marginBottom: 12,
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  categoriesList: {
+    paddingHorizontal: SECTION_PADDING,
+    gap: 14,
+  },
+  categoryItem: {
+    alignItems: 'center',
+    backgroundColor: 'transparent',
+    width: 74,
+  },
+  categoryCircle: {
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    backgroundColor: Colors.palette.primary + '14',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  categoryLabel: {
+    marginTop: 8,
+    fontSize: 12,
+    fontWeight: '600',
+    textAlign: 'center',
   },
 });

@@ -7,8 +7,10 @@ import Colors from '@/constants/Colors';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-
-  const theme = Colors[colorScheme ?? 'light'];
+  const isDark = colorScheme === 'dark';
+  const hiddenTabBarStyle = { display: 'none' as const };
+  const makeTabIcon = (name: React.ComponentProps<typeof Ionicons>['name']) =>
+    ({ color }: { color: string }) => <Ionicons name={name} size={26} color={color} />;
 
   return (
     <Tabs
@@ -17,12 +19,12 @@ export default function TabLayout() {
         tabBarInactiveTintColor: Colors.palette.textMuted,
         tabBarShowLabel: false,
         tabBarStyle: {
-          backgroundColor: colorScheme === 'dark' ? Colors.palette.cardDark : Colors.palette.white,
+          backgroundColor: isDark ? Colors.palette.cardDark : Colors.palette.white,
           borderTopWidth: 0,
           elevation: 20,
           shadowColor: Colors.palette.black,
           shadowOffset: { width: 0, height: -4 },
-          shadowOpacity: colorScheme === 'dark' ? 0.4 : 0.05,
+          shadowOpacity: isDark ? 0.4 : 0.05,
           shadowRadius: 12,
           height: 65,
           paddingBottom: 10,
@@ -39,51 +41,55 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home" size={26} color={color} />
-          ),
+          tabBarIcon: makeTabIcon('home'),
         }}
       />
       <Tabs.Screen
         name="search"
         options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="search" size={26} color={color} />
-          ),
+          tabBarIcon: makeTabIcon('search'),
         }}
       />
       <Tabs.Screen
         name="favorites"
         options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="heart" size={26} color={color} />
-          ),
+          tabBarIcon: makeTabIcon('heart'),
         }}
       />
       <Tabs.Screen
         name="cart"
         options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="bag" size={26} color={color} />
-          ),
+          tabBarStyle: hiddenTabBarStyle,
+          tabBarIcon: makeTabIcon('bag'),
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person" size={26} color={color} />
-          ),
+          tabBarIcon: makeTabIcon('person'),
         }}
       />
-      <Tabs.Screen name="orders" options={{ href: null }} />
+      <Tabs.Screen name="orders" options={{ href: null, tabBarStyle: hiddenTabBarStyle }} />
       <Tabs.Screen name="categories" options={{ href: null }} />
-      <Tabs.Screen name="products" options={{ href: null }} />
+      <Tabs.Screen
+        name="products"
+        options={{
+          href: null,
+          tabBarStyle: hiddenTabBarStyle
+        }}
+      />
+      <Tabs.Screen
+        name="checkout"
+        options={{
+          href: null,
+          tabBarStyle: hiddenTabBarStyle
+        }}
+      />
       <Tabs.Screen
         name="product-details/[id]"
         options={{
           href: null,
-          tabBarStyle: { display: 'none' }
+          tabBarStyle: hiddenTabBarStyle
         }}
       />
     </Tabs>

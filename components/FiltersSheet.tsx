@@ -1,17 +1,12 @@
 import Colors from '@/constants/Colors';
 import { BRAND_OPTIONS, COLOR_OPTIONS, GENDER_OPTIONS, PRODUCT_CATEGORIES } from '@/constants/products';
 import { Ionicons } from '@expo/vector-icons';
-import React, { memo, useState } from 'react';
-import { Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { memo, useRef, useState } from 'react';
+import { Pressable, StyleSheet } from 'react-native';
 import ActionSheet, { ScrollView, SheetManager, SheetProps } from "react-native-actions-sheet";
-import { useSharedValue } from 'react-native-reanimated';
 import { Text, useThemeColor, View } from './Themed';
 import AppButton from './ui/AppButton';
 import PriceRangeSlider from './ui/PriceRangeSlider';
-
-const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window');
-const SLIDER_CONTAINER_WIDTH = SCREEN_WIDTH - 48;
-const SLIDER_WIDTH = SLIDER_CONTAINER_WIDTH - 26;
 
 const Section = memo(({ title, children }: { title: string; children: React.ReactNode }) => (
   <View style={{ backgroundColor: 'transparent' }}>
@@ -20,18 +15,30 @@ const Section = memo(({ title, children }: { title: string; children: React.Reac
   </View>
 ));
 
-const SelectionGrid = memo(({ options, activeValue, onSelect, colors }: any) => (
+interface SelectionGridProps {
+  options: string[];
+  activeValue: string;
+  onSelect: (val: string) => void;
+  colors: {
+    text: string;
+    chipBg: string;
+    sheet: string;
+    border: string;
+  };
+}
+
+const SelectionGrid = memo(({ options, activeValue, onSelect, colors }: SelectionGridProps) => (
   <View style={styles.grid}>
     {options.map((opt: string) => (
-      <TouchableOpacity
+      <Pressable
         key={opt}
         onPress={() => onSelect(opt)}
-        style={[styles.chip, { backgroundColor: activeValue === opt ? Colors.palette.primary : colors.chipBg }]}
+        style={({ pressed }) => [styles.chip, { backgroundColor: activeValue === opt ? Colors.palette.primary : colors.chipBg, opacity: pressed ? 0.7 : 1 }]}
       >
         <Text style={[styles.chipText, { color: activeValue === opt ? '#FFF' : colors.text, opacity: activeValue === opt ? 1 : 0.6 }]}>
           {opt}
         </Text>
-      </TouchableOpacity>
+      </Pressable>
     ))}
   </View>
 ));
@@ -45,10 +52,7 @@ export default function FiltersSheet(props: SheetProps<"filters-sheet">) {
     color: initial?.color || COLOR_OPTIONS[0]
   });
 
-  const minPrice = useSharedValue(initial?.minPrice ?? 0);
-  const maxPrice = useSharedValue(initial?.maxPrice ?? 1000);
-  const minX = useSharedValue(((initial?.minPrice ?? 0) / 1000) * SLIDER_WIDTH);
-  const maxX = useSharedValue(((initial?.maxPrice ?? 1000) / 1000) * SLIDER_WIDTH);
+  const priceRef = useRef({ min: initial?.minPrice ?? 0, max: initial?.maxPrice ?? 1000 });
 
   const colors = {
     text: useThemeColor({}, 'text'),
@@ -58,11 +62,7 @@ export default function FiltersSheet(props: SheetProps<"filters-sheet">) {
   };
 
   const handleApply = () => {
-    props.payload?.onApply({
-      ...f,
-      minPrice: minPrice.value,
-      maxPrice: maxPrice.value
-    });
+    props.payload?.onApply({ ...f, minPrice: priceRef.current.min, maxPrice: priceRef.current.max });
     SheetManager.hide(props.sheetId);
   };
 
@@ -77,24 +77,29 @@ export default function FiltersSheet(props: SheetProps<"filters-sheet">) {
       <View style={[styles.container, { backgroundColor: colors.sheet }]}>
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 160, paddingTop: 10 }} style={{ flex: 1 }}>
           <Section title="Category">
-            <SelectionGrid options={PRODUCT_CATEGORIES} activeValue={f.category} onSelect={(v: any) => setF(p => ({ ...p, category: v }))} colors={colors} />
+            <SelectionGrid options={PRODUCT_CATEGORIES} activeValue={f.category} onSelect={(v: string) => setF(p => ({ ...p, category: v }))} colors={colors} />
           </Section>
           <Section title="Gender">
-            <SelectionGrid options={GENDER_OPTIONS} activeValue={f.gender} onSelect={(v: any) => setF(p => ({ ...p, gender: v }))} colors={colors} />
+            <SelectionGrid options={GENDER_OPTIONS} activeValue={f.gender} onSelect={(v: string) => setF(p => ({ ...p, gender: v }))} colors={colors} />
           </Section>
           <Section title="Brand">
-            <SelectionGrid options={BRAND_OPTIONS} activeValue={f.brand} onSelect={(v: any) => setF(p => ({ ...p, brand: v }))} colors={colors} />
+            <SelectionGrid options={BRAND_OPTIONS} activeValue={f.brand} onSelect={(v: string) => setF(p => ({ ...p, brand: v }))} colors={colors} />
           </Section>
           <Section title="Price Range">
-            <PriceRangeSlider colors={colors} minPrice={minPrice} maxPrice={maxPrice} minX={minX} maxX={maxX} />
+            <PriceRangeSlider
+              colors={colors}
+              initialMin={initial?.minPrice ?? 0}
+              initialMax={initial?.maxPrice ?? 1000}
+              onValueChange={(min, max) => { priceRef.current = { min, max }; }}
+            />
           </Section>
           <Section title="Color">
-            <SelectionGrid options={COLOR_OPTIONS} activeValue={f.color} onSelect={(v: any) => setF(p => ({ ...p, color: v }))} colors={colors} />
+            <SelectionGrid options={COLOR_OPTIONS} activeValue={f.color} onSelect={(v: string) => setF(p => ({ ...p, color: v }))} colors={colors} />
           </Section>
-          <TouchableOpacity style={[styles.optionRow, { backgroundColor: colors.chipBg }]}>
+          <Pressable style={({ pressed }) => [styles.optionRow, { backgroundColor: colors.chipBg, opacity: pressed ? 0.7 : 1 }]}>
             <Text style={[styles.optionText, { color: colors.text }]}>Another option</Text>
             <Ionicons name="chevron-forward" size={20} color={colors.text} />
-          </TouchableOpacity>
+          </Pressable>
         </ScrollView>
         <View style={[styles.footer, { backgroundColor: colors.sheet }]}>
           <AppButton title="Apply Filter" onPress={handleApply} style={styles.applyButton} textStyle={styles.applyButtonText} />
@@ -106,7 +111,7 @@ export default function FiltersSheet(props: SheetProps<"filters-sheet">) {
 
 const styles = StyleSheet.create({
   container: {
-    height: SCREEN_HEIGHT * 0.95,
+    height: '95%',
     paddingHorizontal: 24
   },
   sectionTitle: {
@@ -122,12 +127,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent'
   },
   chip: {
-    paddingHorizontal: 20,
+    flexBasis: '31%',
+    flexGrow: 1,
     height: 48,
     borderRadius: 12,
     justifyContent: 'center',
-    alignItems: 'center',
-    minWidth: 80
+    alignItems: 'center'
   },
   chipText: {
     fontSize: 15,
@@ -166,5 +171,5 @@ const styles = StyleSheet.create({
   applyButtonText: {
     fontSize: 18,
     fontWeight: 'bold'
-  }
+  },
 });

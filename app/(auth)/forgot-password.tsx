@@ -1,15 +1,14 @@
-import { Text, View } from '@/components/Themed';
+import { SafeAreaView, Text } from '@/components/Themed';
 import AppButton from '@/components/ui/AppButton';
 import AppInput from '@/components/ui/AppInput';
 import BackButton from "@/components/ui/BackButton";
-import Colors from '@/constants/Colors';
+import { authStyles } from '@/constants/authStyles';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
     View as DefaultView,
     KeyboardAvoidingView,
     ScrollView,
-    StyleSheet,
 } from 'react-native';
 
 import { ForgotPasswordFormData, forgotPasswordSchema } from '@/schemas/authSchema';
@@ -21,10 +20,7 @@ import { Controller, useForm } from "react-hook-form";
 
 
 export default function ForgotPasswordScreen() {
-    // const [email, setEmail] = useState('');
-    // const [error, setError] = useState('');
     const [serverError, setServerError] = useState('');
-    const [notFound, setNotFound] = useState(false);
 
     const { control, handleSubmit, formState: { errors } } = useForm<ForgotPasswordFormData>({
         resolver: zodResolver(forgotPasswordSchema),
@@ -33,21 +29,15 @@ export default function ForgotPasswordScreen() {
         }
     });
 
-    // const handleResetPassword = async () => {
     const onSubmit = async (data: ForgotPasswordFormData) => {
         setServerError('');
-        setNotFound(false);
-
-        // if (!email || !email.includes('@')) {
-        //     setError('Please enter a valid email address');
-        //     return;
-        // }
 
         try {
             await sendPasswordResetEmail(auth, data.email);
             router.push({ pathname: '/success', params: { email: data.email } });
-        } catch (e: any) {
-            switch (e.code) {
+        } catch (e: unknown) {
+            const error = e as { code?: string };
+            switch (error.code) {
                 case 'auth/user-not-found':
                     setServerError('No account found with this email');
                     break;
@@ -58,19 +48,19 @@ export default function ForgotPasswordScreen() {
     };
 
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={authStyles.container}>
             <BackButton />
 
-            <KeyboardAvoidingView style={styles.flex} behavior="height">
+            <KeyboardAvoidingView style={authStyles.flex} behavior="height">
                 <ScrollView
-                    contentContainerStyle={styles.scrollContent}
+                    contentContainerStyle={authStyles.scrollContent}
                     showsVerticalScrollIndicator={false}
                     keyboardShouldPersistTaps="handled"
                     bounces={false}
                 >
-                    <DefaultView style={styles.headerSection}>
-                        <Text style={styles.title}>Forgot Password?</Text>
-                        <Text style={styles.subtitle}>
+                    <DefaultView style={authStyles.headerSection}>
+                        <Text style={authStyles.title}>Forgot Password?</Text>
+                        <Text style={authStyles.subtitle}>
                             Enter your email address and we'll send you a link to reset your password.
                         </Text>
                     </DefaultView>
@@ -86,54 +76,21 @@ export default function ForgotPasswordScreen() {
                                 keyboardType="email-address"
                                 autoCapitalize="none"
                                 value={value}
-                                onChangeText={(t) => {
-                                    onChange(t);
-                                    if (serverError) setServerError('');
-                                }}
+                                onChangeText={(t) => { onChange(t); if (serverError) setServerError(''); }}
                                 error={errors.email?.message}
                             />
                         )}
                     />
 
+                    {serverError ? (
+                        <DefaultView style={authStyles.errorContainer}>
+                            <Text style={authStyles.errorText}>{serverError}</Text>
+                        </DefaultView>
+                    ) : null}
+
                     <AppButton title="Send Reset Link" onPress={handleSubmit(onSubmit)} />
                 </ScrollView>
             </KeyboardAvoidingView>
-        </View>
+        </SafeAreaView>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        paddingHorizontal: 24,
-    },
-    flex: {
-        flex: 1,
-    },
-    scrollContent: {
-        flexGrow: 1,
-        paddingBottom: 60,
-    },
-    headerSection: {
-        marginBottom: 40,
-        alignItems: 'center',
-    },
-    title: {
-        fontSize: 28,
-        fontWeight: 'bold',
-        marginBottom: 10,
-    },
-    subtitle: {
-        fontSize: 16,
-        opacity: 0.6,
-        textAlign: 'center',
-        lineHeight: 24,
-    },
-    errorText: {
-        color: Colors.palette.error,
-        fontSize: 14,
-        fontWeight: '500',
-        marginTop: -8,
-        marginBottom: 8,
-    },
-});

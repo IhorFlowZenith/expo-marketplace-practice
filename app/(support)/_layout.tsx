@@ -22,8 +22,7 @@ export default function SupportLayout() {
             }}
         >
             <Stack.Screen name="contact" options={{ title: 'Contact Us' }} />
-            <Stack.Screen name="help" options={{ title: 'Help' }} />
-            <Stack.Screen name="share" options={{ title: 'Share' }} />
+            <Stack.Screen name="share" options={{ title: 'Share App' }} />
         </Stack>
     );
 }

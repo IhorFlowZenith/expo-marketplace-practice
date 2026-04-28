@@ -1,20 +1,27 @@
-import { Text, View, useThemeColor } from '@/components/Themed';
+import { Text, View, SafeAreaView, useThemeColor } from '@/components/Themed';
 import Colors from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
-import { View as DefaultView, Linking, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import { View as DefaultView, Linking, ScrollView, StyleSheet, Pressable } from 'react-native';
 
-function FAQItem({ id, question, answer, expandedId, setExpandedId }: any) {
+interface FAQItemProps {
+    id: number;
+    question: string;
+    answer: string;
+    expandedId: number | null;
+    setExpandedId: (id: number | null) => void;
+}
+
+function FAQItem({ id, question, answer, expandedId, setExpandedId }: FAQItemProps) {
     const isExpanded = expandedId === id;
     const cardBg = useThemeColor({ light: Colors.palette.cardLight, dark: Colors.palette.cardDark }, 'background');
     const iconColor = Colors.palette.primary;
 
     return (
         <DefaultView style={[styles.faqCard, { backgroundColor: cardBg }]}>
-            <TouchableOpacity
-                style={styles.faqHeader}
+            <Pressable
+                style={({ pressed }) => [styles.faqHeader, { opacity: pressed ? 0.7 : 1 }]}
                 onPress={() => setExpandedId(isExpanded ? null : id)}
-                activeOpacity={0.7}
             >
                 <Text style={styles.faqQuestion}>{question}</Text>
                 <Ionicons
@@ -22,7 +29,7 @@ function FAQItem({ id, question, answer, expandedId, setExpandedId }: any) {
                     size={22}
                     color={iconColor}
                 />
-            </TouchableOpacity>
+            </Pressable>
 
             {isExpanded && (
                 <DefaultView style={styles.answerContainer}>
@@ -39,27 +46,27 @@ export default function HelpCenterScreen() {
     const cardBg = useThemeColor({ light: Colors.palette.cardLight, dark: Colors.palette.cardDark }, 'background');
 
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
 
 
 
                 <DefaultView style={styles.contactSection}>
-                    <TouchableOpacity
+                    <Pressable
                         style={[styles.contactCard, { backgroundColor: cardBg }]}
                         onPress={() => Linking.openURL('mailto:pelykhihor3456@gmail.com')}
                     >
                         <Ionicons name="chatbubble-ellipses-outline" size={24} color={Colors.palette.primary} />
                         <Text style={styles.contactText}>Contact Support</Text>
-                    </TouchableOpacity>
+                    </Pressable>
 
-                    <TouchableOpacity
+                    <Pressable
                         style={[styles.contactCard, { backgroundColor: cardBg }]}
                         onPress={() => Linking.openURL('https://www.flowzenith.site')}
                     >
                         <Ionicons name="globe-outline" size={24} color={Colors.palette.primary} />
                         <Text style={styles.contactText}>Visit Website</Text>
-                    </TouchableOpacity>
+                    </Pressable>
                 </DefaultView>
 
                 <DefaultView style={styles.faqSection}>
@@ -96,7 +103,7 @@ export default function HelpCenterScreen() {
                 </DefaultView>
 
             </ScrollView>
-        </View>
+        </SafeAreaView>
     );
 }
 
@@ -106,7 +113,6 @@ const styles = StyleSheet.create({
     },
     content: {
         paddingHorizontal: 20,
-        paddingTop: 40,
         paddingBottom: 40,
     },
     headerSection: {

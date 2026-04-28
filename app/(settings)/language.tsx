@@ -1,8 +1,8 @@
-import { Text, View, useThemeColor } from '@/components/Themed';
+import { Text, View, SafeAreaView, useThemeColor } from '@/components/Themed';
 import Colors from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
-import { View as DefaultView, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import { View as DefaultView, ScrollView, StyleSheet, Pressable } from 'react-native';
 
 const languages = [
     { id: 'en', name: 'English', subName: 'United States' },
@@ -16,7 +16,7 @@ export default function LanguageScreen() {
     const primaryColor = Colors.palette.primary;
 
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
 
 
@@ -26,11 +26,10 @@ export default function LanguageScreen() {
                         const isSelected = lang.id === selectedId;
 
                         return (
-                            <TouchableOpacity
+                            <Pressable
                                 key={lang.id}
-                                style={[styles.langCard, { backgroundColor: cardBg }]}
+                                style={({ pressed }) => [[styles.langCard, { backgroundColor: cardBg }], { opacity: pressed ? 0.7 : 1 }]}
                                 onPress={() => setSelectedId(lang.id)}
-                                activeOpacity={0.7}
                             >
                                 <DefaultView style={styles.langInfo}>
                                     <Text style={styles.langName}>{lang.name}</Text>
@@ -40,13 +39,13 @@ export default function LanguageScreen() {
                                 {isSelected && (
                                     <Ionicons name="checkmark-circle" size={24} color={primaryColor} />
                                 )}
-                            </TouchableOpacity>
+                            </Pressable>
                         );
                     })}
                 </DefaultView>
 
             </ScrollView>
-        </View>
+        </SafeAreaView>
     );
 }
 
@@ -56,7 +55,6 @@ const styles = StyleSheet.create({
     },
     content: {
         paddingHorizontal: 20,
-        paddingTop: 40,
         paddingBottom: 40,
     },
     headerSection: {

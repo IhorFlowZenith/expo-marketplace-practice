@@ -1,10 +1,10 @@
-import { Text, View } from '@/components/Themed';
+import { Text, View, SafeAreaView } from '@/components/Themed';
 import Colors from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { View as DefaultView, ScrollView, StyleSheet } from 'react-native';
 
-function PrivacySection({ icon, title, content }: { icon: any, title: string, content: string }) {
+function PrivacySection({ icon, title, content }: { icon: keyof typeof Ionicons.glyphMap, title: string, content: string }) {
     const iconColor = Colors.palette.primary;
 
     return (
@@ -20,7 +20,7 @@ function PrivacySection({ icon, title, content }: { icon: any, title: string, co
 
 export default function PrivacyScreen() {
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
 
                 <DefaultView style={styles.body}>
@@ -54,7 +54,7 @@ export default function PrivacyScreen() {
                 </Text>
 
             </ScrollView>
-        </View>
+        </SafeAreaView>
     );
 }
 
@@ -64,7 +64,6 @@ const styles = StyleSheet.create({
     },
     content: {
         paddingHorizontal: 20,
-        paddingTop: 40,
         paddingBottom: 60,
     },
     headerSection: {

@@ -7,12 +7,12 @@ import {
 } from 'firebase/auth';
 
 const firebaseConfig = {
-    apiKey: "AIzaSyC7Awj-RKl1c3fl-bvP5pupvSUxax7gsZU",
-    authDomain: "expo-marketplace-practice.firebaseapp.com",
-    projectId: "expo-marketplace-practice",
-    storageBucket: "expo-marketplace-practice.firebasestorage.app",
-    messagingSenderId: "256935465203",
-    appId: "1:256935465203:web:67a5c5b213015be44ba786"
+    apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
+    authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
+    projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
+    storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+    appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID
 };
 
 const app = initializeApp(firebaseConfig);

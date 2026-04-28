@@ -14,6 +14,7 @@ import { useColorScheme } from '@/components/useColorScheme';
 import Colors from '@/constants/Colors';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
 import { SheetProvider } from 'react-native-actions-sheet';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 
 export { ErrorBoundary } from 'expo-router';
@@ -72,24 +73,25 @@ function RootLayoutNav() {
 
     return (
         <ThemeProvider value={colorScheme === 'dark' ? CustomDarkTheme : CustomDefaultTheme}>
-            <SheetProvider>
-                <View style={{ flex: 1, backgroundColor: bgColor }}>
-                    <Stack
-                        screenOptions={{
-                            headerShown: false,
-                            contentStyle: { backgroundColor: bgColor },
-                            animation: 'slide_from_right',
-                        }}
-                    >
-                        <Stack.Screen name="(auth)" />
-                        <Stack.Screen name="(tabs)" />
-                        <Stack.Screen name="(settings)" />
-                        <Stack.Screen name="(support)" />
-                        <Stack.Screen name="(profile-extra)" />
-                        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-                    </Stack>
-                </View>
-            </SheetProvider>
+            <SafeAreaProvider>
+                <SheetProvider>
+                    <View style={{ flex: 1, backgroundColor: bgColor }}>
+                        <Stack
+                            screenOptions={{
+                                headerShown: false,
+                                contentStyle: { backgroundColor: bgColor },
+                                animation: 'slide_from_right',
+                            }}
+                        >
+                            <Stack.Screen name="(auth)" />
+                            <Stack.Screen name="(tabs)" />
+                            <Stack.Screen name="(settings)" />
+                            <Stack.Screen name="(support)" />
+                            <Stack.Screen name="(profile-extra)" />
+                        </Stack>
+                    </View>
+                </SheetProvider>
+            </SafeAreaProvider>
         </ThemeProvider>
     );
 }
