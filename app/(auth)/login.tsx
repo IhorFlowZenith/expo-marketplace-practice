@@ -6,6 +6,7 @@ import Colors from '@/constants/Colors';
 import { authStyles } from '@/constants/authStyles';
 import { auth } from '@/constants/firebase';
 import { useGoogleAuth } from '@/hooks/useGoogleAuth';
+import { useTelegramAuth } from '@/hooks/useTelegramAuth';
 import { LoginFormData, loginSchema } from '@/schemas/authSchema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
@@ -19,6 +20,7 @@ export default function LoginScreen() {
     const [notFound, setNotFound] = useState(false);
     const textColor = useThemeColor({}, 'text');
     const { signInWithGoogle } = useGoogleAuth();
+    const { signInWithTelegram } = useTelegramAuth();
 
     const { control, handleSubmit, formState: { errors } } = useForm<LoginFormData>({
         resolver: zodResolver(loginSchema),
@@ -134,14 +136,9 @@ export default function LoginScreen() {
                             onPress={signInWithGoogle}
                         />
                         <SocialIconButton
-                            icon="logo-facebook"
-                            color="#1877F2"
-                            onPress={() => { }}
-                        />
-                        <SocialIconButton
                             icon="paper-plane"
                             color="#26A5E4"
-                            onPress={() => { }}
+                            onPress={signInWithTelegram}
                         />
                     </DefaultView>
 

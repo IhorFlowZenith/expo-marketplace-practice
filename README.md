@@ -1,4 +1,4 @@
-# 👟 Expo Marketplace Practice
+ # 👟 Expo Marketplace Practice
 
 Мобільний маркетплейс на **Expo SDK 54**. Практичний проєкт для освоєння архітектури, UI/UX та типізованої валідації в React Native.
 
@@ -30,7 +30,115 @@
 
 ---
 
-### 🟢 [28.04.2026] Favorites · Profile · Payment Card · My Orders · Support Screens · Refactoring
+### 🟢 [29.04.2026 – 30.04.2026] Firebase · Firestore · Checkout · Profile · Cart UX · Telegram OIDC · Avatar · Refactoring
+
+**Що зроблено:** Повна Firebase інтеграція, Checkout flow, профіль у Firestore, глобальний стан кошика/обраного, Telegram OIDC, рерайт VariantSelector, рефакторинг великих файлів, динамічні аватари, виправлення багів.
+
+---
+#### Рішення та обґрунтування
+
+**🗂 Архітектура Firestore та структура даних**
+- **Проблема:** Стара модель продукту мала лише `color` і `size` як рядки. Дані зберігалися локально в MOCK-масивах, що унеможливлювало реальну роботу магазину.
+- **Рішення:** Розроблено схему з колекціями: `products` (з вкладеними `variants[]` та `specs`), `carts`, `favorites`, `orders`, `users`. Впроваджено скрипт `seed-firestore.js` для початкового наповнення.
+- **Чому саме так:** Необхідно для підтримки реального e-commerce, де кожен варіант має свій `stock` та `sku`, а дані ізольовано за правилами `firestore.rules`.
+- **Компроміс:** Продукти доступні всім на читання, але запис можливий виключно через Admin SDK (backend).
+
+**🔌 Перехід на Real-time синхронізацію**
+- **Проблема:** Хуки `useCart` і `useFavorites` створювали окремі підписки `onSnapshot` на кожному екрані, дублюючи запити і створюючи розсинхрони.
+- **Рішення:** Створено глобальні `CartProvider` та `FavoritesProvider` у кореневому `_layout.tsx`. Замінено всі MOCK на дані з контексту.
+- **Чому саме так:** Одна підписка на весь додаток економить ліміти Firestore і дає миттєвий доступ до `count` (для бейджа в таббарі) без prop drilling.
+
+**🎨 VariantSelector: повний рерайт**
+- **Проблема:** Кольори відображалися некоректно (чорні квадрати замість hex), а рамки вибору не зникали при зміні через конфлікт inline-стилів.
+- **Рішення:** Впроваджено `COLOR_MAP` для конвертації назв у кольори. Додано стан disabled (перекреслено) для `stock: 0`. 
+- **Чому саме так:** Використання об'єктних стилів (динамічний `borderColor`) повністю вирішує баг з рамками, а `isLightColor()` гарантує контрастність чекмарку (білий/чорний).
+
+**🛒 Checkout Flow та Адреса**
+- **Проблема:** Checkout показував хардкодну ціну та адресу (`street`, `city`). Адреса в профілі зберігалася як один неструктурований рядок.
+- **Рішення:** Додано `country` та `postalCode` в `AddressModal`. `Checkout` тепер читає профіль з Firestore і дозволяє заповнити відсутні дані прямо під час оформлення.
+- **Чому саме так:** Зменшує кількість кроків для нових користувачів. Структурована адреса необхідна для подальшого масштабування доставки (розрахунок тарифів).
+
+**❌ Скасування замовлень клієнтом**
+- **Проблема:** Правила Firestore забороняли клієнтам оновлювати колекцію `orders`, тому користувачі не могли скасувати замовлення без звернення в підтримку.
+- **Рішення:** Розширено `firestore.rules` для дозволу `update`, додано кнопку `Cancel` на замовленнях у статусах `pending/active`.
+- **Чому саме так:** Дає користувачам автономію та зменшує навантаження на службу підтримки.
+
+**📱 Telegram OIDC Auth**
+- **Проблема:** Firebase не підтримує Telegram нативно, а React Native не має браузерних методів на зразок `signInWithPopup`.
+- **Рішення:** Впроваджено кастомний `oidc.telegram` через `expo-auth-session` з використанням Authorization Code + PKCE.
+- **Чому саме так:** Єдиний надійний спосіб інтеграції без WebView, що використовує офіційний OIDC-ендпоінт Telegram.
+- **Компроміс:** Потребує налаштування backend-проксі для перевірки підпису Telegram та генерації JWT (зараз залишено як TODO).
+
+**👤 Персоналізація профілю**
+- **Проблема:** Використовувалася статична іконка профілю без унікальності.
+- **Рішення:** Впроваджено компонент `UserAvatar`, що завантажує фото з Firestore або генерує унікальне зображення через `pravatar.cc` за хешем імені.
+- **Чому саме так:** Значно покращує UI/UX без вимоги завантажувати фото самостійно.
+
+**📜 Cart Layout UX**
+- **Проблема:** Товари і summary зливалися, summary прокручувався разом з товарами, що змушувало скролити вниз для натискання Checkout.
+- **Рішення:** Зафіксовано Order Summary знизу, список товарів зменшено та обгорнуто в `ScrollView`.
+- **Чому саме так:** Кнопка Checkout тепер завжди видима і доступна в 1 клік.
+
+```text
+[ Screen Top ]
++-------------------------+
+| [ Item 1: $120 ]        | <-- Scrollable Area
+| [ Item 2: $30  ]        |
+| [ Item 3: $15  ]        |
++-------------------------+
+| [ Fixed Bottom Sheet ]  | <-- Pinned Area
+| Subtotal: $165          |
+| Total: $165             |
+| [ CHECKOUT ]            |
++-------------------------+
+```
+
+#### Змінені файли
+
+| # | File | What changed |
+|---|------|--------------|
+| 🆕 | `types/index.ts` | Всі TypeScript типи |
+| 🆕 | `services/firestore.ts` | `ProductsService`, `CartService`, `FavoritesService`, `OrdersService`, `UserService`, `ReviewsService` |
+| 🆕 | `services/storage.ts` | Firebase Storage |
+| 🆕 | `hooks/useCart.ts` | Real-time кошик |
+| 🆕 | `hooks/useFavorites.ts` | Real-time обране |
+| 🆕 | `hooks/useOrders.ts` | Замовлення + `placeOrder()` + `cancelOrder()` |
+| 🆕 | `hooks/useProducts.ts` | `useProducts`, `useFeaturedProducts`, `useProduct` |
+| 🆕 | `hooks/useUserProfile.ts` | Профіль: `updateField`, `savePaymentCard`, `changePassword` |
+| 🆕 | `context/CartContext.tsx` | Глобальний стан кошика |
+| 🆕 | `context/FavoritesContext.tsx` | Глобальний стан обраного |
+| 🆕 | `components/ui/UserAvatar.tsx` | Рандомний аватар з `pravatar.cc` + fallback ініціали |
+| 🆕 | `firestore.rules` | Правила безпеки (+ дозволено скасування замовлень) |
+| 🆕 | `storage.rules` | Правила Storage |
+| 🆕 | `firestore.indexes.json` | 8 composite індексів |
+| 🆕 | `firebase.json` | Конфіг для `firebase deploy` |
+| 🆕 | `scripts/seed-firestore.js` | 8 продуктів |
+| 🔄 | `app/(tabs)/index.tsx` | `useFeaturedProducts()`, `UserAvatar` |
+| 🔄 | `app/(tabs)/cart.tsx` | `useCartContext`, ScrollView, фіксований summary |
+| 🔄 | `app/(tabs)/favorites.tsx` | `useFavoritesContext`, `useCartContext` |
+| 🔄 | `app/(tabs)/orders.tsx` | `useOrders()`, кнопка Cancel |
+| 🔄 | `app/(tabs)/products.tsx` | `useProducts(filters)` |
+| 🔄 | `app/(tabs)/search.tsx` | Firestore, пошук по `tags[]` |
+| 🔄 | `app/(tabs)/product-details/[id].tsx` | `useProduct()`, stock-aware variants, 454→283 рядки |
+| 🔄 | `app/(tabs)/checkout.tsx` | Повний flow з Firestore, 413→256 рядки, без PayPal |
+| 🔄 | `app/(auth)/register.tsx` | Зберігає профіль в Firestore |
+| 🔄 | `app/(profile-extra)/profile-details.tsx` | Firestore, `UserAvatar`, saving overlay |
+| 🔄 | `app/(tabs)/_layout.tsx` | `CartTabIcon` з бейджем |
+| 🔄 | `app/_layout.tsx` | `CartProvider`, `FavoritesProvider` |
+| 🔄 | `components/ProductCard.tsx` | Серце + кошик підключені, discountPrice |
+| 🔄 | `components/ui/VariantSelector.tsx` | `COLOR_MAP`, `isLightColor()`, disabled variants |
+| 🔄 | `components/profile/ChangePasswordModal.tsx` | Реальний Firebase Auth |
+| 🔄 | `hooks/useTelegramAuth.ts` | OIDC Code+PKCE, Expo Go detection |
+| 🔄 | `eas.json` | `env` секція в `preview` і `production` |
+| ❌ | `hooks/useFacebookAuth.ts` | Видалено |
+
+#### Заплановано
+- [ ] Відгуки на екрані деталей товару
+- [ ] Telegram deep link в APK
+
+---
+
+### 🔴 [28.04.2026] Favorites · Profile · Payment Card · My Orders · Support Screens · Refactoring
 
 **Що зроблено:** Реалізовано екран обраного, редагування профілю, управління картою оплати, екран замовлень, екрани Contact Us / Share App / Help та рефакторинг монолітних компонентів.
 

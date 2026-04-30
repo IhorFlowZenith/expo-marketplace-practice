@@ -6,6 +6,7 @@ import SocialIconButton from "@/components/ui/SocialIconButton";
 import Colors from '@/constants/Colors';
 import { authStyles } from '@/constants/authStyles';
 import { useGoogleAuth } from '@/hooks/useGoogleAuth';
+import { useTelegramAuth } from '@/hooks/useTelegramAuth';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { View as DefaultView, KeyboardAvoidingView, Pressable, ScrollView } from 'react-native';
@@ -20,6 +21,7 @@ export default function RegisterScreen() {
     const [serverError, setServerError] = useState('');
     const textColor = useThemeColor({}, 'text');
     const { signInWithGoogle } = useGoogleAuth();
+    const { signInWithTelegram } = useTelegramAuth();
     const clearError = () => setServerError('');
 
 
@@ -38,6 +40,19 @@ export default function RegisterScreen() {
         try {
             const result = await createUserWithEmailAndPassword(auth, data.email, data.password);
             await updateProfile(result.user, { displayName: data.fullName.trim() });
+
+            const { UserService } = await import('@/services/firestore');
+            await UserService.upsertProfile({
+                uid: result.user.uid,
+                displayName: data.fullName.trim(),
+                email: data.email,
+                phone: '',
+                addresses: [],
+                paymentCards: [],
+                notificationsEnabled: true,
+                language: 'en',
+            });
+
             router.replace('/(tabs)');
         } catch (e: unknown) {
             const error = e as { code?: string };
@@ -148,14 +163,9 @@ export default function RegisterScreen() {
                             onPress={signInWithGoogle}
                         />
                         <SocialIconButton
-                            icon="logo-facebook"
-                            color="#1877F2"
-                            onPress={() => { }}
-                        />
-                        <SocialIconButton
                             icon="paper-plane"
                             color="#26A5E4"
-                            onPress={() => { }}
+                            onPress={signInWithTelegram}
                         />
                     </DefaultView>
 

@@ -1,31 +1,42 @@
 import ProductCard from '@/components/ProductCard';
-import { Text, View, SafeAreaView, useThemeColor } from '@/components/Themed';
+import { SafeAreaView, Text, useThemeColor, View } from '@/components/Themed';
 import Colors from '@/constants/Colors';
-import { BRAND_OPTIONS, COLOR_OPTIONS, GENDER_OPTIONS, MOCK_PRODUCTS, PRODUCT_CATEGORIES, ProductItem, SORT_OPTIONS } from '@/constants/products';
+import { BRAND_OPTIONS, COLOR_OPTIONS, GENDER_OPTIONS, PRODUCT_CATEGORIES, SORT_OPTIONS } from '@/constants/products';
+import { ProductsService } from '@/services/firestore';
+import type { FilterOptions, ProductItem } from '@/types';
 import { Ionicons } from '@expo/vector-icons';
 import { FlashList } from "@shopify/flash-list";
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
-import { StyleSheet, TextInput, Pressable } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, TextInput } from 'react-native';
 import { SheetManager } from 'react-native-actions-sheet';
 
 export default function SearchScreen() {
     const router = useRouter();
     const params = useLocalSearchParams();
     const [query, setQuery] = useState((params.query as string) || '');
-    const [filters, setFilters] = useState({
+    const [allProducts, setAllProducts] = useState<ProductItem[]>([]);
+    const [loadingProducts, setLoadingProducts] = useState(true);
+    const [filters, setFilters] = useState<FilterOptions>({
         category: (params.category as string) || PRODUCT_CATEGORIES[0],
         gender: GENDER_OPTIONS[0],
         brand: BRAND_OPTIONS[0],
         color: COLOR_OPTIONS[0],
         minPrice: 0,
         maxPrice: 1000,
-        sort: SORT_OPTIONS[0]
+        sort: SORT_OPTIONS[0],
     });
 
     useEffect(() => {
+        ProductsService.getAll().then((products) => {
+            setAllProducts(products);
+            setLoadingProducts(false);
+        });
+    }, []);
+
+    useEffect(() => {
         if (params.category) {
-            setFilters(p => ({ ...p, category: params.category as string }));
+            setFilters(prevFilters => ({ ...prevFilters, category: params.category as string }));
         }
     }, [params.category]);
 
@@ -35,18 +46,26 @@ export default function SearchScreen() {
     };
 
     const filteredProducts = useMemo(() => {
-        let res = [...MOCK_PRODUCTS];
+        let results = [...allProducts];
         if (query) {
             const searchStr = query.toLowerCase();
-            res = res.filter(p => p.name.toLowerCase().includes(searchStr) || p.category?.toLowerCase().includes(searchStr));
+            results = results.filter(product =>
+                product.name.toLowerCase().includes(searchStr) ||
+                product.category?.toLowerCase().includes(searchStr) ||
+                product.brand?.toLowerCase().includes(searchStr) ||
+                product.tags?.some(tag => tag.toLowerCase().includes(searchStr))
+            );
         }
-        if (filters.category !== "All") res = res.filter(p => p.category === filters.category);
-        if (filters.gender !== "All") res = res.filter(p => p.gender === filters.gender);
-        if (filters.brand !== "All") res = res.filter(p => p.brand === filters.brand);
-        if (filters.color !== "All") res = res.filter(p => p.color === filters.color);
-        res = res.filter(p => p.price >= filters.minPrice && p.price <= filters.maxPrice);
-        return res;
-    }, [query, filters]);
+        if (filters.category !== "All") results = results.filter(product => product.category === filters.category);
+        if (filters.gender !== "All") results = results.filter(product => product.gender === filters.gender);
+        if (filters.brand !== "All") results = results.filter(product => product.brand === filters.brand);
+        if (filters.color !== "All") results = results.filter(product =>
+            product.availableColors?.includes(filters.color) ||
+            product.variants?.some(variant => variant.color === filters.color)
+        );
+        results = results.filter(product => product.price >= filters.minPrice && product.price <= filters.maxPrice);
+        return results;
+    }, [query, filters, allProducts]);
 
     const reset = () => {
         setQuery('');
@@ -57,7 +76,7 @@ export default function SearchScreen() {
             color: COLOR_OPTIONS[0],
             minPrice: 0,
             maxPrice: 1000,
-            sort: SORT_OPTIONS[0]
+            sort: SORT_OPTIONS[0],
         });
     };
 
@@ -97,12 +116,13 @@ export default function SearchScreen() {
                 <Text style={styles.countText}>{filteredProducts.length} Results Found</Text>
             </View>
             <View style={{ flex: 1 }}>
-                {filteredProducts.length > 0 ? (
+                {loadingProducts ? (
+                    <ActivityIndicator color={Colors.palette.primary} style={{ flex: 1 }} />
+                ) : filteredProducts.length > 0 ? (
                     <FlashList<ProductItem>
                         data={filteredProducts}
                         numColumns={2}
                         keyExtractor={item => item.id}
-                        estimatedItemSize={250}
                         contentContainerStyle={{ paddingHorizontal: 18, paddingBottom: 40 }}
                         renderItem={({ item }) => (
                             <View style={{ flex: 1, padding: 6 }}>

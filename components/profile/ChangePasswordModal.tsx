@@ -55,9 +55,10 @@ function PasswordInputRow({
 interface ChangePasswordModalProps {
     visible: boolean;
     onClose: () => void;
+    onChangePassword?: (currentPw: string, newPw: string) => Promise<boolean>;
 }
 
-export default function ChangePasswordModal({ visible, onClose }: ChangePasswordModalProps) {
+export default function ChangePasswordModal({ visible, onClose, onChangePassword }: ChangePasswordModalProps) {
     const textColor = useThemeColor({}, 'text');
     const cardBg = useThemeColor({ light: Colors.palette.cardLight, dark: Colors.palette.cardDark }, 'background');
     const inputBg = useThemeColor({ light: Colors.palette.inputBgLight, dark: Colors.palette.accentBgDark }, 'background');
@@ -79,12 +80,17 @@ export default function ChangePasswordModal({ visible, onClose }: ChangePassword
         onClose();
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
         if (!currentPw.trim()) { setPwError('Enter your current password'); return; }
         if (newPw.length < 6) { setPwError('New password must be at least 6 characters'); return; }
         if (newPw !== confirmPw) { setPwError('Passwords do not match'); return; }
-        // TODO: call Firebase updatePassword(auth.currentUser, newPw)
-        handleClose();
+
+        if (onChangePassword) {
+            const success = await onChangePassword(currentPw, newPw);
+            if (success) handleClose();
+        } else {
+            handleClose();
+        }
     };
 
     const clearError = (setter: (v: string) => void) => (v: string) => {

@@ -13,6 +13,8 @@ import '@/components/sheets';
 import { useColorScheme } from '@/components/useColorScheme';
 import Colors from '@/constants/Colors';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
+import { CartProvider } from '@/context/CartContext';
+import { FavoritesProvider } from '@/context/FavoritesContext';
 import { SheetProvider } from 'react-native-actions-sheet';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
@@ -39,7 +41,11 @@ export default function RootLayout() {
 
     return (
         <AuthProvider>
-            <RootLayoutNav />
+            <CartProvider>
+                <FavoritesProvider>
+                    <RootLayoutNav />
+                </FavoritesProvider>
+            </CartProvider>
         </AuthProvider>
     );
 }

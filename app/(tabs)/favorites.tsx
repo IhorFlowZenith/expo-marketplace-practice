@@ -1,10 +1,12 @@
 import { SafeAreaView, Text, View, useThemeColor } from '@/components/Themed';
 import Colors from '@/constants/Colors';
-import { MOCK_PRODUCTS, ProductItem } from '@/constants/products';
+import { useCartContext } from '@/context/CartContext';
+import { useFavoritesContext } from '@/context/FavoritesContext';
+import type { CartItem } from '@/types';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
-import { Image, Pressable, ScrollView, StyleSheet } from 'react-native';
+import React from 'react';
+import { ActivityIndicator, Image, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Swipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 
@@ -12,14 +14,24 @@ export default function FavoritesScreen() {
   const router = useRouter();
   const textColor = useThemeColor({}, 'text');
   const cardBg = useThemeColor({ light: '#F5F5F7', dark: '#1C1C1E' }, 'background');
-  const [items, setItems] = useState<ProductItem[]>([MOCK_PRODUCTS[0], MOCK_PRODUCTS[2], MOCK_PRODUCTS[4]]);
 
-  const removeItem = (id: string) => {
-    setItems((prev) => prev.filter((item) => item.id !== id));
-  };
+  const { items, loading, removeFavorite } = useFavoritesContext();
+  const { addItem } = useCartContext();
 
-  const addToCart = (id: string) => {
-    setItems((prev) => prev.filter((item) => item.id !== id));
+  const handleAddToCart = async (productId: string) => {
+    const item = items.find(fav => fav.productId === productId);
+    if (!item) return;
+    const cartItem: CartItem = {
+      id: item.productId,
+      productId: item.productId,
+      name: item.name,
+      brand: item.brand,
+      price: item.price,
+      quantity: 1,
+      image: item.image,
+    };
+    await addItem(cartItem);
+    await removeFavorite(productId);
   };
 
   return (
@@ -36,50 +48,54 @@ export default function FavoritesScreen() {
           <View style={styles.headerPlaceholder} />
         </View>
 
-        <ScrollView
-          style={styles.list}
-          contentContainerStyle={styles.listContent}
-          showsVerticalScrollIndicator={false}
-        >
-          {items.length === 0 ? (
-            <View style={styles.emptyState}>
-              <Ionicons name="heart-dislike-outline" size={64} color={Colors.palette.textMuted} />
-              <Text style={styles.emptyStateText}>No favorites yet</Text>
-            </View>
-          ) : (
-            items.map((item) => (
-              <Swipeable
-                key={item.id}
-                containerStyle={styles.swipeContainer}
-                overshootRight={false}
-                friction={2}
-                rightThreshold={30}
-                onSwipeableOpen={() => removeItem(item.id)}
-                renderRightActions={() => (
-                  <View style={styles.deleteAction}>
-                    <Ionicons name="trash-outline" size={24} color={Colors.palette.white} />
-                    <Text style={styles.deleteLabel}>Delete</Text>
+        {loading ? (
+          <ActivityIndicator color={Colors.palette.primary} style={{ flex: 1 }} />
+        ) : (
+          <ScrollView
+            style={styles.list}
+            contentContainerStyle={styles.listContent}
+            showsVerticalScrollIndicator={false}
+          >
+            {items.length === 0 ? (
+              <View style={styles.emptyState}>
+                <Ionicons name="heart-dislike-outline" size={64} color={Colors.palette.textMuted} />
+                <Text style={styles.emptyStateText}>No favorites yet</Text>
+              </View>
+            ) : (
+              items.map((item) => (
+                <Swipeable
+                  key={item.productId}
+                  containerStyle={styles.swipeContainer}
+                  overshootRight={false}
+                  friction={2}
+                  rightThreshold={30}
+                  onSwipeableOpen={() => removeFavorite(item.productId)}
+                  renderRightActions={() => (
+                    <View style={styles.deleteAction}>
+                      <Ionicons name="trash-outline" size={24} color={Colors.palette.white} />
+                      <Text style={styles.deleteLabel}>Delete</Text>
+                    </View>
+                  )}
+                >
+                  <View style={[styles.row, { backgroundColor: cardBg }]}>
+                    <Image source={{ uri: item.image }} style={styles.image} />
+                    <View style={styles.content}>
+                      <Text style={styles.name}>{item.name}</Text>
+                      <Text style={styles.brand}>{item.brand}</Text>
+                      <Text style={styles.price}>${item.price}</Text>
+                    </View>
+                    <Pressable
+                      onPress={() => handleAddToCart(item.productId)}
+                      style={({ pressed }) => [styles.addToCartBtn, { opacity: pressed ? 0.7 : 1 }]}
+                    >
+                      <Ionicons name="bag-add" size={20} color={Colors.palette.white} />
+                    </Pressable>
                   </View>
-                )}
-              >
-                <View style={[styles.row, { backgroundColor: cardBg }]}>
-                  <Image source={{ uri: item.image }} style={styles.image} />
-                  <View style={styles.content}>
-                    <Text style={styles.name}>{item.name}</Text>
-                    <Text style={styles.brand}>{item.brand}</Text>
-                    <Text style={styles.price}>${item.price}</Text>
-                  </View>
-                  <Pressable
-                    onPress={() => addToCart(item.id)}
-                    style={({ pressed }) => [styles.addToCartBtn, { opacity: pressed ? 0.7 : 1 }]}
-                  >
-                    <Ionicons name="bag-add" size={20} color={Colors.palette.white} />
-                  </Pressable>
-                </View>
-              </Swipeable>
-            ))
-          )}
-        </ScrollView>
+                </Swipeable>
+              ))
+            )}
+          </ScrollView>
+        )}
       </SafeAreaView>
     </GestureHandlerRootView>
   );

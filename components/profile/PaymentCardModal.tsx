@@ -12,9 +12,9 @@ export type PaymentCard = {
 };
 
 const DEFAULT_CARD: PaymentCard = {
-    holderName: 'Pelykh Ihor',
-    number: '4242',
-    expiry: '12/27',
+    holderName: '',
+    number: '',
+    expiry: '',
     cvv: '',
 };
 

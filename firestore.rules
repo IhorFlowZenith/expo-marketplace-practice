@@ -1,0 +1,52 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ─── PRODUCTS ───────────────────────────────────────
+    // Читати може будь-хто, писати — тільки адмін (через Firebase Admin SDK)
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if false; // тільки через Admin SDK або Firebase Console
+    }
+
+    // ─── REVIEWS ────────────────────────────────────────
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create: if request.auth != null
+        && request.resource.data.userId == request.auth.uid;
+      allow delete: if request.auth != null
+        && resource.data.userId == request.auth.uid;
+      allow update: if false;
+    }
+
+    // ─── CART ────────────────────────────────────────────
+    // Тільки власник може читати/писати свій кошик
+    match /carts/{userId} {
+      allow read, write: if request.auth != null
+        && request.auth.uid == userId;
+    }
+
+    // ─── FAVORITES ──────────────────────────────────────
+    match /favorites/{userId} {
+      allow read, write: if request.auth != null
+        && request.auth.uid == userId;
+    }
+
+    // ─── ORDERS ─────────────────────────────────────────
+    match /orders/{orderId} {
+      allow read: if request.auth != null
+        && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null
+        && request.resource.data.userId == request.auth.uid;
+      allow update: if request.auth != null
+        && resource.data.userId == request.auth.uid;
+      allow delete: if false;
+    }
+
+    // ─── USERS ──────────────────────────────────────────
+    match /users/{userId} {
+      allow read, write: if request.auth != null
+        && request.auth.uid == userId;
+    }
+  }
+}

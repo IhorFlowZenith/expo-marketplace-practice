@@ -1,12 +1,14 @@
 import ProductCard from '@/components/ProductCard';
 import { SafeAreaView, Text, View, useThemeColor } from '@/components/Themed';
 import Colors from '@/constants/Colors';
-import { BRAND_OPTIONS, COLOR_OPTIONS, GENDER_OPTIONS, MOCK_PRODUCTS, PRODUCT_CATEGORIES, ProductItem, SORT_OPTIONS } from '@/constants/products';
+import { BRAND_OPTIONS, COLOR_OPTIONS, GENDER_OPTIONS, SORT_OPTIONS } from '@/constants/products';
+import { useProducts } from '@/hooks/useProducts';
+import type { FilterOptions, ProductItem } from '@/types';
 import { Ionicons } from '@expo/vector-icons';
 import { FlashList } from '@shopify/flash-list';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useEffect, useMemo, useState } from 'react';
-import { Pressable, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, Pressable, StyleSheet } from 'react-native';
 import { SheetManager } from 'react-native-actions-sheet';
 
 export default function ProductsScreen() {
@@ -15,7 +17,7 @@ export default function ProductsScreen() {
   const textColor = useThemeColor({}, 'text');
 
   const currentCategory = params.category || 'All';
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<FilterOptions>({
     category: currentCategory,
     gender: GENDER_OPTIONS[0],
     brand: BRAND_OPTIONS[0],
@@ -31,23 +33,7 @@ export default function ProductsScreen() {
     }
   }, [params.category]);
 
-  const products = useMemo(() => {
-    let result = [...MOCK_PRODUCTS];
-
-    if (filters.category !== PRODUCT_CATEGORIES[0]) result = result.filter((item) => item.category === filters.category);
-    if (filters.gender !== GENDER_OPTIONS[0]) result = result.filter((item) => item.gender === filters.gender);
-    if (filters.brand !== BRAND_OPTIONS[0]) result = result.filter((item) => item.brand === filters.brand);
-    if (filters.color !== COLOR_OPTIONS[0]) result = result.filter((item) => item.color === filters.color);
-    result = result.filter((item) => item.price >= filters.minPrice && item.price <= filters.maxPrice);
-
-    if (filters.sort === 'Price: Low to High') {
-      result.sort((a, b) => a.price - b.price);
-    } else if (filters.sort === 'Price: High to Low') {
-      result.sort((a, b) => b.price - a.price);
-    }
-
-    return result;
-  }, [filters]);
+  const { products, loading } = useProducts(filters);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -78,9 +64,13 @@ export default function ProductsScreen() {
           </View>
         )}
         ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>No products found with selected filters.</Text>
-          </View>
+          loading ? (
+            <ActivityIndicator color={Colors.palette.primary} style={{ marginTop: 60 }} />
+          ) : (
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>No products found with selected filters.</Text>
+            </View>
+          )
         }
       />
     </SafeAreaView>

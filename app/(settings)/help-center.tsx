@@ -1,8 +1,8 @@
-import { Text, View, SafeAreaView, useThemeColor } from '@/components/Themed';
+import { SafeAreaView, Text, useThemeColor, View } from '@/components/Themed';
 import Colors from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
-import { View as DefaultView, Linking, ScrollView, StyleSheet, Pressable } from 'react-native';
+import { View as DefaultView, Linking, Pressable, ScrollView, StyleSheet } from 'react-native';
 
 interface FAQItemProps {
     id: number;
@@ -48,9 +48,6 @@ export default function HelpCenterScreen() {
     return (
         <SafeAreaView style={styles.container}>
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-
-
-
                 <DefaultView style={styles.contactSection}>
                     <Pressable
                         style={[styles.contactCard, { backgroundColor: cardBg }]}
@@ -114,19 +111,6 @@ const styles = StyleSheet.create({
     content: {
         paddingHorizontal: 20,
         paddingBottom: 40,
-    },
-    headerSection: {
-        marginBottom: 30,
-        backgroundColor: 'transparent',
-    },
-    headerTitle: {
-        fontSize: 28,
-        fontWeight: '700',
-    },
-    subTitle: {
-        fontSize: 16,
-        color: Colors.palette.textMuted,
-        marginTop: 6,
     },
     contactSection: {
         flexDirection: 'row',

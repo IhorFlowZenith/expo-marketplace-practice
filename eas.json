@@ -12,10 +12,32 @@
       "distribution": "internal",
       "android": {
         "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_FIREBASE_API_KEY": "AIzaSyC7Awj-RKl1c3fl-bvP5pupvSUxax7gsZU",
+        "EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN": "expo-marketplace-practice.firebaseapp.com",
+        "EXPO_PUBLIC_FIREBASE_PROJECT_ID": "expo-marketplace-practice",
+        "EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET": "expo-marketplace-practice.firebasestorage.app",
+        "EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "256935465203",
+        "EXPO_PUBLIC_FIREBASE_APP_ID": "1:256935465203:web:67a5c5b213015be44ba786",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "256935465203-1qp2al5dr565sdpg9r8desd7si1fo2k9.apps.googleusercontent.com",
+        "EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID": "256935465203-66h09b3gpd4pudt9q7miu85ji36cnjoa.apps.googleusercontent.com",
+        "EXPO_PUBLIC_TELEGRAM_CLIENT_SECRET": "d-R8GZbSnMT0HJOlBsOmLP-Mj4ErQSlCKPFe3pCvt77itg6LK8uByQ"
       }
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_FIREBASE_API_KEY": "AIzaSyC7Awj-RKl1c3fl-bvP5pupvSUxax7gsZU",
+        "EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN": "expo-marketplace-practice.firebaseapp.com",
+        "EXPO_PUBLIC_FIREBASE_PROJECT_ID": "expo-marketplace-practice",
+        "EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET": "expo-marketplace-practice.firebasestorage.app",
+        "EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "256935465203",
+        "EXPO_PUBLIC_FIREBASE_APP_ID": "1:256935465203:web:67a5c5b213015be44ba786",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "256935465203-1qp2al5dr565sdpg9r8desd7si1fo2k9.apps.googleusercontent.com",
+        "EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID": "256935465203-66h09b3gpd4pudt9q7miu85ji36cnjoa.apps.googleusercontent.com",
+        "EXPO_PUBLIC_TELEGRAM_CLIENT_SECRET": "d-R8GZbSnMT0HJOlBsOmLP-Mj4ErQSlCKPFe3pCvt77itg6LK8uByQ"
+      }
     }
   },
   "submit": {

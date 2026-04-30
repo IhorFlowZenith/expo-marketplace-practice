@@ -5,6 +5,7 @@ import { View as DefaultView, Image, Pressable, ScrollView, StyleSheet } from 'r
 
 import SettingsItem from '@/components/SettingsItem';
 import { SafeAreaView, Text, useThemeColor, View } from '@/components/Themed';
+import UserAvatar from '@/components/ui/UserAvatar';
 import Colors from '@/constants/Colors';
 import { useAuth } from '@/context/AuthContext';
 
@@ -17,13 +18,9 @@ export default function ProfileScreen() {
         <SafeAreaView style={styles.container}>
             <ScrollView contentContainerStyle={styles.content}>
                 <DefaultView style={styles.header}>
-                    <View style={styles.avatarContainer} lightColor={Colors.palette.accentBgLight} darkColor={Colors.palette.accentBgDark}>
-                        {user?.photoURL ? (
-                            <Image source={{ uri: user.photoURL }} style={styles.avatar} />
-                        ) : (
-                            <Ionicons name="person" size={50} color={Colors.palette.primary} />
-                        )}
-                    </View>
+                    <DefaultView style={styles.avatarContainer}>
+                        <UserAvatar name={user?.displayName || ''} email={user?.email || ''} size={100} />
+                    </DefaultView>
 
                     <Text style={styles.name}>{user?.displayName || 'User Name'}</Text>
                     <Text style={styles.email}>{user?.email || 'No email provided'}</Text>
