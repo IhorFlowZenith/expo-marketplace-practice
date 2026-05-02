@@ -15,10 +15,12 @@
     },
     "backgroundColor": "#000000",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.pelykhihor.marketplace"
     },
     "android": {
       "package": "com.pelykhihor.marketplace",
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#000000"
@@ -28,12 +30,10 @@
       "intentFilters": [
         {
           "action": "VIEW",
-          "autoVerify": true,
           "data": [
             {
-              "scheme": "https",
-              "host": "app3929269548-login.tg.dev",
-              "pathPrefix": "/tglogin"
+              "scheme": "marketplace",
+              "host": "tglogin"
             }
           ],
           "category": [
@@ -49,7 +49,16 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "@react-native-google-signin/google-signin",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/icon.png",
+          "color": "#6055D8",
+          "sounds": []
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

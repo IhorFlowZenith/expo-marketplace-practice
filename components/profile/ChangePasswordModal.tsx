@@ -1,36 +1,14 @@
 import { Text, useThemeColor } from '@/components/Themed';
 import Colors from '@/constants/Colors';
+import { useLanguage } from '@/context/LanguageContext';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
-import {
-    View as DefaultView,
-    Modal,
-    Pressable,
-    StyleSheet,
-    TextInput,
-} from 'react-native';
+import { View as DefaultView, Modal, Pressable, StyleSheet, TextInput } from 'react-native';
 
-interface PasswordInputRowProps {
-    value: string;
-    onChangeText: (text: string) => void;
-    placeholder: string;
-    show: boolean;
-    onToggleShow: () => void;
-    inputBg: string;
-    textColor: string;
-    borderColor: string;
-}
-
-function PasswordInputRow({
-    value,
-    onChangeText,
-    placeholder,
-    show,
-    onToggleShow,
-    inputBg,
-    textColor,
-    borderColor,
-}: PasswordInputRowProps) {
+function PasswordInputRow({ value, onChangeText, placeholder, show, onToggleShow, inputBg, textColor, borderColor }: {
+    value: string; onChangeText: (text: string) => void; placeholder: string;
+    show: boolean; onToggleShow: () => void; inputBg: string; textColor: string; borderColor: string;
+}) {
     return (
         <DefaultView style={[styles.pwRow, { backgroundColor: inputBg, borderColor }]}>
             <TextInput
@@ -42,11 +20,7 @@ function PasswordInputRow({
                 placeholderTextColor={Colors.palette.placeholder}
             />
             <Pressable onPress={onToggleShow} style={styles.eyeBtn}>
-                <Ionicons
-                    name={show ? 'eye-off-outline' : 'eye-outline'}
-                    size={20}
-                    color={Colors.palette.textMuted}
-                />
+                <Ionicons name={show ? 'eye-off-outline' : 'eye-outline'} size={20} color={Colors.palette.textMuted} />
             </Pressable>
         </DefaultView>
     );
@@ -63,6 +37,7 @@ export default function ChangePasswordModal({ visible, onClose, onChangePassword
     const cardBg = useThemeColor({ light: Colors.palette.cardLight, dark: Colors.palette.cardDark }, 'background');
     const inputBg = useThemeColor({ light: Colors.palette.inputBgLight, dark: Colors.palette.accentBgDark }, 'background');
     const borderColor = useThemeColor({ light: Colors.palette.borderLight, dark: Colors.palette.borderDark }, 'text');
+    const { t } = useLanguage();
 
     const [currentPw, setCurrentPw] = useState('');
     const [newPw, setNewPw] = useState('');
@@ -73,18 +48,14 @@ export default function ChangePasswordModal({ visible, onClose, onChangePassword
     const [showConfirm, setShowConfirm] = useState(false);
 
     const handleClose = () => {
-        setCurrentPw('');
-        setNewPw('');
-        setConfirmPw('');
-        setPwError(null);
+        setCurrentPw(''); setNewPw(''); setConfirmPw(''); setPwError(null);
         onClose();
     };
 
     const handleSave = async () => {
-        if (!currentPw.trim()) { setPwError('Enter your current password'); return; }
-        if (newPw.length < 6) { setPwError('New password must be at least 6 characters'); return; }
-        if (newPw !== confirmPw) { setPwError('Passwords do not match'); return; }
-
+        if (!currentPw.trim()) { setPwError(t('modals.errors.enterCurrentPw')); return; }
+        if (newPw.length < 6) { setPwError(t('modals.errors.newPwLength')); return; }
+        if (newPw !== confirmPw) { setPwError(t('modals.errors.pwNoMatch')); return; }
         if (onChangePassword) {
             const success = await onChangePassword(currentPw, newPw);
             if (success) handleClose();
@@ -93,75 +64,31 @@ export default function ChangePasswordModal({ visible, onClose, onChangePassword
         }
     };
 
-    const clearError = (setter: (v: string) => void) => (v: string) => {
-        setter(v);
-        setPwError(null);
-    };
+    const clearError = (setter: (v: string) => void) => (v: string) => { setter(v); setPwError(null); };
 
     return (
-        <Modal
-            visible={visible}
-            transparent
-            animationType="slide"
-            onRequestClose={handleClose}
-        >
+        <Modal visible={visible} transparent animationType="slide" onRequestClose={handleClose}>
             <Pressable style={styles.overlay} onPress={handleClose}>
-                <Pressable style={[styles.content, { backgroundColor: cardBg }]} onPress={() => { }}>
+                <Pressable style={[styles.content, { backgroundColor: cardBg }]} onPress={() => {}}>
                     <DefaultView style={styles.header}>
-                        <Text style={styles.title}>Change Password</Text>
-                        <Pressable
-                            onPress={handleClose}
-                            style={({ pressed }) => [styles.closeBtn, { opacity: pressed ? 0.6 : 1 }]}
-                        >
+                        <Text style={styles.title}>{t('modals.changePassword')}</Text>
+                        <Pressable onPress={handleClose} style={({ pressed }) => [styles.closeBtn, { opacity: pressed ? 0.6 : 1 }]}>
                             <Ionicons name="close" size={22} color={textColor} />
                         </Pressable>
                     </DefaultView>
 
-                    <PasswordInputRow
-                        value={currentPw}
-                        onChangeText={clearError(setCurrentPw)}
-                        placeholder="Current password"
-                        show={showCurrent}
-                        onToggleShow={() => setShowCurrent((p) => !p)}
-                        inputBg={inputBg}
-                        textColor={textColor}
-                        borderColor={borderColor}
-                    />
-                    <PasswordInputRow
-                        value={newPw}
-                        onChangeText={clearError(setNewPw)}
-                        placeholder="New password (min 6 chars)"
-                        show={showNew}
-                        onToggleShow={() => setShowNew((p) => !p)}
-                        inputBg={inputBg}
-                        textColor={textColor}
-                        borderColor={borderColor}
-                    />
-                    <PasswordInputRow
-                        value={confirmPw}
-                        onChangeText={clearError(setConfirmPw)}
-                        placeholder="Confirm new password"
-                        show={showConfirm}
-                        onToggleShow={() => setShowConfirm((p) => !p)}
-                        inputBg={inputBg}
-                        textColor={textColor}
-                        borderColor={borderColor}
-                    />
+                    <PasswordInputRow value={currentPw} onChangeText={clearError(setCurrentPw)} placeholder={t('modals.currentPassword')} show={showCurrent} onToggleShow={() => setShowCurrent(p => !p)} inputBg={inputBg} textColor={textColor} borderColor={borderColor} />
+                    <PasswordInputRow value={newPw} onChangeText={clearError(setNewPw)} placeholder={t('modals.newPassword')} show={showNew} onToggleShow={() => setShowNew(p => !p)} inputBg={inputBg} textColor={textColor} borderColor={borderColor} />
+                    <PasswordInputRow value={confirmPw} onChangeText={clearError(setConfirmPw)} placeholder={t('modals.confirmPassword')} show={showConfirm} onToggleShow={() => setShowConfirm(p => !p)} inputBg={inputBg} textColor={textColor} borderColor={borderColor} />
 
                     {pwError && <Text style={styles.errorText}>{pwError}</Text>}
 
                     <DefaultView style={styles.actions}>
-                        <Pressable
-                            onPress={handleClose}
-                            style={({ pressed }) => [styles.cancelBtn, { borderColor, opacity: pressed ? 0.7 : 1 }]}
-                        >
-                            <Text style={styles.cancelText}>Cancel</Text>
+                        <Pressable onPress={handleClose} style={({ pressed }) => [styles.cancelBtn, { borderColor, opacity: pressed ? 0.7 : 1 }]}>
+                            <Text style={styles.cancelText}>{t('modals.cancel')}</Text>
                         </Pressable>
-                        <Pressable
-                            onPress={handleSave}
-                            style={({ pressed }) => [styles.saveBtn, { opacity: pressed ? 0.85 : 1 }]}
-                        >
-                            <Text style={styles.saveText}>Update</Text>
+                        <Pressable onPress={handleSave} style={({ pressed }) => [styles.saveBtn, { opacity: pressed ? 0.85 : 1 }]}>
+                            <Text style={styles.saveText}>{t('modals.update')}</Text>
                         </Pressable>
                     </DefaultView>
                 </Pressable>
@@ -171,85 +98,18 @@ export default function ChangePasswordModal({ visible, onClose, onChangePassword
 }
 
 const styles = StyleSheet.create({
-    overlay: {
-        flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        justifyContent: 'flex-end',
-    },
-    content: {
-        borderTopLeftRadius: 24,
-        borderTopRightRadius: 24,
-        paddingHorizontal: 24,
-        paddingTop: 20,
-        paddingBottom: 36,
-    },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 20,
-    },
-    title: {
-        fontSize: 20,
-        fontWeight: '700',
-    },
-    closeBtn: {
-        width: 36,
-        height: 36,
-        borderRadius: 18,
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: 'rgba(0,0,0,0.06)',
-    },
-    pwRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        borderRadius: 14,
-        borderWidth: 1,
-        marginBottom: 12,
-        paddingHorizontal: 12,
-    },
-    pwInput: {
-        flex: 1,
-        height: 52,
-        fontSize: 16,
-    },
-    eyeBtn: {
-        paddingHorizontal: 4,
-    },
-    errorText: {
-        color: Colors.palette.error,
-        fontSize: 13,
-        marginBottom: 12,
-        marginLeft: 4,
-    },
-    actions: {
-        flexDirection: 'row',
-        gap: 12,
-    },
-    cancelBtn: {
-        flex: 1,
-        height: 50,
-        borderRadius: 25,
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderWidth: 1.5,
-    },
-    cancelText: {
-        fontSize: 16,
-        fontWeight: '600',
-    },
-    saveBtn: {
-        flex: 1,
-        height: 50,
-        borderRadius: 25,
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: Colors.palette.primary,
-    },
-    saveText: {
-        fontSize: 16,
-        fontWeight: '700',
-        color: Colors.palette.white,
-    },
+    overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
+    content: { borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingHorizontal: 24, paddingTop: 20, paddingBottom: 36 },
+    header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
+    title: { fontSize: 20, fontWeight: '700' },
+    closeBtn: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.06)' },
+    pwRow: { flexDirection: 'row', alignItems: 'center', borderRadius: 14, borderWidth: 1, marginBottom: 12, paddingHorizontal: 12 },
+    pwInput: { flex: 1, height: 52, fontSize: 16 },
+    eyeBtn: { paddingHorizontal: 4 },
+    errorText: { color: Colors.palette.error, fontSize: 13, marginBottom: 12, marginLeft: 4 },
+    actions: { flexDirection: 'row', gap: 12 },
+    cancelBtn: { flex: 1, height: 50, borderRadius: 25, alignItems: 'center', justifyContent: 'center', borderWidth: 1.5 },
+    cancelText: { fontSize: 16, fontWeight: '600' },
+    saveBtn: { flex: 1, height: 50, borderRadius: 25, alignItems: 'center', justifyContent: 'center', backgroundColor: Colors.palette.primary },
+    saveText: { fontSize: 16, fontWeight: '700', color: Colors.palette.white },
 });

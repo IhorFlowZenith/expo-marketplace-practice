@@ -1,14 +1,16 @@
 import ProductCard from '@/components/ProductCard';
 import { SafeAreaView, Text, View, useThemeColor } from '@/components/Themed';
+import { ProductGridSkeleton } from '@/components/ui/Skeleton';
 import Colors from '@/constants/Colors';
 import { BRAND_OPTIONS, COLOR_OPTIONS, GENDER_OPTIONS, SORT_OPTIONS } from '@/constants/products';
+import { useLanguage } from '@/context/LanguageContext';
 import { useProducts } from '@/hooks/useProducts';
 import type { FilterOptions, ProductItem } from '@/types';
 import { Ionicons } from '@expo/vector-icons';
 import { FlashList } from '@shopify/flash-list';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet } from 'react-native';
+import { Pressable, StyleSheet } from 'react-native';
 import { SheetManager } from 'react-native-actions-sheet';
 
 export default function ProductsScreen() {
@@ -17,6 +19,7 @@ export default function ProductsScreen() {
   const textColor = useThemeColor({}, 'text');
 
   const currentCategory = params.category || 'All';
+  const { t } = useLanguage();
   const [filters, setFilters] = useState<FilterOptions>({
     category: currentCategory,
     gender: GENDER_OPTIONS[0],
@@ -44,7 +47,7 @@ export default function ProductsScreen() {
         >
           <Ionicons name="arrow-back" size={24} color={textColor} />
         </Pressable>
-        <Text style={styles.title}>Products</Text>
+        <Text style={styles.title}>{t('products.title')}</Text>
         <Pressable
           onPress={() => SheetManager.show('filters-sheet', { payload: { onApply: setFilters, initialFilters: filters } })}
           style={({ pressed }) => [styles.filterButton, { opacity: pressed ? 0.75 : 1 }]}
@@ -65,10 +68,10 @@ export default function ProductsScreen() {
         )}
         ListEmptyComponent={
           loading ? (
-            <ActivityIndicator color={Colors.palette.primary} style={{ marginTop: 60 }} />
+            <ProductGridSkeleton count={6} />
           ) : (
             <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>No products found with selected filters.</Text>
+              <Text style={styles.emptyText}>{t('products.noProducts')}</Text>
             </View>
           )
         }

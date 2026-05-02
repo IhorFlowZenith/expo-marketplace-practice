@@ -5,6 +5,7 @@ import SocialIconButton from "@/components/ui/SocialIconButton";
 import Colors from '@/constants/Colors';
 import { authStyles } from '@/constants/authStyles';
 import { auth } from '@/constants/firebase';
+import { useLanguage } from '@/context/LanguageContext';
 import { useGoogleAuth } from '@/hooks/useGoogleAuth';
 import { useTelegramAuth } from '@/hooks/useTelegramAuth';
 import { LoginFormData, loginSchema } from '@/schemas/authSchema';
@@ -21,6 +22,7 @@ export default function LoginScreen() {
     const textColor = useThemeColor({}, 'text');
     const { signInWithGoogle } = useGoogleAuth();
     const { signInWithTelegram } = useTelegramAuth();
+    const { t } = useLanguage();
 
     const { control, handleSubmit, formState: { errors } } = useForm<LoginFormData>({
         resolver: zodResolver(loginSchema),
@@ -40,18 +42,18 @@ export default function LoginScreen() {
             const error = e as { code?: string };
             switch (error.code) {
                 case 'auth/user-not-found':
-                    setServerError('No account found with this email.');
+                    setServerError(t('auth.login.errors.notFound'));
                     setNotFound(true);
                     break;
                 case 'auth/invalid-credential':
                 case 'auth/wrong-password':
-                    setServerError('Invalid email or password');
+                    setServerError(t('auth.login.errors.invalidCredential'));
                     break;
                 case 'auth/too-many-requests':
-                    setServerError('Too many attempts. Please try again later.');
+                    setServerError(t('auth.login.errors.tooManyRequests'));
                     break;
                 default:
-                    setServerError('Something went wrong. Please try again.');
+                    setServerError(t('auth.login.errors.generic'));
             }
         }
     };
@@ -63,8 +65,8 @@ export default function LoginScreen() {
                     showsVerticalScrollIndicator={false}
                     keyboardShouldPersistTaps="handled">
                     <View style={authStyles.headerSection}>
-                        <Text style={authStyles.title}>Welcome Back!</Text>
-                        <Text style={authStyles.subtitle}>Login to your account to continue</Text>
+                        <Text style={authStyles.title}>{t('auth.login.title')}</Text>
+                        <Text style={authStyles.subtitle}>{t('auth.login.subtitle')}</Text>
                     </View>
 
                     <Controller
@@ -72,14 +74,14 @@ export default function LoginScreen() {
                         name="email"
                         render={({ field: { onChange, value } }) => (
                             <AppInput
-                                label="Email"
+                                label={t('auth.login.email')}
                                 icon="mail-outline"
                                 placeholder="user@email.com"
                                 keyboardType="email-address"
                                 autoCapitalize="none"
                                 value={value}
-                                onChangeText={(t) => {
-                                    onChange(t);
+                                onChangeText={(t2) => {
+                                    onChange(t2);
                                     if (serverError) setServerError('');
                                 }}
                                 error={errors.email?.message}
@@ -92,13 +94,13 @@ export default function LoginScreen() {
                         name="password"
                         render={({ field: { onChange, value } }) => (
                             <AppInput
-                                label="Password"
+                                label={t('auth.login.password')}
                                 icon="lock-closed-outline"
                                 placeholder="••••••••"
                                 isPassword
                                 value={value}
-                                onChangeText={(t) => {
-                                    onChange(t);
+                                onChangeText={(t2) => {
+                                    onChange(t2);
                                     if (serverError) setServerError('');
                                 }}
                                 error={errors.password?.message}
@@ -118,14 +120,14 @@ export default function LoginScreen() {
                     ) : null}
 
                     <Pressable onPress={() => router.push('/forgot-password')} style={styles.forgotPassword}>
-                        <Text style={[styles.forgotText, { color: textColor }]}>Forgot Password?</Text>
+                        <Text style={[styles.forgotText, { color: textColor }]}>{t('auth.login.forgotPassword')}</Text>
                     </Pressable>
 
-                    <AppButton title="Login" onPress={handleSubmit(onSubmit)} />
+                    <AppButton title={t('auth.login.loginBtn')} onPress={handleSubmit(onSubmit)} />
 
                     <DefaultView style={authStyles.dividerContainer}>
                         <DefaultView style={[authStyles.dividerLine, { backgroundColor: textColor, opacity: 0.15 }]} />
-                        <Text style={authStyles.dividerText}>or</Text>
+                        <Text style={authStyles.dividerText}>{t('auth.login.or')}</Text>
                         <DefaultView style={[authStyles.dividerLine, { backgroundColor: textColor, opacity: 0.15 }]} />
                     </DefaultView>
 
@@ -143,9 +145,9 @@ export default function LoginScreen() {
                     </DefaultView>
 
                     <DefaultView style={authStyles.footer}>
-                        <Text style={authStyles.footerText}>Don't have an account? </Text>
+                        <Text style={authStyles.footerText}>{t('auth.login.noAccount')} </Text>
                         <Pressable onPress={() => router.push('/register')}>
-                            <Text style={authStyles.footerLink}>Sign Up</Text>
+                            <Text style={authStyles.footerLink}>{t('auth.login.signUp')}</Text>
                         </Pressable>
                     </DefaultView>
                 </ScrollView>

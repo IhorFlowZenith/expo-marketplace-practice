@@ -1,14 +1,16 @@
 import ProductCard from '@/components/ProductCard';
 import { SafeAreaView, Text, useThemeColor, View } from '@/components/Themed';
+import { ProductGridSkeleton } from '@/components/ui/Skeleton';
 import Colors from '@/constants/Colors';
 import { BRAND_OPTIONS, COLOR_OPTIONS, GENDER_OPTIONS, PRODUCT_CATEGORIES, SORT_OPTIONS } from '@/constants/products';
+import { useLanguage } from '@/context/LanguageContext';
 import { ProductsService } from '@/services/firestore';
 import type { FilterOptions, ProductItem } from '@/types';
 import { Ionicons } from '@expo/vector-icons';
 import { FlashList } from "@shopify/flash-list";
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, TextInput } from 'react-native';
+import { Pressable, StyleSheet, TextInput } from 'react-native';
 import { SheetManager } from 'react-native-actions-sheet';
 
 export default function SearchScreen() {
@@ -44,6 +46,7 @@ export default function SearchScreen() {
         text: useThemeColor({}, 'text'),
         input: useThemeColor({ light: '#F5F5F7', dark: '#2C2C2E' }, 'background'),
     };
+    const { t } = useLanguage();
 
     const filteredProducts = useMemo(() => {
         let results = [...allProducts];
@@ -90,7 +93,7 @@ export default function SearchScreen() {
                     <Ionicons name="search" size={20} color="#888" />
                     <TextInput
                         style={[styles.input, { color: colors.text }]}
-                        placeholder="Search..."
+                        placeholder={t('search.placeholder')}
                         placeholderTextColor="#888"
                         autoFocus={true}
                         value={query}
@@ -111,13 +114,13 @@ export default function SearchScreen() {
             </View>
             <View style={styles.summaryRow}>
                 <Text style={styles.resultsFor}>
-                    Results for <Text style={{ color: colors.text }}>"{query || filters.category}"</Text>
+                    {t('search.resultsFor')} <Text style={{ color: colors.text }}>"{query || filters.category}"</Text>
                 </Text>
-                <Text style={styles.countText}>{filteredProducts.length} Results Found</Text>
+                <Text style={styles.countText}>{filteredProducts.length} {t('search.resultsFound')}</Text>
             </View>
             <View style={{ flex: 1 }}>
                 {loadingProducts ? (
-                    <ActivityIndicator color={Colors.palette.primary} style={{ flex: 1 }} />
+                    <ProductGridSkeleton count={6} />
                 ) : filteredProducts.length > 0 ? (
                     <FlashList<ProductItem>
                         data={filteredProducts}
@@ -133,9 +136,9 @@ export default function SearchScreen() {
                 ) : (
                     <View style={styles.empty}>
                         <Ionicons name="search-outline" size={80} color="#888" />
-                        <Text style={styles.emptyText}>No products found</Text>
+                        <Text style={styles.emptyText}>{t('search.noProducts')}</Text>
                         <Pressable style={({ pressed }) => [styles.clearBtn, { opacity: pressed ? 0.7 : 1 }]} onPress={reset}>
-                            <Text style={{ color: Colors.palette.primary, fontWeight: 'bold' }}>Clear all</Text>
+                            <Text style={{ color: Colors.palette.primary, fontWeight: 'bold' }}>{t('search.clearAll')}</Text>
                         </Pressable>
                     </View>
                 )}

@@ -4,15 +4,17 @@ import PaymentCardModal, { PaymentCard as ModalCard } from '@/components/profile
 import SummaryRow from '@/components/SummaryRow';
 import { SafeAreaView, Text, View, useThemeColor } from '@/components/Themed';
 import AppButton from '@/components/ui/AppButton';
+import { FormSectionSkeleton } from '@/components/ui/Skeleton';
 import Colors from '@/constants/Colors';
 import { useCartContext } from '@/context/CartContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { useOrders } from '@/hooks/useOrders';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import type { Address, PaymentCard, PaymentMethod } from '@/types';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, View as DefaultView, Pressable, ScrollView, StyleSheet } from 'react-native';
+import { Alert, View as DefaultView, Pressable, ScrollView, StyleSheet } from 'react-native';
 
 function PaymentOption({ icon, label, sub, selected, onPress }: {
 	icon: React.ReactNode;
@@ -44,6 +46,7 @@ export default function CheckoutScreen() {
 	const cardBg = useThemeColor({ light: '#F5F5F7', dark: '#1C1C1E' }, 'background');
 	const separatorColor = useThemeColor({ light: '#E0E0E0', dark: '#3A3A3C' }, 'text');
 	const mutedColor = useThemeColor({ light: '#8E8E93', dark: '#9A9AA0' }, 'text');
+	const { t } = useLanguage();
 
 	const { items, summary } = useCartContext();
 	const { profile, loading: profileLoading, savePaymentCard, updateField, saveAddress } = useUserProfile();
@@ -79,12 +82,11 @@ export default function CheckoutScreen() {
 	};
 
 	const handlePlaceOrder = async () => {
-		if (!hasPhone) { Alert.alert('Phone required', 'Please add your phone number'); return; }
-		if (!hasAddress) { Alert.alert('Address required', 'Please add your delivery address'); return; }
-		if (!hasCard && paymentMethod === 'card') { Alert.alert('Payment required', 'Please add a payment card'); return; }
+		if (!hasPhone) { Alert.alert(t('checkout.errors.phoneRequired'), t('checkout.errors.addPhone')); return; }
+		if (!hasAddress) { Alert.alert(t('checkout.errors.addressRequired'), t('checkout.errors.addAddress')); return; }
+		if (!hasCard && paymentMethod === 'card') { Alert.alert(t('checkout.errors.paymentRequired'), t('checkout.errors.addCard')); return; }
 
 		const deliveryAddress: Address = profile!.addresses![0];
-
 		setPlacing(true);
 		try {
 			const orderId = await placeOrder(items, {
@@ -104,9 +106,7 @@ export default function CheckoutScreen() {
 	};
 
 	const saveEditPhone = async () => {
-		if (editModal.field) {
-			await updateField(editModal.field, editValue.trim());
-		}
+		if (editModal.field) await updateField(editModal.field, editValue.trim());
 		setEditModal({ visible: false, field: null });
 	};
 
@@ -117,8 +117,12 @@ export default function CheckoutScreen() {
 
 	if (profileLoading) {
 		return (
-			<SafeAreaView style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-				<ActivityIndicator color={Colors.palette.primary} size="large" />
+			<SafeAreaView style={styles.container}>
+				<ScrollView contentContainerStyle={{ padding: 20, gap: 16 }} showsVerticalScrollIndicator={false}>
+					<FormSectionSkeleton rows={2} />
+					<FormSectionSkeleton rows={3} />
+					<FormSectionSkeleton rows={2} />
+				</ScrollView>
 			</SafeAreaView>
 		);
 	}
@@ -129,12 +133,11 @@ export default function CheckoutScreen() {
 				<Pressable onPress={() => router.back()} style={({ pressed }) => [styles.backButton, { opacity: pressed ? 0.7 : 1 }]}>
 					<Ionicons name="arrow-back" size={22} color={textColor} />
 				</Pressable>
-				<Text style={[styles.headerTitle, { color: textColor }]}>Check Out</Text>
+				<Text style={[styles.headerTitle, { color: textColor }]}>{t('checkout.title')}</Text>
 				<DefaultView style={styles.headerPlaceholder} />
 			</View>
 
 			<ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-
 				<View style={styles.infoSection}>
 					<View style={styles.infoRow}>
 						<View style={styles.infoIconCircle}>
@@ -143,7 +146,7 @@ export default function CheckoutScreen() {
 						<View style={styles.infoTextWrap}>
 							{hasAddress ? (
 								<>
-									<Text style={[styles.infoTitle, { color: textColor }]}>Delivery Address</Text>
+									<Text style={[styles.infoTitle, { color: textColor }]}>{t('checkout.deliveryAddress')}</Text>
 									<Text style={[styles.infoSub, { color: mutedColor }]}>
 										{profile!.addresses![0].street}, {profile!.addresses![0].city}, {profile!.addresses![0].country} {profile!.addresses![0].postalCode}
 									</Text>
@@ -151,7 +154,7 @@ export default function CheckoutScreen() {
 							) : (
 								<Pressable onPress={() => setAddressModalVisible(true)} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1, paddingVertical: 10 }]}>
 									<View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-										<Text style={[styles.infoTitle, { color: mutedColor, marginBottom: 0 }]}>Add Delivery Address</Text>
+										<Text style={[styles.infoTitle, { color: mutedColor, marginBottom: 0 }]}>{t('checkout.addDeliveryAddress')}</Text>
 										<DefaultView style={styles.addCardCircle}>
 											<Ionicons name="add" size={16} color={Colors.palette.primary} />
 										</DefaultView>
@@ -168,13 +171,13 @@ export default function CheckoutScreen() {
 						<View style={styles.infoTextWrap}>
 							{hasPhone ? (
 								<>
-									<Text style={[styles.infoTitle, { color: textColor }]}>Phone Number</Text>
+									<Text style={[styles.infoTitle, { color: textColor }]}>{t('checkout.phoneNumber')}</Text>
 									<Text style={[styles.infoSub, { color: mutedColor }]}>{profile!.phone}</Text>
 								</>
 							) : (
 								<Pressable onPress={openEditPhone} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1, paddingVertical: 10 }]}>
 									<View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-										<Text style={[styles.infoTitle, { color: mutedColor, marginBottom: 0 }]}>Add Phone Number</Text>
+										<Text style={[styles.infoTitle, { color: mutedColor, marginBottom: 0 }]}>{t('checkout.addPhoneNumber')}</Text>
 										<DefaultView style={styles.addCardCircle}>
 											<Ionicons name="add" size={16} color={Colors.palette.primary} />
 										</DefaultView>
@@ -190,39 +193,38 @@ export default function CheckoutScreen() {
 								<Ionicons name="time" size={20} color={Colors.palette.white} />
 							</View>
 							<View style={styles.infoTextWrap}>
-								<Text style={[styles.infoTitle, { color: textColor }]}>Standard Delivery</Text>
-								<Text style={[styles.infoSub, { color: mutedColor }]}>3–5 business days</Text>
+								<Text style={[styles.infoTitle, { color: textColor }]}>{t('checkout.standardDelivery')}</Text>
+								<Text style={[styles.infoSub, { color: mutedColor }]}>{t('checkout.deliveryDays')}</Text>
 							</View>
 						</View>
 					)}
 				</View>
 
 				<View style={[styles.card, { backgroundColor: cardBg }]}>
-					<Text style={[styles.cardTitle, { color: textColor }]}>Order Summary</Text>
-					<SummaryRow label="Items" value={summary.count} />
-					<SummaryRow label="Subtotal" value={`$${summary.subtotal}`} />
-					<SummaryRow label="Discount" value={`$${summary.discount}`} />
-					<SummaryRow label="Delivery Charges" value={`$${summary.delivery}`} />
+					<Text style={[styles.cardTitle, { color: textColor }]}>{t('checkout.orderSummary')}</Text>
+					<SummaryRow label={t('cart.items')} value={summary.count} />
+					<SummaryRow label={t('cart.subtotal')} value={`${summary.subtotal}`} />
+					<SummaryRow label={t('cart.discount')} value={`${summary.discount}`} />
+					<SummaryRow label={t('cart.delivery')} value={`${summary.delivery}`} />
 					<DefaultView style={[styles.separator, { borderTopColor: separatorColor }]} />
 					<DefaultView style={styles.totalRow}>
-						<Text style={[styles.totalLabel, { color: textColor }]}>Total</Text>
+						<Text style={[styles.totalLabel, { color: textColor }]}>{t('cart.total')}</Text>
 						<Text style={[styles.totalValue, { color: textColor }]}>${summary.total}</Text>
 					</DefaultView>
 				</View>
 
 				<View style={{ backgroundColor: 'transparent' }}>
-					<Text style={[styles.paymentTitle, { color: textColor }]}>Choose payment method</Text>
-
+					<Text style={[styles.paymentTitle, { color: textColor }]}>{t('checkout.choosePayment')}</Text>
 					<PaymentOption
 						icon={<Ionicons name="card" size={22} color="#4A90E2" />}
-						label="Credit Card"
+						label={t('checkout.creditCard')}
 						sub={hasCard ? `${defaultCard!.brand?.toUpperCase()} •••• ${defaultCard!.lastFour}` : undefined}
 						selected={paymentMethod === 'card'}
 						onPress={() => setPaymentMethod('card')}
 					/>
 					{paymentMethod === 'card' && !hasCard && (
 						<Pressable onPress={() => setCardModal(true)} style={({ pressed }) => [styles.addCardRow, { opacity: pressed ? 0.7 : 1 }]}>
-							<Text style={[styles.addCardText, { color: mutedColor }]}>Add new payment method</Text>
+							<Text style={[styles.addCardText, { color: mutedColor }]}>{t('profileDetails.addCard')}</Text>
 							<DefaultView style={styles.addCardCircle}>
 								<Ionicons name="add" size={16} color={Colors.palette.primary} />
 							</DefaultView>
@@ -230,27 +232,21 @@ export default function CheckoutScreen() {
 					)}
 					<PaymentOption
 						icon={<MaterialCommunityIcons name="cash" size={22} color="#F4B400" />}
-						label="Cash"
+						label={t('checkout.cash')}
 						selected={paymentMethod === 'cash'}
 						onPress={() => setPaymentMethod('cash')}
 					/>
 				</View>
 
 				<AppButton
-					title={placing ? 'Placing Order...' : 'Check Out'}
+					title={placing ? t('checkout.placingOrder') : t('checkout.title')}
 					onPress={handlePlaceOrder}
 					style={{ opacity: placing ? 0.7 : 1, marginTop: 8 }}
 				/>
 			</ScrollView>
 
 			<PaymentCardModal visible={cardModal} onSave={handleSaveCard} onClose={() => setCardModal(false)} />
-
-			<AddressModal
-				visible={addressModalVisible}
-				onSave={handleSaveAddress}
-				onClose={() => setAddressModalVisible(false)}
-			/>
-
+			<AddressModal visible={addressModalVisible} onSave={handleSaveAddress} onClose={() => setAddressModalVisible(false)} />
 			<EditFieldModal
 				visible={editModal.visible}
 				field={editModal.field}
@@ -266,125 +262,55 @@ export default function CheckoutScreen() {
 const styles = StyleSheet.create({
 	container: { flex: 1 },
 	header: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		justifyContent: 'space-between',
-		paddingHorizontal: 20,
-		paddingVertical: 12,
-		backgroundColor: 'transparent',
+		flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+		paddingHorizontal: 20, paddingVertical: 12, backgroundColor: 'transparent',
 	},
 	backButton: {
-		width: 40,
-		height: 40,
-		borderRadius: 20,
-		alignItems: 'center',
-		justifyContent: 'center',
+		width: 40, height: 40, borderRadius: 20,
+		alignItems: 'center', justifyContent: 'center',
 		backgroundColor: 'rgba(128,128,128,0.1)',
 	},
 	headerTitle: { fontSize: 22, fontWeight: '700' },
 	headerPlaceholder: { width: 40 },
-	scrollContent: {
-		paddingHorizontal: 20,
-		paddingBottom: 40,
-		gap: 20,
-	},
-	infoSection: {
-		gap: 16,
-		backgroundColor: 'transparent',
-	},
-	infoRow: {
-		flexDirection: 'row',
-		alignItems: 'flex-start',
-		gap: 14,
-		backgroundColor: 'transparent',
-	},
+	scrollContent: { paddingHorizontal: 20, paddingBottom: 40, gap: 20 },
+	infoSection: { gap: 16, backgroundColor: 'transparent' },
+	infoRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 14, backgroundColor: 'transparent' },
 	infoIconCircle: {
-		width: 44,
-		height: 44,
-		borderRadius: 22,
+		width: 44, height: 44, borderRadius: 22,
 		backgroundColor: Colors.palette.primary,
-		alignItems: 'center',
-		justifyContent: 'center',
-		marginTop: 2,
-		flexShrink: 0,
+		alignItems: 'center', justifyContent: 'center', marginTop: 2, flexShrink: 0,
 	},
-	infoTextWrap: {
-		flex: 1,
-		backgroundColor: 'transparent',
-	},
-	infoTitle: {
-		fontSize: 16,
-		fontWeight: '600',
-		marginBottom: 2,
-	},
-	infoSub: {
-		fontSize: 13,
-	},
-	card: {
-		borderRadius: 16,
-		padding: 16,
-	},
-	cardTitle: {
-		fontSize: 18,
-		fontWeight: '700',
-		marginBottom: 12,
-	},
-	separator: {
-		marginVertical: 10,
-		borderTopWidth: 1,
-	},
-	totalRow: {
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-	},
+	infoTextWrap: { flex: 1, backgroundColor: 'transparent' },
+	infoTitle: { fontSize: 16, fontWeight: '600', marginBottom: 2 },
+	infoSub: { fontSize: 13 },
+	card: { borderRadius: 16, padding: 16 },
+	cardTitle: { fontSize: 18, fontWeight: '700', marginBottom: 12 },
+	separator: { marginVertical: 10, borderTopWidth: 1 },
+	totalRow: { flexDirection: 'row', justifyContent: 'space-between' },
 	totalLabel: { fontSize: 18, fontWeight: '700' },
 	totalValue: { fontSize: 18, fontWeight: '700' },
-	paymentTitle: {
-		fontSize: 18,
-		fontWeight: '700',
-		marginBottom: 12,
-	},
+	paymentTitle: { fontSize: 18, fontWeight: '700', marginBottom: 12 },
 	paymentRow: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		justifyContent: 'space-between',
-		paddingVertical: 12,
-		backgroundColor: 'transparent',
+		flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+		paddingVertical: 12, backgroundColor: 'transparent',
 	},
-	paymentLeft: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		gap: 14,
-		backgroundColor: 'transparent',
-	},
+	paymentLeft: { flexDirection: 'row', alignItems: 'center', gap: 14, backgroundColor: 'transparent' },
 	paymentText: { fontSize: 16, fontWeight: '500' },
 	paymentSub: { fontSize: 12, color: Colors.palette.textMuted, marginTop: 1 },
 	radio: {
-		width: 26,
-		height: 26,
-		borderRadius: 13,
+		width: 26, height: 26, borderRadius: 13,
 		backgroundColor: 'rgba(128,128,128,0.12)',
-		alignItems: 'center',
-		justifyContent: 'center',
+		alignItems: 'center', justifyContent: 'center',
 	},
-	radioActive: {
-		backgroundColor: Colors.palette.primary + '25',
-	},
+	radioActive: { backgroundColor: Colors.palette.primary + '25' },
 	addCardRow: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		justifyContent: 'space-between',
-		paddingVertical: 10,
-		paddingLeft: 36,
-		backgroundColor: 'transparent',
+		flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+		paddingVertical: 10, paddingLeft: 36, backgroundColor: 'transparent',
 	},
 	addCardText: { fontSize: 15, fontWeight: '500' },
 	addCardCircle: {
-		width: 26,
-		height: 26,
-		borderRadius: 13,
+		width: 26, height: 26, borderRadius: 13,
 		backgroundColor: 'rgba(128,128,128,0.12)',
-		alignItems: 'center',
-		justifyContent: 'center',
+		alignItems: 'center', justifyContent: 'center',
 	},
 });

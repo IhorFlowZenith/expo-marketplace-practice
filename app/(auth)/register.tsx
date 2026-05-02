@@ -5,6 +5,7 @@ import BackButton from "@/components/ui/BackButton";
 import SocialIconButton from "@/components/ui/SocialIconButton";
 import Colors from '@/constants/Colors';
 import { authStyles } from '@/constants/authStyles';
+import { useLanguage } from '@/context/LanguageContext';
 import { useGoogleAuth } from '@/hooks/useGoogleAuth';
 import { useTelegramAuth } from '@/hooks/useTelegramAuth';
 import { router } from 'expo-router';
@@ -22,6 +23,7 @@ export default function RegisterScreen() {
     const textColor = useThemeColor({}, 'text');
     const { signInWithGoogle } = useGoogleAuth();
     const { signInWithTelegram } = useTelegramAuth();
+    const { t } = useLanguage();
     const clearError = () => setServerError('');
 
 
@@ -53,18 +55,26 @@ export default function RegisterScreen() {
                 language: 'en',
             });
 
+            const { NotificationsService } = await import('@/services/firestore');
+            await NotificationsService.create(
+                result.user.uid,
+                'welcome',
+                `🎉 Welcome, ${data.fullName.trim().split(' ')[0]}!`,
+                'Buy whenever and wherever you are 🧡'
+            );
+
             router.replace('/(tabs)');
         } catch (e: unknown) {
             const error = e as { code?: string };
             switch (error.code) {
                 case 'auth/email-already-in-use':
-                    setServerError('An account with this email already exists');
+                    setServerError(t('auth.register.errors.emailInUse'));
                     break;
                 case 'auth/weak-password':
-                    setServerError('Password is too weak. Use at least 6 characters.');
+                    setServerError(t('auth.register.errors.generic'));
                     break;
                 default:
-                    setServerError('Something went wrong. Please try again.');
+                    setServerError(t('auth.register.errors.generic'));
             }
         }
     };
@@ -81,8 +91,8 @@ export default function RegisterScreen() {
                     bounces={false}
                 >
                     <DefaultView style={authStyles.headerSection}>
-                        <Text style={authStyles.title}>Create Account</Text>
-                        <Text style={authStyles.subtitle}>Fill your details or continue with social media</Text>
+                        <Text style={authStyles.title}>{t('auth.register.title')}</Text>
+                        <Text style={authStyles.subtitle}>{t('auth.register.subtitle')}</Text>
                     </DefaultView>
 
                     <Controller
@@ -90,12 +100,12 @@ export default function RegisterScreen() {
                         name="fullName"
                         render={({ field: { onChange, value } }) => (
                             <AppInput
-                                label="Full Name"
+                                label={t('auth.register.fullName')}
                                 icon="person-outline"
                                 placeholder="Your full name"
                                 value={value}
-                                onChangeText={(t) => {
-                                    onChange(t);
+                                onChangeText={(t2) => {
+                                    onChange(t2);
                                     clearError();
                                 }}
                                 error={errors.fullName?.message}
@@ -108,14 +118,14 @@ export default function RegisterScreen() {
                         name="email"
                         render={({ field: { onChange, value } }) => (
                             <AppInput
-                                label="Email"
+                                label={t('auth.register.email')}
                                 icon="mail-outline"
                                 placeholder="user@email.com"
                                 keyboardType="email-address"
                                 autoCapitalize="none"
                                 value={value}
-                                onChangeText={(t) => {
-                                    onChange(t);
+                                onChangeText={(t2) => {
+                                    onChange(t2);
                                     if (serverError) setServerError('');
                                 }}
                                 error={errors.email?.message}
@@ -128,13 +138,13 @@ export default function RegisterScreen() {
                         name="password"
                         render={({ field: { onChange, value } }) => (
                             <AppInput
-                                label="Password"
+                                label={t('auth.register.password')}
                                 icon="lock-closed-outline"
                                 placeholder="••••••••"
                                 isPassword
                                 value={value}
-                                onChangeText={(t) => {
-                                    onChange(t);
+                                onChangeText={(t2) => {
+                                    onChange(t2);
                                     if (serverError) setServerError('');
                                 }}
                                 error={errors.password?.message}
@@ -148,11 +158,11 @@ export default function RegisterScreen() {
                         </DefaultView>
                     ) : null}
 
-                    <AppButton title="Sign Up" onPress={handleSubmit(onSubmit)} />
+                    <AppButton title={t('auth.register.signUpBtn')} onPress={handleSubmit(onSubmit)} />
 
                     <DefaultView style={authStyles.dividerContainer}>
                         <DefaultView style={[authStyles.dividerLine, { backgroundColor: textColor, opacity: 0.15 }]} />
-                        <Text style={authStyles.dividerText}>or</Text>
+                        <Text style={authStyles.dividerText}>{t('auth.login.or')}</Text>
                         <DefaultView style={[authStyles.dividerLine, { backgroundColor: textColor, opacity: 0.15 }]} />
                     </DefaultView>
 
@@ -170,9 +180,9 @@ export default function RegisterScreen() {
                     </DefaultView>
 
                     <DefaultView style={authStyles.footer}>
-                        <Text style={authStyles.footerText}>Already have an account? </Text>
+                        <Text style={authStyles.footerText}>{t('auth.register.haveAccount')} </Text>
                         <Pressable onPress={() => router.back()}>
-                            <Text style={authStyles.footerLink}>Log In</Text>
+                            <Text style={authStyles.footerLink}>{t('auth.register.logIn')}</Text>
                         </Pressable>
                     </DefaultView>
                 </ScrollView>

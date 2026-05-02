@@ -3,6 +3,7 @@ import AppButton from '@/components/ui/AppButton';
 import AppInput from '@/components/ui/AppInput';
 import BackButton from "@/components/ui/BackButton";
 import { authStyles } from '@/constants/authStyles';
+import { useLanguage } from '@/context/LanguageContext';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
@@ -21,6 +22,7 @@ import { Controller, useForm } from "react-hook-form";
 
 export default function ForgotPasswordScreen() {
     const [serverError, setServerError] = useState('');
+    const { t } = useLanguage();
 
     const { control, handleSubmit, formState: { errors } } = useForm<ForgotPasswordFormData>({
         resolver: zodResolver(forgotPasswordSchema),
@@ -39,10 +41,10 @@ export default function ForgotPasswordScreen() {
             const error = e as { code?: string };
             switch (error.code) {
                 case 'auth/user-not-found':
-                    setServerError('No account found with this email');
+                    setServerError(t('auth.forgotPassword.errors.notFound'));
                     break;
                 default:
-                    setServerError('Something went wrong. Please try again.');
+                    setServerError(t('auth.forgotPassword.errors.generic'));
             }
         }
     };
@@ -59,10 +61,8 @@ export default function ForgotPasswordScreen() {
                     bounces={false}
                 >
                     <DefaultView style={authStyles.headerSection}>
-                        <Text style={authStyles.title}>Forgot Password?</Text>
-                        <Text style={authStyles.subtitle}>
-                            Enter your email address and we'll send you a link to reset your password.
-                        </Text>
+                        <Text style={authStyles.title}>{t('auth.forgotPassword.title')}</Text>
+                        <Text style={authStyles.subtitle}>{t('auth.forgotPassword.subtitle')}</Text>
                     </DefaultView>
 
                     <Controller
@@ -70,13 +70,13 @@ export default function ForgotPasswordScreen() {
                         name="email"
                         render={({ field: { onChange, value } }) => (
                             <AppInput
-                                label="Email"
+                                label={t('auth.forgotPassword.email')}
                                 icon="mail-outline"
                                 placeholder="user@email.com"
                                 keyboardType="email-address"
                                 autoCapitalize="none"
                                 value={value}
-                                onChangeText={(t) => { onChange(t); if (serverError) setServerError(''); }}
+                                onChangeText={(t2) => { onChange(t2); if (serverError) setServerError(''); }}
                                 error={errors.email?.message}
                             />
                         )}
@@ -88,7 +88,7 @@ export default function ForgotPasswordScreen() {
                         </DefaultView>
                     ) : null}
 
-                    <AppButton title="Send Reset Link" onPress={handleSubmit(onSubmit)} />
+                    <AppButton title={t('auth.forgotPassword.sendBtn')} onPress={handleSubmit(onSubmit)} />
                 </ScrollView>
             </KeyboardAvoidingView>
         </SafeAreaView>

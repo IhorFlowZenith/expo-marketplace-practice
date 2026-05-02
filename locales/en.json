@@ -1,0 +1,327 @@
+{
+  "auth": {
+    "login": {
+      "title": "Welcome Back!",
+      "subtitle": "Login to your account to continue",
+      "email": "Email",
+      "password": "Password",
+      "loginBtn": "Login",
+      "or": "or",
+      "noAccount": "Don't have an account?",
+      "signUp": "Sign Up",
+      "forgotPassword": "Forgot Password?",
+      "errors": {
+        "notFound": "No account found with this email.",
+        "invalidCredential": "Invalid email or password",
+        "tooManyRequests": "Too many attempts. Please try again later.",
+        "generic": "Something went wrong. Please try again."
+      }
+    },
+    "register": {
+      "title": "Create Account",
+      "subtitle": "Fill your details or continue with social media",
+      "fullName": "Full Name",
+      "email": "Email",
+      "password": "Password",
+      "signUpBtn": "Sign Up",
+      "haveAccount": "Already have an account?",
+      "logIn": "Log In",
+      "errors": {
+        "emailInUse": "This email is already in use.",
+        "generic": "Something went wrong. Please try again."
+      }
+    },
+    "forgotPassword": {
+      "title": "Forgot Password?",
+      "subtitle": "Enter your email address and we'll send you a link to reset your password.",
+      "email": "Email",
+      "sendBtn": "Send Reset Link",
+      "errors": {
+        "notFound": "No account found with this email",
+        "generic": "Something went wrong. Please try again."
+      }
+    },
+    "success": {
+      "title": "Check your email",
+      "subtitle": "We sent a password reset link to",
+      "instruction": "Follow the instructions in the email to reset your password.",
+      "backToLogin": "Back to Login",
+      "resend": "Didn't receive it? Try again"
+    }
+  },
+  "tabs": {
+    "home": "Home",
+    "search": "Search",
+    "cart": "Cart",
+    "favorites": "Favorites",
+    "profile": "Profile"
+  },
+  "home": {
+    "hello": "Hello!",
+    "searchPlaceholder": "Search here",
+    "categories": "Categories",
+    "featured": "Featured",
+    "newArrivals": "New Arrivals",
+    "seeAll": "See All",
+    "noProducts": "No products found"
+  },
+  "categories": {
+    "all": "All",
+    "shoes": "Shoes",
+    "clothing": "Clothing",
+    "accessories": "Accessories",
+    "electronics": "Electronics",
+    "featured": "Featured",
+    "mostPopular": "Most Popular"
+  },
+  "products": {
+    "title": "Products",
+    "noProducts": "No products found with selected filters."
+  },
+  "search": {
+    "placeholder": "Search...",
+    "resultsFor": "Results for",
+    "resultsFound": "Results Found",
+    "noProducts": "No products found",
+    "clearAll": "Clear all"
+  },
+  "cart": {
+    "title": "Cart",
+    "empty": "Your cart is empty",
+    "orderSummary": "Order Summary",
+    "items": "Items",
+    "subtotal": "Subtotal",
+    "discount": "Discount",
+    "delivery": "Delivery",
+    "total": "Total",
+    "checkOut": "Check Out",
+    "delete": "Delete",
+    "size": "Size",
+    "color": "Color"
+  },
+  "checkout": {
+    "title": "Check Out",
+    "deliveryAddress": "Delivery Address",
+    "addDeliveryAddress": "Add Delivery Address",
+    "phoneNumber": "Phone Number",
+    "addPhoneNumber": "Add Phone Number",
+    "standardDelivery": "Standard Delivery",
+    "deliveryDays": "3–5 business days",
+    "orderSummary": "Order Summary",
+    "choosePayment": "Choose payment method",
+    "creditCard": "Credit Card",
+    "cash": "Cash",
+    "placingOrder": "Placing Order...",
+    "placeOrder": "Place Order",
+    "errors": {
+      "phoneRequired": "Phone required",
+      "addPhone": "Please add your phone number",
+      "addressRequired": "Address required",
+      "addAddress": "Please add your delivery address",
+      "paymentRequired": "Payment required",
+      "addCard": "Please add a payment card"
+    }
+  },
+  "favorites": {
+    "title": "Favorites",
+    "empty": "No favorites yet",
+    "delete": "Delete"
+  },
+  "orders": {
+    "title": "Orders",
+    "active": "Active",
+    "completed": "Completed",
+    "cancelled": "Cancel",
+    "trackOrder": "Track Order",
+    "reOrder": "Re-Order",
+    "orderAgain": "Order Again",
+    "noOrders": "No orders yet",
+    "moreItems": "more items",
+    "cancel": "Cancel"
+  },
+  "profile": {
+    "title": "Profile",
+    "setting": "Setting",
+    "contact": "Contact",
+    "shareApp": "Share App",
+    "help": "Help",
+    "signOut": "Sign Out",
+    "userName": "User Name",
+    "noEmail": "No email provided"
+  },
+  "categories_screen": {
+    "title": "Screen Name",
+    "underDevelopment": "This section is under development",
+    "stayTuned": "We are working hard to bring you new features. Stay tuned!"
+  },
+  "productDetails": {
+    "description": "Description",
+    "size": "Size",
+    "color": "Color",
+    "specifications": "Specifications",
+    "buyNow": "Buy Now",
+    "outOfStock": "Out of Stock",
+    "reviews": "Reviews"
+  },
+  "settings": {
+    "notification": "Notification",
+    "language": "Language",
+    "privacy": "Privacy",
+    "helpCenter": "Help Center",
+    "aboutUs": "About us",
+    "english": "English",
+    "title": "Settings",
+    "privacyPolicy": "Privacy Policy",
+    "profileDetails": "Profile Details"
+  },
+  "language": {
+    "english": "English",
+    "englishSub": "United States",
+    "ukrainian": "Ukrainian",
+    "ukrainianSub": "Ukraine"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "push": "Push Notifications",
+    "pushDesc": "Receive instant alerts on your phone",
+    "markAll": "Mark all read",
+    "empty": "No notifications yet"
+  },
+  "privacy": {
+    "whatWeKnow": "What We Know About You 😏",
+    "whatWeKnowContent": "Yeah, we know a few things. But only what you give us: your name, email, and payment info (kinda hard to avoid that part 😅).",
+    "whyWeNeed": "Why We Need It 👀",
+    "whyWeNeedContent": "So we can actually deliver your stuff, answer your 'where is my order??' messages, and occasionally keep you in the loop (don't worry, no spam apocalypse).",
+    "isDataSafe": "Is Your Data Safe 🔐",
+    "isDataSafeContent": "We guard your data like a cat guards its favorite box — seriously, it's not going anywhere.",
+    "doWeSell": "Do We Sell Your Data 🤨",
+    "doWeSellContent": "Nope. We're not that kind of company. No shady deals, no selling your info. Your data isn't for sale.",
+    "footer": "By using our app, you consent to our privacy policy. If you have any questions, please contact our support team."
+  },
+  "aboutUs": {
+    "description": "This project was developed by a 4th-year student, Pelykh Ihor, as part of an internship at Everlabs. The primary goal was to create a modern marketplace application with a focus on real-world development processes, user-friendly experience, and scalable architecture. The project demonstrates practical skills in mobile development and the effective application of academic knowledge in a professional environment.",
+    "technologiesTitle": "Technologies & Skills Applied",
+    "reactNativeTitle": "React Native (Expo)",
+    "reactNativeDesc": "Cross-platform development with a focus on native performance and smooth animations.",
+    "firebaseTitle": "Firebase",
+    "firebaseDesc": "Real-time database, secure authentication, and cloud infrastructure for a scalable backend.",
+    "footer": "© 2026 MarketPlace Inc. All rights reserved."
+  },
+  "helpCenter": {
+    "contactSupport": "Contact Support",
+    "visitWebsite": "Visit Website",
+    "faqTitle": "Frequently Asked Questions",
+    "faq": {
+      "q1": "How to track my order?",
+      "a1": "You can track your order status in the 'Orders' tab. Once the order is shipped, you will receive a tracking number via email.",
+      "q2": "What is the return policy?",
+      "a2": "We accept returns within 30 days of purchase. Items must be in original condition with tags attached. Contact support to initiate a return.",
+      "q3": "Can I change my shipping address?",
+      "a3": "You can change your shipping address before the order is shipped. Go to 'Orders', select your order, and tap 'Edit Address'.",
+      "q4": "What payment methods are accepted?",
+      "a4": "We accept all major credit cards (Visa, Mastercard, Amex), PayPal, and cash on delivery in select regions."
+    }
+  },
+  "contact": {
+    "title": "Get in Touch",
+    "subtitle": "We'd love to hear from you. Choose any method below.",
+    "contactMethods": "Contact Methods",
+    "phone": "Phone",
+    "email": "Email",
+    "whatsapp": "WhatsApp",
+    "instagram": "Instagram",
+    "twitter": "Twitter / X",
+    "workingHours": "Working Hours",
+    "officeAddress": "Office Address",
+    "headquarters": "Headquarters",
+    "closed": "Closed",
+    "hours": {
+      "weekdays": "Monday – Friday",
+      "weekdaysTime": "9:00 AM – 8:00 PM",
+      "saturday": "Saturday",
+      "saturdayTime": "10:00 AM – 6:00 PM",
+      "sunday": "Sunday",
+      "sundayTime": "Closed"
+    }
+  },
+  "share": {
+    "title": "Share the App",
+    "subtitle": "Invite your friends to discover amazing deals on our marketplace!",
+    "shareBtn": "Share with Friends",
+    "shareMessage": "Check out this awesome marketplace app! 🛍️"
+  },
+  "profileDetails": {
+    "personalInfo": "Personal Information",
+    "account": "Account",
+    "myOrders": "My Orders",
+    "paymentMethods": "Payment Methods",
+    "changePassword": "Change Password",
+    "addCard": "Add card"
+  },
+  "filters": {
+    "category": "Category",
+    "gender": "Gender",
+    "brand": "Brand",
+    "priceRange": "Price Range",
+    "color": "Color",
+    "anotherOption": "Another option",
+    "applyFilter": "Apply Filter"
+  },
+  "filterOptions": {
+    "all": "All",
+    "men": "Men",
+    "women": "Women",
+    "unisex": "Unisex",
+    "newest": "Newest",
+    "priceLowHigh": "Price: Low to High",
+    "priceHighLow": "Price: High to Low",
+    "white": "White",
+    "black": "Black",
+    "grey": "Grey",
+    "yellow": "Yellow",
+    "red": "Red",
+    "green": "Green"
+  },
+  "modals": {
+    "edit": "Edit",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saveAddress": "Save Address",
+    "saveCard": "Save Card",
+    "update": "Update",
+    "deliveryAddress": "Delivery Address",
+    "streetAddress": "Street Address",
+    "city": "City",
+    "country": "Country",
+    "postalCode": "Postal Code",
+    "paymentMethod": "Payment Method",
+    "cardHolderName": "Card Holder Name",
+    "cardNumber": "Card Number",
+    "expiry": "Expiry",
+    "cvv": "CVV",
+    "changePassword": "Change Password",
+    "currentPassword": "Current password",
+    "newPassword": "New password (min 6 chars)",
+    "confirmPassword": "Confirm new password",
+    "enterField": "Enter",
+    "errors": {
+      "enterStreet": "Please enter your street address",
+      "enterCity": "Please enter your city",
+      "enterCountry": "Please enter your country",
+      "enterPostal": "Please enter your postal code",
+      "enterCardHolder": "Enter card holder name",
+      "cardDigits": "Card number must be 16 digits",
+      "invalidExpiry": "Invalid expiry (MM/YY)",
+      "cvvDigits": "CVV must be 3–4 digits",
+      "enterCurrentPw": "Enter your current password",
+      "newPwLength": "New password must be at least 6 characters",
+      "pwNoMatch": "Passwords do not match"
+    }
+  },
+  "fieldMeta": {
+    "fullName": "Full Name",
+    "email": "Email",
+    "phone": "Phone",
+    "address": "Address"
+  }
+}

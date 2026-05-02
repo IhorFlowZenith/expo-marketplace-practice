@@ -1,32 +1,29 @@
 import { useColorScheme } from '@/components/useColorScheme';
 import Colors from '@/constants/Colors';
+import { useLanguage } from '@/context/LanguageContext';
 import { Stack } from 'expo-router';
 
 export default function SettingsLayout() {
     const colorScheme = useColorScheme();
     const theme = Colors[colorScheme ?? 'light'];
+    const { t } = useLanguage();
 
     return (
         <Stack
             screenOptions={{
                 headerShown: true,
-                headerStyle: {
-                    backgroundColor: theme.background,
-                },
+                headerStyle: { backgroundColor: theme.background },
                 headerTintColor: theme.text,
-                headerTitleStyle: {
-                    fontWeight: '700',
-                },
+                headerTitleStyle: { fontWeight: '700' },
                 headerShadowVisible: false,
-
             }}
         >
-            <Stack.Screen name="settings" options={{ title: 'Settings' }} />
-            <Stack.Screen name="notifications" options={{ title: 'Notifications' }} />
-            <Stack.Screen name="language" options={{ title: 'Language' }} />
-            <Stack.Screen name="privacy" options={{ title: 'Privacy Policy' }} />
-            <Stack.Screen name="help-center" options={{ title: 'Help Center' }} />
-            <Stack.Screen name="about-us" options={{ title: 'About us' }} />
+            <Stack.Screen name="settings" options={{ title: t('settings.title') }} />
+            <Stack.Screen name="notifications" options={{ title: t('notifications.title') }} />
+            <Stack.Screen name="language" options={{ title: t('settings.language') }} />
+            <Stack.Screen name="privacy" options={{ title: t('settings.privacyPolicy') }} />
+            <Stack.Screen name="help-center" options={{ title: t('settings.helpCenter') }} />
+            <Stack.Screen name="about-us" options={{ title: t('settings.aboutUs') }} />
         </Stack>
     );
 }

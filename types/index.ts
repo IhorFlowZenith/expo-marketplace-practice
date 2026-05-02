@@ -176,3 +176,16 @@ export interface FilterOptions {
 	sort: string;
 	tags?: string[];
 }
+
+export type NotificationType = 'welcome' | 'order_placed' | 'order_shipped' | 'order_delivered' | 'promo' | 'system';
+
+export interface AppNotification {
+	id: string;
+	userId: string;
+	type: NotificationType;
+	title: string;
+	body: string;
+	data?: Record<string, string>;
+	isRead: boolean;
+	createdAt: string;
+}

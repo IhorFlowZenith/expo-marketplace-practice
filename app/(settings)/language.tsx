@@ -1,35 +1,33 @@
-import { Text, View, SafeAreaView, useThemeColor } from '@/components/Themed';
+import { SafeAreaView, Text, useThemeColor } from '@/components/Themed';
 import Colors from '@/constants/Colors';
+import { useLanguage, type Locale } from '@/context/LanguageContext';
 import { Ionicons } from '@expo/vector-icons';
-import React, { useState } from 'react';
-import { View as DefaultView, ScrollView, StyleSheet, Pressable } from 'react-native';
-
-const languages = [
-    { id: 'en', name: 'English', subName: 'United States' },
-    { id: 'ua', name: 'Ukrainian', subName: 'Ukraine' },
-];
+import React from 'react';
+import { View as DefaultView, Pressable, ScrollView, StyleSheet } from 'react-native';
 
 export default function LanguageScreen() {
-    const [selectedId, setSelectedId] = useState('en');
+    const { locale, setLocale, t } = useLanguage();
 
     const cardBg = useThemeColor({ light: Colors.palette.cardLight, dark: Colors.palette.cardDark }, 'background');
     const primaryColor = Colors.palette.primary;
 
+    const languages: { id: Locale; name: string; subName: string }[] = [
+        { id: 'en', name: t('language.english'), subName: t('language.englishSub') },
+        { id: 'ua', name: t('language.ukrainian'), subName: t('language.ukrainianSub') },
+    ];
+
     return (
         <SafeAreaView style={styles.container}>
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-
-
-
                 <DefaultView style={styles.listSection}>
                     {languages.map((lang) => {
-                        const isSelected = lang.id === selectedId;
+                        const isSelected = lang.id === locale;
 
                         return (
                             <Pressable
                                 key={lang.id}
                                 style={({ pressed }) => [[styles.langCard, { backgroundColor: cardBg }], { opacity: pressed ? 0.7 : 1 }]}
-                                onPress={() => setSelectedId(lang.id)}
+                                onPress={() => setLocale(lang.id)}
                             >
                                 <DefaultView style={styles.langInfo}>
                                     <Text style={styles.langName}>{lang.name}</Text>
@@ -43,7 +41,6 @@ export default function LanguageScreen() {
                         );
                     })}
                 </DefaultView>
-
             </ScrollView>
         </SafeAreaView>
     );
@@ -56,19 +53,6 @@ const styles = StyleSheet.create({
     content: {
         paddingHorizontal: 20,
         paddingBottom: 40,
-    },
-    headerSection: {
-        marginBottom: 30,
-        backgroundColor: 'transparent',
-    },
-    headerTitle: {
-        fontSize: 28,
-        fontWeight: '700',
-    },
-    subTitle: {
-        fontSize: 16,
-        color: Colors.palette.textMuted,
-        marginTop: 6,
     },
     listSection: {
         backgroundColor: 'transparent',

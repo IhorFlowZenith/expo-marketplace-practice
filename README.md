@@ -21,16 +21,122 @@
 | 🛡 Валідація | Zod-схеми + React Hook Form. Real-time підсвітка помилок у полях |
 | 🎨 Теми | Автоматична Dark/Light тема через системний колірний режим |
 | 🗺 Навігація | File-based routing (Expo Router). Групи: `(auth)`, `(tabs)`, `(settings)`, `(support)`, `(profile-extra)` |
+| 🔔 Push | Expo Push API — реальні push-сповіщення на телефон. Токен зберігається в Firestore. Сповіщення при реєстрації та оформленні замовлення |
 
 ---
 
 ## Журнал змін
 
 > 🟢 — Останній коміт · 🔴 — Попередні етапи · Читається зверху вниз (нове → старе)
+---
+
+### 🟢 [01.05.2026 – 02.05.2026] Інтернаціоналізація (i18n) · Skeleton · Push-сповіщення · Telegram Auth · Аватарка · Виправлення багів
+
+**Що зроблено:** Повна підтримка двох мов (EN/UK), анімовані скелетони на всіх екранах, реальні push-сповіщення через Expo Push API + FCM v1, сповіщення при оформленні замовлення, спроба інтеграції Telegram OIDC, сторінка сповіщень винесена з tabs, аватарка з Firestore однакова на всіх екранах, блокування Checkout при порожньому кошику, виправлення TypeScript помилок та роутингу.
 
 ---
 
-### 🟢 [29.04.2026 – 30.04.2026] Firebase · Firestore · Checkout · Profile · Cart UX · Telegram OIDC · Avatar · Refactoring
+#### Рішення та обґрунтування
+
+**🌐 Інтернаціоналізація (i18n-js + LanguageContext)**
+- **Проблема:** Всі тексти інтерфейсу були захардкоджені англійською (~150+ рядків по 20+ файлах).
+- **Рішення:** Встановлено `i18n-js` + `expo-localization`. Створено `locales/en.json` та `locales/ua.json` з повним покриттям усіх екранів. Глобальний `LanguageContext` з хуком `useLanguage()` та функцією `t()` обгорнуто в кореневий `_layout.tsx`.
+- **Чому саме так:** `i18n-js` — легковагова бібліотека без нативних залежностей, працює в Expo Go. `LanguageContext` дає реактивне перемикання мови без перезапуску додатку.
+- **Персистентність:** Обрана мова зберігається в `AsyncStorage` під ключем `@app_locale` та відновлюється при наступному запуску додатку.
+
+**💀 Skeleton-завантаження (react-native-reanimated)**
+- **Проблема:** `ActivityIndicator` на весь екран — поганий UX, не дає уявлення про структуру контенту.
+- **Рішення:** Створено `components/ui/Skeleton.tsx` з базовим компонентом `Skeleton` та 7 спеціалізованими варіантами: `ProductCarouselSkeleton`, `ProductGridSkeleton`, `CartRowSkeleton`, `OrderCardSkeleton`, `ProductDetailsSkeleton`, `FormSectionSkeleton`, `BannerSkeleton`.
+- **Чому саме так:** `reanimated` вже є в проєкті — нульова нова залежність. Пульсуюча анімація через `withRepeat` + `withSequence` дає плавний ефект без `Animated.loop`.
+- **Де застосовано:** `index.tsx`, `products.tsx`, `search.tsx`, `cart.tsx`, `favorites.tsx`, `orders.tsx`, `product-details/[id].tsx`, `checkout.tsx`, `profile-details.tsx`.
+
+**🔀 Рефакторинг product-details: 423 → 148 рядків**
+- **Проблема:** `[id].tsx` містив 423 рядки — галерею, зум-модал, інформацію про товар, специфікації, стилі — все в одному файлі.
+- **Рішення:** Виділено два компоненти:
+  - `components/product-details/ImageGallery.tsx` — галерея з пагінацією, кнопки back/favorite, зум-модал
+  - `components/product-details/ProductInfo.tsx` — назва, ціна, рейтинг, опис, варіанти, специфікації
+- **Чому саме так:** Кожен компонент має єдину відповідальність і власні стилі. `[id].tsx` тепер містить тільки логіку екрана (хуки, handlers, useMemo).
+
+**🔔 Push-сповіщення через Expo Push API + FCM v1**
+- **Проблема:** `NotificationsService.create()` лише записував в Firestore, але реальний push на телефон не відправлявся. Legacy FCM API вимкнений Google.
+- **Рішення:** Додано функцію `sendExpoPush()` в `services/firestore.ts` — HTTP POST на `https://exp.host/--/api/v2/push/send`. FCM v1 налаштовано через Service Account JSON в Expo Credentials.
+- **Чому саме так:** Expo Push API — офіційний спосіб відправки push без власного бекенду. FCM v1 — єдиний актуальний спосіб після вимкнення Legacy API.
+- **Обмеження:** В Expo Go з SDK 53+ remote push не підтримуються — тільки APK/development build.
+
+**📦 Сповіщення при оформленні замовлення**
+- **Проблема:** Тип `order_placed` існував в типах, але ніколи не створювався.
+- **Рішення:** Після `OrdersService.create()` в `useOrders.placeOrder()` автоматично викликається `NotificationsService.create()` з типом `order_placed`, кількістю товарів та сумою.
+
+**🔕 Сторінка сповіщень винесена з tabs**
+- **Проблема:** `/notifications` відображалась як окремий таб у нижній навігації.
+- **Рішення:** Додано `href: null` і `tabBarStyle: hiddenTabBarStyle` в `_layout.tsx`. Сторінка доступна через навігацію з профілю.
+
+**🔔 Тумблер сповіщень — реальна функціональність**
+- **Проблема:** Switch в `app/(settings)/notifications.tsx` був локальним `useState(true)` і нічого не робив.
+- **Рішення:** Підключено до `Notifications.getPermissionsAsync()` / `requestPermissionsAsync()`. При вмиканні — запитує системний дозвіл. При вимиканні — відкриває системні налаштування. Оновлюється через `AppState` listener.
+
+**� Аватарка з Firestore — однакова на всіх екранах**
+- **Проблема:** Аватарка генерувалась через `pravatar.cc` на основі `displayName` як seed — різний `displayName` на різних екранах давав різні картинки.
+- **Рішення:** `AuthContext` підписується на `users/{uid}` через `onSnapshot` і надає `photoURL` глобально. `UserAvatar` показує `photoURL` якщо є, інакше генерує через pravatar.cc. Seed змінено з `displayName` на `email`.
+- **Чому саме так:** Email унікальний і незмінний — ідеальний seed для детермінованої генерації аватарки.
+
+**🛒 Блокування Checkout при порожньому кошику**
+- **Проблема:** Кнопка "Checkout" була активна навіть якщо кошик порожній.
+- **Рішення:** Додано `disabled={items.length === 0}` і `opacity: 0.4` на кнопку в `cart.tsx`.
+
+**🔐 Telegram Auth (в процесі)**
+- Досліджено: OIDC через `expo-auth-session`, нативний SDK `expo-telegram-login-sdk` (несумісний з Gradle 8.14), Telegram Login Widget.
+- Поточна реалізація: `expo-auth-session` з `makeRedirectUri({ scheme: 'marketplace', path: 'tglogin' })`.
+- **Статус:** Потребує верифікованого App Link або налаштування OIDC провайдера в Firebase Console.
+
+**🔧 Виправлення**
+- `PaymentCardModal.tsx` — відсутній імпорт `useLanguage` (crash на вкладці "Особиста інформація")
+- `orders.tsx` — відсутній імпорт `OrderCardSkeleton` (runtime crash)
+- `usePushNotifications.ts` — `shouldShowBanner`/`shouldShowList`, `useRef(null)`, `try/catch` для Expo Go
+- `services/firestore.ts` — імпорт `AppNotification`, `NotificationType`; правило `notifications` в `firestore.rules`; composite index
+- `app/(auth)/tglogin.tsx` — видалено застарілий файл, що конфліктував з роутингом
+
+---
+
+#### Змінені файли
+
+| # | File | What changed |
+|---|------|--------------|
+| 🆕 | `locales/en.json` | Всі тексти інтерфейсу англійською |
+| 🆕 | `locales/ua.json` | Всі тексти інтерфейсу українською |
+| 🆕 | `locales/index.ts` | Ініціалізація `i18n-js` |
+| 🆕 | `context/LanguageContext.tsx` | `LanguageProvider`, `useLanguage()`, `setLocale()`, персистентність |
+| 🆕 | `components/ui/Skeleton.tsx` | Базовий `Skeleton` + 7 спеціалізованих варіантів |
+| 🆕 | `components/product-details/ImageGallery.tsx` | Галерея + зум-модал |
+| 🆕 | `components/product-details/ProductInfo.tsx` | Інформація про товар |
+| 🔄 | `services/firestore.ts` | `sendExpoPush()`, імпорт типів, правило `notifications` |
+| 🔄 | `hooks/useOrders.ts` | `NotificationsService.create()` після оформлення замовлення |
+| 🔄 | `hooks/usePushNotifications.ts` | `shouldShowBanner`/`shouldShowList`, `useRef(null)`, `try/catch` |
+| 🔄 | `app/(tabs)/_layout.tsx` | `notifications` — `href: null`, прихований з tabs |
+| 🔄 | `app/(settings)/notifications.tsx` | Реальний дозвіл, `AppState`, `try/catch` для Expo Go |
+| 🔄 | `app/(tabs)/cart.tsx` | `disabled` + `opacity: 0.4` на Checkout при порожньому кошику |
+| 🔄 | `context/AuthContext.tsx` | `onSnapshot` на `users/{uid}`, `photoURL` в контексті |
+| 🔄 | `components/ui/UserAvatar.tsx` | Проп `photoURL`, seed змінено на `email` |
+| 🔄 | `app/(tabs)/profile.tsx` | `photoURL` з `useAuth()` → `UserAvatar` |
+| 🔄 | `app/(tabs)/index.tsx` | `photoURL` з `useAuth()` → `UserAvatar` |
+| 🔄 | `app/(profile-extra)/profile-details.tsx` | `photoURL` з `useAuth()` → `UserAvatar` |
+| 🔄 | `app/(tabs)/orders.tsx` | Додано імпорт `OrderCardSkeleton` |
+| 🔄 | `components/profile/PaymentCardModal.tsx` | Додано імпорт `useLanguage` |
+| 🔄 | `hooks/useTelegramAuth.ts` | `makeRedirectUri`, прибрано `expo-telegram-login-sdk` |
+| 🔄 | `app.json` | Видалено невалідний App Link, залишено custom scheme |
+| 🔄 | `firestore.rules` | Додано правило для колекції `notifications` |
+| 🔄 | `firestore.indexes.json` | Composite index `notifications: userId + createdAt` |
+| 🔄 | `app/(auth)/*.tsx` + 30 файлів | Всі тексти через `t()`, скелетони |
+| ❌ | `app/(auth)/tglogin.tsx` | Видалено — конфліктував з роутингом |
+
+#### Заплановано
+- [ ] Telegram Auth — OIDC провайдер в Firebase Console
+- [ ] Сповіщення при зміні статусу замовлення (shipped, delivered)
+- [ ] Переклад повідомлень валідації Zod
+
+---
+
+### 🔴 [29.04.2026 – 30.04.2026] Firebase · Firestore · Checkout · Profile · Cart UX · Telegram OIDC · Avatar · Refactoring
 
 **Що зроблено:** Повна Firebase інтеграція, Checkout flow, профіль у Firestore, глобальний стан кошика/обраного, Telegram OIDC, рерайт VariantSelector, рефакторинг великих файлів, динамічні аватари, виправлення багів.
 

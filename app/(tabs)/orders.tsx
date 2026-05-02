@@ -1,28 +1,18 @@
 import { SafeAreaView, Text, View, useThemeColor } from '@/components/Themed';
+import { OrderCardSkeleton } from '@/components/ui/Skeleton';
 import Colors from '@/constants/Colors';
+import { useLanguage } from '@/context/LanguageContext';
 import { useOrders } from '@/hooks/useOrders';
 import type { Order, OrderStatus } from '@/types';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
-import { ActivityIndicator, View as DefaultView, FlatList, Image, Pressable, StyleSheet } from 'react-native';
-
-const TABS: { key: OrderStatus; label: string }[] = [
-    { key: 'active', label: 'Active' },
-    { key: 'completed', label: 'Completed' },
-    { key: 'cancelled', label: 'Cancel' },
-];
-
-const ACTION_LABEL: Record<OrderStatus, string> = {
-    pending: 'Track Order',
-    active: 'Track Order',
-    completed: 'Re-Order',
-    cancelled: 'Order Again',
-};
+import { View as DefaultView, FlatList, Image, Pressable, StyleSheet } from 'react-native';
 
 function OrderCard({ item, onCancel }: { item: Order; onCancel?: (id: string) => void }) {
     const cardBg = useThemeColor({ light: Colors.palette.cardLight, dark: Colors.palette.cardDark }, 'background');
     const firstItem = item.items[0];
+    const { t } = useLanguage();
 
     return (
         <View style={[styles.card, { backgroundColor: cardBg }]}>
@@ -32,7 +22,7 @@ function OrderCard({ item, onCancel }: { item: Order; onCancel?: (id: string) =>
                     <Text style={styles.cardName}>{firstItem?.name}</Text>
                     <Text style={styles.cardBrand}>{firstItem?.brand}</Text>
                     {item.items.length > 1 && (
-                        <Text style={styles.cardMore}>+{item.items.length - 1} more items</Text>
+                        <Text style={styles.cardMore}>+{item.items.length - 1} {t('orders.moreItems')}</Text>
                     )}
                     <Text style={styles.cardPrice}>${item.totalPrice}</Text>
                 </DefaultView>
@@ -42,11 +32,15 @@ function OrderCard({ item, onCancel }: { item: Order; onCancel?: (id: string) =>
                             onPress={() => onCancel(item.id)}
                             style={({ pressed }) => [styles.cancelBtn, { opacity: pressed ? 0.8 : 1 }]}
                         >
-                            <Text style={styles.cancelBtnText}>Cancel</Text>
+                            <Text style={styles.cancelBtnText}>{t('orders.cancel')}</Text>
                         </Pressable>
                     )}
                     <Pressable style={({ pressed }) => [styles.actionBtn, { opacity: pressed ? 0.8 : 1 }]}>
-                        <Text style={styles.actionText}>{ACTION_LABEL[item.status]}</Text>
+                        <Text style={styles.actionText}>
+                            {item.status === 'completed' ? t('orders.reOrder') :
+                             item.status === 'cancelled' ? t('orders.orderAgain') :
+                             t('orders.trackOrder')}
+                        </Text>
                     </Pressable>
                 </DefaultView>
             </DefaultView>
@@ -59,6 +53,13 @@ export default function OrderScreen() {
     const [activeTab, setActiveTab] = useState<OrderStatus>('active');
     const borderColor = useThemeColor({ light: Colors.palette.borderLight, dark: Colors.palette.borderDark }, 'text');
     const { orders, loading, cancelOrder } = useOrders();
+    const { t } = useLanguage();
+
+    const TABS: { key: OrderStatus; label: string }[] = [
+        { key: 'active', label: t('orders.active') },
+        { key: 'completed', label: t('orders.completed') },
+        { key: 'cancelled', label: t('orders.cancelled') },
+    ];
 
     const filtered = useMemo(
         () => orders.filter((order) => {
@@ -79,7 +80,7 @@ export default function OrderScreen() {
                 >
                     <Ionicons name="arrow-back" size={24} color={useThemeColor({}, 'text')} />
                 </Pressable>
-                <Text style={styles.headerTitle}>Orders</Text>
+                <Text style={styles.headerTitle}>{t('orders.title')}</Text>
                 <DefaultView style={{ width: 40 }} />
             </DefaultView>
 
@@ -108,11 +109,13 @@ export default function OrderScreen() {
                 showsVerticalScrollIndicator={false}
                 ListEmptyComponent={
                     loading ? (
-                        <ActivityIndicator color={Colors.palette.primary} style={{ marginTop: 60 }} />
+                        <DefaultView style={styles.listContent}>
+                            {[0, 1, 2, 3].map((i) => <OrderCardSkeleton key={i} />)}
+                        </DefaultView>
                     ) : (
                         <DefaultView style={styles.empty}>
                             <Ionicons name="bag-outline" size={64} color={Colors.palette.textMuted} />
-                            <Text style={styles.emptyText}>No orders yet</Text>
+                            <Text style={styles.emptyText}>{t('orders.noOrders')}</Text>
                         </DefaultView>
                     )
                 }

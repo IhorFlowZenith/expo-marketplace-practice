@@ -5,9 +5,11 @@ import PaymentCardModal from '@/components/profile/PaymentCardModal';
 import ProfileFieldRow, { EditableField, FIELD_META } from '@/components/profile/ProfileFieldRow';
 import SettingsItem from '@/components/SettingsItem';
 import { SafeAreaView, Text, View, useThemeColor } from '@/components/Themed';
+import Skeleton, { FormSectionSkeleton } from '@/components/ui/Skeleton';
 import UserAvatar from '@/components/ui/UserAvatar';
 import Colors from '@/constants/Colors';
 import { useAuth } from '@/context/AuthContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import type { PaymentCard } from '@/types';
 import { Ionicons } from '@expo/vector-icons';
@@ -17,7 +19,7 @@ import { ActivityIndicator, View as DefaultView, Pressable, ScrollView, StyleShe
 type ModalCard = import('@/components/profile/PaymentCardModal').PaymentCard;
 
 export default function ProfileDetailsScreen() {
-	const { user } = useAuth();
+	const { user, photoURL: contextPhotoURL } = useAuth();
 	const cardBg = useThemeColor({ light: Colors.palette.cardLight, dark: Colors.palette.cardDark }, 'background');
 	const { profile, loading, saving, updateField, saveAddress, savePaymentCard, changePassword } = useUserProfile();
 
@@ -32,6 +34,7 @@ export default function ProfileDetailsScreen() {
 
 	const displayName = profile?.displayName || user?.displayName || '';
 	const defaultCard = profile?.paymentCards?.find(c => c.isDefault) ?? profile?.paymentCards?.[0];
+	const { t } = useLanguage();
 
 	const openEdit = useCallback((field: EditableField) => {
 		if (field === 'address') {
@@ -86,8 +89,16 @@ export default function ProfileDetailsScreen() {
 
 	if (loading) {
 		return (
-			<SafeAreaView style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-				<ActivityIndicator color={Colors.palette.primary} size="large" />
+			<SafeAreaView style={styles.container}>
+				<ScrollView contentContainerStyle={[styles.scrollContent, { gap: 16 }]} showsVerticalScrollIndicator={false}>
+					<View style={{ alignItems: 'center', gap: 8, marginBottom: 12 }}>
+						<Skeleton width={96} height={96} borderRadius={48} />
+						<Skeleton width={140} height={18} borderRadius={8} />
+						<Skeleton width={180} height={14} borderRadius={6} />
+					</View>
+					<FormSectionSkeleton rows={4} />
+					<FormSectionSkeleton rows={2} />
+				</ScrollView>
 			</SafeAreaView>
 		);
 	}
@@ -97,13 +108,13 @@ export default function ProfileDetailsScreen() {
 			<ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
 				<DefaultView style={styles.avatarSection}>
-					<UserAvatar name={displayName} email={user?.email ?? ''} size={96} />
+					<UserAvatar name={displayName} email={user?.email ?? ''} photoURL={contextPhotoURL ?? undefined} size={96} />
 					<Text style={styles.userName}>{displayName || 'User'}</Text>
 					<Text style={styles.userEmail}>{profile?.email || user?.email || ''}</Text>
 				</DefaultView>
 
 				<DefaultView style={styles.section}>
-					<Text style={styles.sectionTitle}>Personal Information</Text>
+					<Text style={styles.sectionTitle}>{t('profileDetails.personalInfo')}</Text>
 					<DefaultView style={styles.fieldsList}>
 						{(Object.keys(FIELD_META) as EditableField[]).map((field) => (
 							<ProfileFieldRow
@@ -117,9 +128,9 @@ export default function ProfileDetailsScreen() {
 				</DefaultView>
 
 				<DefaultView style={styles.section}>
-					<Text style={styles.sectionTitle}>Account</Text>
+					<Text style={styles.sectionTitle}>{t('profileDetails.account')}</Text>
 					<DefaultView style={styles.settingsList}>
-						<SettingsItem icon="receipt-outline" title="My Orders" route="/orders" />
+						<SettingsItem icon="receipt-outline" title={t('profileDetails.myOrders')} route="/orders" />
 
 						<Pressable onPress={() => setCardModal(true)} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
 							<View style={[styles.actionRow, { backgroundColor: cardBg }]}>
@@ -127,11 +138,11 @@ export default function ProfileDetailsScreen() {
 									<View style={styles.actionIconWrap} lightColor={Colors.palette.accentBgLight} darkColor={Colors.palette.accentBgDark}>
 										<Ionicons name="card-outline" size={20} color={Colors.palette.primary} />
 									</View>
-									<Text style={styles.actionTitle}>Payment Methods</Text>
+									<Text style={styles.actionTitle}>{t('profileDetails.paymentMethods')}</Text>
 								</View>
 								<DefaultView style={styles.actionRight}>
 									<Text style={styles.actionValue}>
-										{defaultCard ? `•••• ${defaultCard.lastFour}` : 'Add card'}
+										{defaultCard ? `•••• ${defaultCard.lastFour}` : t('profileDetails.addCard')}
 									</Text>
 									<Ionicons name="chevron-forward" size={20} color={Colors.palette.gray} />
 								</DefaultView>
@@ -144,7 +155,7 @@ export default function ProfileDetailsScreen() {
 									<View style={styles.actionIconWrap} lightColor={Colors.palette.accentBgLight} darkColor={Colors.palette.accentBgDark}>
 										<Ionicons name="lock-closed-outline" size={20} color={Colors.palette.primary} />
 									</View>
-									<Text style={styles.actionTitle}>Change Password</Text>
+									<Text style={styles.actionTitle}>{t('profileDetails.changePassword')}</Text>
 								</View>
 								<Ionicons name="chevron-forward" size={20} color={Colors.palette.gray} />
 							</View>

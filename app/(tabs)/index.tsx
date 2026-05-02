@@ -1,33 +1,29 @@
 import ProductCard from '@/components/ProductCard';
 import PromoBanner from '@/components/PromoBanner';
 import { SafeAreaView, Text, useThemeColor, View } from '@/components/Themed';
+import { ProductCarouselSkeleton } from '@/components/ui/Skeleton';
 import UserAvatar from '@/components/ui/UserAvatar';
 import Colors from "@/constants/Colors";
 import { MOCK_BANNERS } from '@/constants/products';
 import { useAuth } from '@/context/AuthContext';
+import { useLanguage } from '@/context/LanguageContext';
+import { useNotifications } from '@/hooks/useNotifications';
 import { useFeaturedProducts } from '@/hooks/useProducts';
 import type { ProductItem } from '@/types';
 import { Ionicons } from '@expo/vector-icons';
 import { FlashList } from "@shopify/flash-list";
 import { useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, TextInput, useWindowDimensions } from 'react-native';
+import { View as DefaultView, Pressable, ScrollView, StyleSheet, TextInput, useWindowDimensions } from 'react-native';
 
 const SECTION_PADDING = 24;
 const CARD_GAP = 12;
-const HOME_CATEGORIES = [
-	{ label: 'All Products', value: 'All', icon: 'grid-outline' as const },
-	{ label: 'Shoes', value: 'Shoes', icon: 'footsteps-outline' as const },
-	{ label: 'Clothing', value: 'Clothing', icon: 'shirt-outline' as const },
-	{ label: 'Accessories', value: 'Accessories', icon: 'watch-outline' as const },
-	{ label: 'Electronics', value: 'Electronics', icon: 'headset-outline' as const },
-];
 
-const SectionHeader = ({ title, onPress }: { title: string; onPress?: () => void }) => (
+const SectionHeader = ({ title, onPress, seeAllLabel }: { title: string; onPress?: () => void; seeAllLabel: string }) => (
 	<View style={styles.sectionHeader}>
 		<Text style={styles.sectionTitle}>{title}</Text>
 		<Pressable onPress={onPress} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
-			<Text style={styles.seeAll}>See All</Text>
+			<Text style={styles.seeAll}>{seeAllLabel}</Text>
 		</Pressable>
 	</View>
 );
@@ -60,9 +56,19 @@ export default function HomeScreen() {
 	const inputBg = useThemeColor({ light: '#F5F5F7', dark: '#1C1C1E' }, 'background');
 
 	const router = useRouter();
-	const { user } = useAuth();
+	const { user, photoURL } = useAuth();
+	const { t } = useLanguage();
+	const { unreadCount } = useNotifications();
 	const [searchQuery] = useState('');
 	const { featured, popular, loading } = useFeaturedProducts();
+
+	const HOME_CATEGORIES = [
+		{ label: t('categories.all'), value: 'All', icon: 'grid-outline' as const },
+		{ label: t('categories.shoes'), value: 'Shoes', icon: 'footsteps-outline' as const },
+		{ label: t('categories.clothing'), value: 'Clothing', icon: 'shirt-outline' as const },
+		{ label: t('categories.accessories'), value: 'Accessories', icon: 'watch-outline' as const },
+		{ label: t('categories.electronics'), value: 'Electronics', icon: 'headset-outline' as const },
+	];
 
 	const filteredFeatured = useMemo(() =>
 		featured.filter(product => product.name.toLowerCase().includes(searchQuery.toLowerCase())),
@@ -76,14 +82,19 @@ export default function HomeScreen() {
 		<SafeAreaView style={styles.container}>
 			<View style={styles.header}>
 				<View style={styles.userInfo}>
-					<UserAvatar name={user?.displayName ?? ''} email={user?.email ?? ''} size={45} />
+					<UserAvatar name={user?.displayName ?? ''} email={user?.email ?? ''} photoURL={photoURL ?? undefined} size={45} />
 					<View style={styles.welcomeTextContainer}>
-						<Text style={styles.subtitle}>Hello!</Text>
+						<Text style={styles.subtitle}>{t('home.hello')}</Text>
 						<Text style={styles.userName}>{user?.displayName?.split(' ')[0] ?? 'Guest'}</Text>
 					</View>
 				</View>
-				<Pressable style={({ pressed }) => [styles.notificationBtn, { opacity: pressed ? 0.7 : 1 }]}>
+				<Pressable style={({ pressed }) => [styles.notificationBtn, { opacity: pressed ? 0.7 : 1 }]} onPress={() => router.push('/notifications')}>
 					<Ionicons name='notifications-outline' size={24} color={iconColor} />
+					{unreadCount > 0 && (
+						<DefaultView style={styles.badge}>
+							<Text style={styles.badgeText}>{unreadCount > 9 ? '9+' : String(unreadCount)}</Text>
+						</DefaultView>
+					)}
 				</Pressable>
 			</View>
 
@@ -95,7 +106,7 @@ export default function HomeScreen() {
 					<Ionicons name="search" size={20} color="#888" style={{ marginRight: 10 }} />
 					<TextInput
 						style={[styles.searchInput, { color: iconColor }]}
-						placeholder='Search here'
+						placeholder={t('home.searchPlaceholder')}
 						placeholderTextColor='#888'
 						editable={false}
 						pointerEvents="none"
@@ -105,7 +116,7 @@ export default function HomeScreen() {
 				<PromoBanner data={MOCK_BANNERS} />
 
 				<View style={styles.categoriesSection}>
-					<Text style={styles.categoriesTitle}>Categories</Text>
+					<Text style={styles.categoriesTitle}>{t('home.categories')}</Text>
 					<ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoriesList}>
 						{HOME_CATEGORIES.map((category) => (
 							<Pressable
@@ -123,24 +134,27 @@ export default function HomeScreen() {
 				</View>
 
 				{loading ? (
-					<ActivityIndicator color={Colors.palette.primary} style={{ marginTop: 40 }} />
+					<>
+						<ProductCarouselSkeleton cardWidth={CARD_WIDTH} />
+						<ProductCarouselSkeleton cardWidth={CARD_WIDTH} />
+					</>
 				) : (
 					<>
 						{(filteredFeatured.length > 0 || searchQuery === '') && (
 							<>
-								<SectionHeader title="Featured" onPress={() => router.push({ pathname: '/products', params: { category: 'Featured' } })} />
+								<SectionHeader title={t('home.featured')} seeAllLabel={t('home.seeAll')} onPress={() => router.push({ pathname: '/products', params: { category: 'Featured' } })} />
 								<ProductCarousel data={filteredFeatured} cardWidth={CARD_WIDTH} />
 							</>
 						)}
 						{(filteredPopular.length > 0 || searchQuery === '') && (
 							<>
-								<SectionHeader title="New Arrivals" onPress={() => router.push({ pathname: '/products', params: { category: 'All' } })} />
+								<SectionHeader title={t('home.newArrivals')} seeAllLabel={t('home.seeAll')} onPress={() => router.push({ pathname: '/products', params: { category: 'All' } })} />
 								<ProductCarousel data={filteredPopular} cardWidth={CARD_WIDTH} />
 							</>
 						)}
 						{searchQuery !== '' && filteredFeatured.length === 0 && filteredPopular.length === 0 && (
 							<View style={{ alignItems: 'center', marginTop: 40 }}>
-								<Text style={{ opacity: 0.5 }}>No products found</Text>
+								<Text style={{ opacity: 0.5 }}>{t('home.noProducts')}</Text>
 							</View>
 						)}
 					</>
@@ -165,6 +179,14 @@ const styles = StyleSheet.create({
 	subtitle: { fontSize: 13, opacity: 0.5 },
 	userName: { fontSize: 17, fontWeight: 'bold' },
 	notificationBtn: { padding: 10, borderRadius: 20, backgroundColor: 'rgba(0,0,0,0.03)' },
+	badge: {
+		position: 'absolute', top: 4, right: 4,
+		minWidth: 16, height: 16, borderRadius: 8,
+		backgroundColor: Colors.palette.error,
+		alignItems: 'center', justifyContent: 'center',
+		paddingHorizontal: 3,
+	},
+	badgeText: { color: '#fff', fontSize: 9, fontWeight: '700' },
 	searchSection: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 15, height: 50, borderRadius: 25 },
 	searchInput: { flex: 1, fontSize: 16 },
 	sectionHeader: {

@@ -2,10 +2,11 @@ import SummaryRow from '@/components/SummaryRow';
 import { SafeAreaView, Text, View, useThemeColor } from '@/components/Themed';
 import Colors from '@/constants/Colors';
 import { useCartContext } from '@/context/CartContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { ActivityIndicator, Image, Pressable, ScrollView, StyleSheet } from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Swipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 
@@ -15,6 +16,7 @@ export default function CartScreen() {
   const cardBg = useThemeColor({ light: '#F5F5F7', dark: '#1C1C1E' }, 'background');
   const summaryCardBg = useThemeColor({ light: '#F5F5F7', dark: '#1C1C1E' }, 'background');
   const separatorColor = useThemeColor({ light: '#E0E0E0', dark: '#3A3A3C' }, 'text');
+  const { t } = useLanguage();
 
   const { items, loading, summary, updateQuantity, removeItem } = useCartContext();
 
@@ -28,12 +30,14 @@ export default function CartScreen() {
           >
             <Ionicons name="arrow-back" size={24} color={textColor} />
           </Pressable>
-          <Text style={[styles.headerTitle, { color: textColor }]}>Cart</Text>
+          <Text style={[styles.headerTitle, { color: textColor }]}>{t('cart.title')}</Text>
           <View style={styles.headerPlaceholder} />
         </View>
 
         {loading ? (
-          <ActivityIndicator color={Colors.palette.primary} style={{ flex: 1 }} />
+          <ScrollView style={styles.scrollView} contentContainerStyle={[styles.scrollContent, { paddingTop: 4 }]} showsVerticalScrollIndicator={false}>
+            {[0, 1, 2, 3].map((i) => <CartRowSkeleton key={i} />)}
+          </ScrollView>
         ) : (
           <>
             <ScrollView
@@ -44,7 +48,7 @@ export default function CartScreen() {
               {items.length === 0 ? (
                 <View style={styles.emptyState}>
                   <Ionicons name="bag-outline" size={56} color={Colors.palette.textMuted} />
-                  <Text style={styles.emptyText}>Your cart is empty</Text>
+                  <Text style={styles.emptyText}>{t('cart.empty')}</Text>
                 </View>
               ) : (
                 items.map((item) => (
@@ -58,7 +62,7 @@ export default function CartScreen() {
                     renderRightActions={() => (
                       <View style={styles.deleteAction}>
                         <Ionicons name="trash-outline" size={20} color={Colors.palette.white} />
-                        <Text style={styles.deleteLabel}>Delete</Text>
+                        <Text style={styles.deleteLabel}>{t('cart.delete')}</Text>
                       </View>
                     )}
                   >
@@ -68,10 +72,10 @@ export default function CartScreen() {
                         <Text style={styles.name} numberOfLines={1}>{item.name}</Text>
                         <Text style={styles.brand}>{item.brand}</Text>
                         {item.selectedSize && (
-                          <Text style={styles.variant}>Size: {item.selectedSize}</Text>
+                          <Text style={styles.variant}>{t('cart.size')}: {item.selectedSize}</Text>
                         )}
                         {item.selectedColor && (
-                          <Text style={styles.variant}>Color: {item.selectedColor}</Text>
+                          <Text style={styles.variant}>{t('cart.color')}: {item.selectedColor}</Text>
                         )}
                         <Text style={styles.price}>${item.price}</Text>
                       </View>
@@ -97,22 +101,26 @@ export default function CartScreen() {
             </ScrollView>
 
             <View style={[styles.bottomPanel, { backgroundColor: summaryCardBg }]}>
-              <Text style={styles.summaryTitle}>Order Summary</Text>
-              <SummaryRow label="Items" value={summary.count} />
-              <SummaryRow label="Subtotal" value={`$${summary.subtotal}`} />
-              <SummaryRow label="Discount" value={`$${summary.discount}`} />
-              <SummaryRow label="Delivery" value={`$${summary.delivery}`} />
+              <Text style={styles.summaryTitle}>{t('cart.orderSummary')}</Text>
+              <SummaryRow label={t('cart.items')} value={summary.count} />
+              <SummaryRow label={t('cart.subtotal')} value={`${summary.subtotal}`} />
+              <SummaryRow label={t('cart.discount')} value={`${summary.discount}`} />
+              <SummaryRow label={t('cart.delivery')} value={`${summary.delivery}`} />
               <View style={[styles.summarySeparator, { borderTopColor: separatorColor }]} />
               <View style={styles.summaryTotalRow}>
-                <Text style={styles.summaryTotalLabel}>Total</Text>
+                <Text style={styles.summaryTotalLabel}>{t('cart.total')}</Text>
                 <Text style={styles.summaryTotalValue}>${summary.total}</Text>
               </View>
 
               <Pressable
                 onPress={() => router.push('/checkout')}
-                style={({ pressed }) => [styles.checkoutBtn, { opacity: pressed ? 0.85 : 1 }]}
+                disabled={items.length === 0}
+                style={({ pressed }) => [
+                  styles.checkoutBtn,
+                  { opacity: items.length === 0 ? 0.4 : pressed ? 0.85 : 1 },
+                ]}
               >
-                <Text style={styles.checkoutText}>Check Out</Text>
+                <Text style={styles.checkoutText}>{t('cart.checkOut')}</Text>
               </Pressable>
             </View>
           </>

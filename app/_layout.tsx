@@ -15,6 +15,8 @@ import Colors from '@/constants/Colors';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
 import { CartProvider } from '@/context/CartContext';
 import { FavoritesProvider } from '@/context/FavoritesContext';
+import { LanguageProvider } from '@/context/LanguageContext';
+import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { SheetProvider } from 'react-native-actions-sheet';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
@@ -40,13 +42,15 @@ export default function RootLayout() {
     if (!loaded) return null;
 
     return (
-        <AuthProvider>
-            <CartProvider>
-                <FavoritesProvider>
-                    <RootLayoutNav />
-                </FavoritesProvider>
-            </CartProvider>
-        </AuthProvider>
+        <LanguageProvider>
+            <AuthProvider>
+                <CartProvider>
+                    <FavoritesProvider>
+                        <RootLayoutNav />
+                    </FavoritesProvider>
+                </CartProvider>
+            </AuthProvider>
+        </LanguageProvider>
     );
 }
 
@@ -54,6 +58,7 @@ function RootLayoutNav() {
     const colorScheme = useColorScheme();
     const { user, loading } = useAuth();
     const segments = useSegments();
+    usePushNotifications();
 
     const CustomDarkTheme = { ...DarkTheme, colors: { ...DarkTheme.colors, background: Colors.palette.black, card: Colors.palette.black } };
     const CustomDefaultTheme = { ...DefaultTheme, colors: { ...DefaultTheme.colors, background: Colors.palette.white } };

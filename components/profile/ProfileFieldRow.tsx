@@ -1,5 +1,6 @@
 import { Text, View, useThemeColor } from '@/components/Themed';
 import Colors from '@/constants/Colors';
+import { useLanguage } from '@/context/LanguageContext';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { View as DefaultView, Pressable, StyleSheet } from 'react-native';
@@ -27,23 +28,24 @@ interface ProfileFieldRowProps {
 export default function ProfileFieldRow({ field, value, onPress }: ProfileFieldRowProps) {
     const meta = FIELD_META[field];
     const cardBg = useThemeColor({ light: Colors.palette.cardLight, dark: Colors.palette.cardDark }, 'background');
+    const { t } = useLanguage();
+
+    const labelMap: Record<EditableField, string> = {
+        displayName: t('fieldMeta.fullName'),
+        email: t('fieldMeta.email'),
+        phone: t('fieldMeta.phone'),
+        address: t('fieldMeta.address'),
+    };
 
     return (
-        <Pressable
-            onPress={() => onPress(field)}
-            style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}
-        >
+        <Pressable onPress={() => onPress(field)} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
             <View style={[styles.fieldRow, { backgroundColor: cardBg }]}>
                 <View style={styles.fieldLeft}>
-                    <View
-                        style={styles.fieldIconWrap}
-                        lightColor={Colors.palette.accentBgLight}
-                        darkColor={Colors.palette.accentBgDark}
-                    >
+                    <View style={styles.fieldIconWrap} lightColor={Colors.palette.accentBgLight} darkColor={Colors.palette.accentBgDark}>
                         <Ionicons name={meta.icon} size={20} color={Colors.palette.primary} />
                     </View>
                     <DefaultView style={styles.fieldTextWrap}>
-                        <Text style={styles.fieldLabel}>{meta.label}</Text>
+                        <Text style={styles.fieldLabel}>{labelMap[field]}</Text>
                         <Text style={styles.fieldValue} numberOfLines={1}>{value}</Text>
                     </DefaultView>
                 </View>
@@ -54,39 +56,10 @@ export default function ProfileFieldRow({ field, value, onPress }: ProfileFieldR
 }
 
 const styles = StyleSheet.create({
-    fieldRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingVertical: 14,
-        paddingHorizontal: 14,
-        borderRadius: 14,
-    },
-    fieldLeft: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        flex: 1,
-        backgroundColor: 'transparent',
-    },
-    fieldIconWrap: {
-        width: 38,
-        height: 38,
-        borderRadius: 10,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    fieldTextWrap: {
-        marginLeft: 12,
-        flex: 1,
-        backgroundColor: 'transparent',
-    },
-    fieldLabel: {
-        fontSize: 12,
-        color: Colors.palette.textMuted,
-        marginBottom: 2,
-    },
-    fieldValue: {
-        fontSize: 15,
-        fontWeight: '600',
-    },
+    fieldRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 14, paddingHorizontal: 14, borderRadius: 14 },
+    fieldLeft: { flexDirection: 'row', alignItems: 'center', flex: 1, backgroundColor: 'transparent' },
+    fieldIconWrap: { width: 38, height: 38, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+    fieldTextWrap: { marginLeft: 12, flex: 1, backgroundColor: 'transparent' },
+    fieldLabel: { fontSize: 12, color: Colors.palette.textMuted, marginBottom: 2 },
+    fieldValue: { fontSize: 15, fontWeight: '600' },
 });

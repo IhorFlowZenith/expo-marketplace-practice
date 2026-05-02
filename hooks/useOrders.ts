@@ -1,4 +1,5 @@
-import { CartService, OrdersService } from '@/services/firestore';
+import { auth } from '@/constants/firebase';
+import { CartService, NotificationsService, OrdersService } from '@/services/firestore';
 import type { CartItem, Order, OrderItem } from '@/types';
 import { useCallback, useEffect, useState } from 'react';
 import { Alert } from 'react-native';
@@ -70,6 +71,19 @@ export function useOrders() {
 			const orderId = await OrdersService.create(orderPayload as any);
 
 			await CartService.clear();
+
+			const uid = auth.currentUser?.uid;
+			if (uid) {
+				const itemCount = items.length;
+				const itemWord = itemCount === 1 ? 'item' : 'items';
+				NotificationsService.create(
+					uid,
+					'order_placed',
+					'✅ Order placed!',
+					`Your order of ${itemCount} ${itemWord} for $${totalPrice.toFixed(2)} is confirmed.`,
+					{ orderId }
+				).catch((e: Error) => console.error('[Notifications] Failed to send order notification:', e));
+			}
 
 			return orderId;
 		} catch (error) {

@@ -1,41 +1,42 @@
-import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { View as DefaultView, Image, Pressable, ScrollView, StyleSheet } from 'react-native';
+import { View as DefaultView, Pressable, ScrollView, StyleSheet } from 'react-native';
 
 import SettingsItem from '@/components/SettingsItem';
-import { SafeAreaView, Text, useThemeColor, View } from '@/components/Themed';
+import { SafeAreaView, Text, useThemeColor } from '@/components/Themed';
 import UserAvatar from '@/components/ui/UserAvatar';
 import Colors from '@/constants/Colors';
 import { useAuth } from '@/context/AuthContext';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function ProfileScreen() {
     const router = useRouter();
-    const { user, signOut } = useAuth();
+    const { user, photoURL, signOut } = useAuth();
     const textColor = useThemeColor({}, 'text');
+    const { t } = useLanguage();
 
     return (
         <SafeAreaView style={styles.container}>
             <ScrollView contentContainerStyle={styles.content}>
                 <DefaultView style={styles.header}>
                     <DefaultView style={styles.avatarContainer}>
-                        <UserAvatar name={user?.displayName || ''} email={user?.email || ''} size={100} />
+                        <UserAvatar name={user?.displayName || ''} email={user?.email || ''} photoURL={photoURL} size={100} />
                     </DefaultView>
 
-                    <Text style={styles.name}>{user?.displayName || 'User Name'}</Text>
-                    <Text style={styles.email}>{user?.email || 'No email provided'}</Text>
+                    <Text style={styles.name}>{user?.displayName || t('profile.userName')}</Text>
+                    <Text style={styles.email}>{user?.email || t('profile.noEmail')}</Text>
                 </DefaultView>
 
                 <DefaultView style={styles.menuSection}>
-                    <SettingsItem icon="person-outline" title="Profile" route="/profile-details" />
-                    <SettingsItem icon="settings-outline" title="Setting" route="/settings" />
-                    <SettingsItem icon="mail-outline" title="Contact" route="/contact" />
-                    <SettingsItem icon="share-social-outline" title="Share App" route="/share" />
-                    <SettingsItem icon="help-circle-outline" title="Help" route="/help-center" />
+                    <SettingsItem icon="person-outline" title={t('profileDetails.personalInfo')} route="/profile-details" />
+                    <SettingsItem icon="settings-outline" title={t('profile.setting')} route="/settings" />
+                    <SettingsItem icon="mail-outline" title={t('profile.contact')} route="/contact" />
+                    <SettingsItem icon="share-social-outline" title={t('profile.shareApp')} route="/share" />
+                    <SettingsItem icon="help-circle-outline" title={t('profile.help')} route="/help-center" />
                 </DefaultView>
 
                 <Pressable style={({ pressed }) => [styles.signOutButton, { opacity: pressed ? 0.7 : 1 }]} onPress={signOut}>
-                    <Text style={styles.signOutText}>Sign Out</Text>
+                    <Text style={styles.signOutText}>{t('profile.signOut')}</Text>
                 </Pressable>
             </ScrollView>
         </SafeAreaView>

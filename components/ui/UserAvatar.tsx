@@ -7,7 +7,7 @@ const AVATAR_COLORS = [
 ];
 
 function getSeed(name?: string, email?: string): string {
-	return name?.trim() || email?.split('@')[0] || 'user';
+	return email?.split('@')[0] || name?.trim() || 'user';
 }
 
 function getHash(str: string): number {
@@ -26,15 +26,13 @@ function getInitials(name: string): string {
 interface UserAvatarProps {
 	name?: string;
 	email?: string;
+	photoURL?: string;
 	size?: number;
 }
 
-export default function UserAvatar({ name, email, size = 96 }: UserAvatarProps) {
+export default function UserAvatar({ name, email, photoURL, size = 96 }: UserAvatarProps) {
 	const seed = getSeed(name, email);
 	const hash = useMemo(() => getHash(seed), [seed]);
-
-	const avatarId = (hash % 70) + 1;
-	const avatarUrl = `https://i.pravatar.cc/${size * 2}?img=${avatarId}`;
 
 	const fallbackColor = AVATAR_COLORS[hash % AVATAR_COLORS.length];
 	const initials = useMemo(() => getInitials(seed), [seed]);
@@ -44,7 +42,11 @@ export default function UserAvatar({ name, email, size = 96 }: UserAvatarProps) 
 	const borderRadius = size / 2;
 	const fontSize = size * 0.36;
 
-	if (imageError) {
+	const avatarId = (hash % 70) + 1;
+	const generatedUrl = `https://i.pravatar.cc/${size * 2}?img=${avatarId}`;
+	const imageUrl = photoURL && !imageError ? photoURL : (!imageError ? generatedUrl : null);
+
+	if (!imageUrl) {
 		return (
 			<View style={[styles.container, { width: size, height: size, borderRadius, backgroundColor: fallbackColor }]}>
 				<Text style={[styles.initials, { fontSize }]}>{initials}</Text>
@@ -54,7 +56,7 @@ export default function UserAvatar({ name, email, size = 96 }: UserAvatarProps) 
 
 	return (
 		<Image
-			source={{ uri: avatarUrl }}
+			source={{ uri: imageUrl }}
 			style={{ width: size, height: size, borderRadius }}
 			onError={() => setImageError(true)}
 		/>
@@ -62,12 +64,6 @@ export default function UserAvatar({ name, email, size = 96 }: UserAvatarProps) 
 }
 
 const styles = StyleSheet.create({
-	container: {
-		alignItems: 'center',
-		justifyContent: 'center',
-	},
-	initials: {
-		fontWeight: '700',
-		color: '#FFFFFF',
-	},
+	container: { alignItems: 'center', justifyContent: 'center' },
+	initials: { fontWeight: '700', color: '#FFFFFF' },
 });

@@ -1,5 +1,6 @@
 import { Text, useThemeColor } from '@/components/Themed';
 import Colors from '@/constants/Colors';
+import { useLanguage } from '@/context/LanguageContext';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { View as DefaultView, Modal, Pressable, StyleSheet, TextInput } from 'react-native';
@@ -87,6 +88,7 @@ export default function PaymentCardModal({ visible, initialCard = DEFAULT_CARD, 
     const cardBg = useThemeColor({ light: Colors.palette.cardLight, dark: Colors.palette.cardDark }, 'background');
     const inputBg = useThemeColor({ light: Colors.palette.inputBgLight, dark: Colors.palette.accentBgDark }, 'background');
     const borderColor = useThemeColor({ light: Colors.palette.borderLight, dark: Colors.palette.borderDark }, 'text');
+    const { t } = useLanguage();
 
     const [holderName, setHolderName] = useState(initialCard.holderName);
     const [number, setNumber] = useState('');
@@ -99,7 +101,7 @@ export default function PaymentCardModal({ visible, initialCard = DEFAULT_CARD, 
     const handleSave = () => {
         const cardData = { holderName, number: number.replace(/\s/g, ''), expiry, cvv };
         const err = validateCard(cardData);
-        if (err) { setError(err); return; }
+        if (err) { setError(t(`modals.errors.${err}`) || err); return; }
         onSave({ ...cardData, number: cardData.number.slice(-4) });
         handleClose();
     };
@@ -111,7 +113,7 @@ export default function PaymentCardModal({ visible, initialCard = DEFAULT_CARD, 
             <Pressable style={styles.overlay} onPress={handleClose}>
                 <Pressable style={[styles.content, { backgroundColor: cardBg }]} onPress={() => { }}>
                     <DefaultView style={styles.header}>
-                        <Text style={styles.title}>Payment Method</Text>
+                        <Text style={styles.title}>{t('modals.paymentMethod')}</Text>
                         <Pressable onPress={handleClose} style={({ pressed }) => [styles.closeBtn, { opacity: pressed ? 0.6 : 1 }]}><Ionicons name="close" size={22} color={textColor} /></Pressable>
                     </DefaultView>
 
@@ -124,17 +126,17 @@ export default function PaymentCardModal({ visible, initialCard = DEFAULT_CARD, 
                         </DefaultView>
                     </DefaultView>
 
-                    <LabeledInput label="Card Holder Name" value={holderName} onChangeText={(v) => { setHolderName(v); setError(null); }} placeholder="Full name on card" icon="person-outline" inputBg={inputBg} textColor={textColor} borderColor={borderColor} />
-                    <LabeledInput label="Card Number" value={number} onChangeText={(v) => { setNumber(formatCardNumber(v)); setError(null); }} placeholder="0000 0000 0000 0000" keyboardType="number-pad" maxLength={19} icon="card-outline" inputBg={inputBg} textColor={textColor} borderColor={borderColor} />
+                    <LabeledInput label={t('modals.cardHolderName')} value={holderName} onChangeText={(v) => { setHolderName(v); setError(null); }} placeholder="Full name on card" icon="person-outline" inputBg={inputBg} textColor={textColor} borderColor={borderColor} />
+                    <LabeledInput label={t('modals.cardNumber')} value={number} onChangeText={(v) => { setNumber(formatCardNumber(v)); setError(null); }} placeholder="0000 0000 0000 0000" keyboardType="number-pad" maxLength={19} icon="card-outline" inputBg={inputBg} textColor={textColor} borderColor={borderColor} />
                     <DefaultView style={styles.rowInputs}>
-                        <DefaultView style={{ flex: 1 }}><LabeledInput label="Expiry" value={expiry} onChangeText={(v) => { setExpiry(formatExpiry(v)); setError(null); }} placeholder="MM/YY" keyboardType="number-pad" maxLength={5} icon="calendar-outline" inputBg={inputBg} textColor={textColor} borderColor={borderColor} /></DefaultView>
-                        <DefaultView style={{ flex: 1 }}><LabeledInput label="CVV" value={cvv} onChangeText={(v) => { setCvv(v.replace(/\D/g, '').slice(0, 4)); setError(null); }} placeholder="•••" keyboardType="number-pad" maxLength={4} secureTextEntry icon="lock-closed-outline" inputBg={inputBg} textColor={textColor} borderColor={borderColor} /></DefaultView>
+                        <DefaultView style={{ flex: 1 }}><LabeledInput label={t('modals.expiry')} value={expiry} onChangeText={(v) => { setExpiry(formatExpiry(v)); setError(null); }} placeholder="MM/YY" keyboardType="number-pad" maxLength={5} icon="calendar-outline" inputBg={inputBg} textColor={textColor} borderColor={borderColor} /></DefaultView>
+                        <DefaultView style={{ flex: 1 }}><LabeledInput label={t('modals.cvv')} value={cvv} onChangeText={(v) => { setCvv(v.replace(/\D/g, '').slice(0, 4)); setError(null); }} placeholder="•••" keyboardType="number-pad" maxLength={4} secureTextEntry icon="lock-closed-outline" inputBg={inputBg} textColor={textColor} borderColor={borderColor} /></DefaultView>
                     </DefaultView>
 
                     {error && <Text style={styles.errorText}>{error}</Text>}
                     <DefaultView style={styles.actions}>
-                        <Pressable onPress={handleClose} style={({ pressed }) => [styles.cancelBtn, { borderColor, opacity: pressed ? 0.7 : 1 }]}><Text style={styles.cancelText}>Cancel</Text></Pressable>
-                        <Pressable onPress={handleSave} style={({ pressed }) => [styles.saveBtn, { opacity: pressed ? 0.85 : 1 }]}><Text style={styles.saveText}>Save Card</Text></Pressable>
+                        <Pressable onPress={handleClose} style={({ pressed }) => [styles.cancelBtn, { borderColor, opacity: pressed ? 0.7 : 1 }]}><Text style={styles.cancelText}>{t('modals.cancel')}</Text></Pressable>
+                        <Pressable onPress={handleSave} style={({ pressed }) => [styles.saveBtn, { opacity: pressed ? 0.85 : 1 }]}><Text style={styles.saveText}>{t('modals.saveCard')}</Text></Pressable>
                     </DefaultView>
                 </Pressable>
             </Pressable>

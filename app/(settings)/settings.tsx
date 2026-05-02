@@ -4,46 +4,44 @@ import { View as DefaultView, ScrollView, StyleSheet } from 'react-native';
 
 import SettingsItem from '@/components/SettingsItem';
 import { SafeAreaView, useThemeColor } from '@/components/Themed';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function SettingsScreen() {
     const router = useRouter();
     const textColor = useThemeColor({}, 'text');
+    const { t, locale } = useLanguage();
 
     return (
         <SafeAreaView style={styles.container}>
             <ScrollView contentContainerStyle={styles.content}>
-
-
-
                 <DefaultView style={styles.menuSection}>
                     <SettingsItem
                         icon="notifications-outline"
-                        title="Notification"
+                        title={t('settings.notification')}
                         route="/notifications"
                     />
                     <SettingsItem
                         icon="globe-outline"
-                        title="Language"
+                        title={t('settings.language')}
                         route="/language"
-                        value="English"
+                        value={locale === 'ua' ? 'Українська' : 'English'}
                     />
                     <SettingsItem
                         icon="shield-checkmark-outline"
-                        title="Privacy"
+                        title={t('settings.privacy')}
                         route="/privacy"
                     />
                     <SettingsItem
                         icon="headset-outline"
-                        title="Help Center"
+                        title={t('settings.helpCenter')}
                         route="/help-center"
                     />
                     <SettingsItem
                         icon="information-circle-outline"
-                        title="About us"
+                        title={t('settings.aboutUs')}
                         route="/about-us"
                     />
                 </DefaultView>
-
             </ScrollView>
         </SafeAreaView>
     );

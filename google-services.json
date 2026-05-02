@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "256935465203",
+    "project_id": "expo-marketplace-practice",
+    "storage_bucket": "expo-marketplace-practice.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:256935465203:android:f90e155af996e4194ba786",
+        "android_client_info": {
+          "package_name": "com.pelykhihor.marketplace"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "256935465203-66h09b3gpd4pudt9q7miu85ji36cnjoa.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.pelykhihor.marketplace",
+            "certificate_hash": "67af2a3f59ebbf0036fa180db359631affcada80"
+          }
+        },
+        {
+          "client_id": "256935465203-1qp2al5dr565sdpg9r8desd7si1fo2k9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyByX6InQGSrKYipl-8cLna6zDb92r2maE0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "256935465203-1qp2al5dr565sdpg9r8desd7si1fo2k9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

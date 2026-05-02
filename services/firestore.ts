@@ -1,5 +1,5 @@
 import { auth } from '@/constants/firebase';
-import type { Address, CartItem, FavoriteItem, FilterOptions, Order, PaymentCard, ProductItem, Review, UserProfile } from '@/types';
+import type { Address, AppNotification, CartItem, FavoriteItem, FilterOptions, NotificationType, Order, PaymentCard, ProductItem, Review, UserProfile } from '@/types';
 import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, getFirestore, limit, onSnapshot, orderBy, query, serverTimestamp, setDoc, updateDoc, where, type Unsubscribe } from 'firebase/firestore';
 
 const db = getFirestore();
@@ -357,5 +357,114 @@ export const ReviewsService = {
 
 	async remove(reviewId: string): Promise<void> {
 		await deleteDoc(doc(db, 'reviews', reviewId));
+	},
+};
+
+async function sendExpoPush(
+	expoPushToken: string,
+	title: string,
+	body: string,
+	data?: Record<string, string>
+): Promise<void> {
+	if (!expoPushToken.startsWith('ExponentPushToken[')) {
+		console.warn('[Push] Invalid token format:', expoPushToken);
+		return;
+	}
+
+	const message = {
+		to: expoPushToken,
+		sound: 'default',
+		title,
+		body,
+		data: data ?? {},
+	};
+
+	const response = await fetch('https://exp.host/--/api/v2/push/send', {
+		method: 'POST',
+		headers: {
+			Accept: 'application/json',
+			'Accept-encoding': 'gzip, deflate',
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify(message),
+	});
+
+	const result = await response.json();
+	if (result?.data?.status === 'error') {
+		console.error('[Push] Expo push error:', result.data.message);
+	} else {
+		console.log('[Push] Sent successfully to:', expoPushToken.substring(0, 30) + '...');
+	}
+}
+
+export const NotificationsService = {
+	subscribe(callback: (notifications: AppNotification[]) => void): Unsubscribe {
+		const uid = auth.currentUser?.uid;
+		if (!uid) {
+			callback([]);
+			return () => {};
+		}
+		const q = query(
+			collection(db, 'notifications'),
+			where('userId', '==', uid),
+			orderBy('createdAt', 'desc'),
+			limit(50)
+		);
+		return onSnapshot(q, (snapshot) => {
+			const notifications = snapshot.docs.map(docSnap => ({
+				id: docSnap.id,
+				...docSnap.data(),
+			})) as AppNotification[];
+			callback(notifications);
+		});
+	},
+
+	async create(userId: string, type: NotificationType, title: string, body: string, data?: Record<string, string>): Promise<void> {
+		await addDoc(collection(db, 'notifications'), {
+			userId,
+			type,
+			title,
+			body,
+			data: data ?? {},
+			isRead: false,
+			createdAt: new Date().toISOString(),
+		});
+
+		try {
+			const userSnap = await getDoc(doc(db, 'users', userId));
+			const expoPushToken = userSnap.data()?.expoPushToken;
+			if (expoPushToken) {
+				await sendExpoPush(expoPushToken, title, body, data);
+			} else {
+				console.warn('[Push] No expoPushToken for user:', userId);
+			}
+		} catch (e) {
+			console.error('[Push] Failed to send push notification:', e);
+		}
+	},
+
+	async markAsRead(notificationId: string): Promise<void> {
+		await updateDoc(doc(db, 'notifications', notificationId), { isRead: true });
+	},
+
+	async markAllAsRead(userId: string): Promise<void> {
+		const q = query(
+			collection(db, 'notifications'),
+			where('userId', '==', userId),
+			where('isRead', '==', false)
+		);
+		const snapshot = await getDocs(q);
+		const updates = snapshot.docs.map(docSnap =>
+			updateDoc(doc(db, 'notifications', docSnap.id), { isRead: true })
+		);
+		await Promise.all(updates);
+	},
+
+	async delete(notificationId: string): Promise<void> {
+		await deleteDoc(doc(db, 'notifications', notificationId));
+	},
+
+	async savePushToken(userId: string, token: string): Promise<void> {
+		await setDoc(doc(db, 'users', userId), { expoPushToken: token }, { merge: true });
 	},
 };

@@ -70,6 +70,7 @@ export default function TabLayout() {
 			<Tabs.Screen name="categories" options={{ href: null }} />
 			<Tabs.Screen name="products" options={{ href: null, tabBarStyle: hiddenTabBarStyle }} />
 			<Tabs.Screen name="checkout" options={{ href: null, tabBarStyle: hiddenTabBarStyle }} />
+			<Tabs.Screen name="notifications" options={{ href: null, tabBarStyle: hiddenTabBarStyle }} />
 			<Tabs.Screen name="product-details/[id]" options={{ href: null, tabBarStyle: hiddenTabBarStyle }} />
 		</Tabs>
 	);

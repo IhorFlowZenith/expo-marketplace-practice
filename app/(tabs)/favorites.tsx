@@ -1,12 +1,14 @@
 import { SafeAreaView, Text, View, useThemeColor } from '@/components/Themed';
+import { CartRowSkeleton } from '@/components/ui/Skeleton';
 import Colors from '@/constants/Colors';
 import { useCartContext } from '@/context/CartContext';
 import { useFavoritesContext } from '@/context/FavoritesContext';
+import { useLanguage } from '@/context/LanguageContext';
 import type { CartItem } from '@/types';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { ActivityIndicator, Image, Pressable, ScrollView, StyleSheet } from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Swipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 
@@ -17,6 +19,7 @@ export default function FavoritesScreen() {
 
   const { items, loading, removeFavorite } = useFavoritesContext();
   const { addItem } = useCartContext();
+  const { t } = useLanguage();
 
   const handleAddToCart = async (productId: string) => {
     const item = items.find(fav => fav.productId === productId);
@@ -44,12 +47,14 @@ export default function FavoritesScreen() {
           >
             <Ionicons name="arrow-back" size={24} color={textColor} />
           </Pressable>
-          <Text style={[styles.headerTitle, { color: textColor }]}>Favorites</Text>
+          <Text style={[styles.headerTitle, { color: textColor }]}>{t('favorites.title')}</Text>
           <View style={styles.headerPlaceholder} />
         </View>
 
         {loading ? (
-          <ActivityIndicator color={Colors.palette.primary} style={{ flex: 1 }} />
+          <ScrollView style={styles.list} contentContainerStyle={[styles.listContent, { paddingTop: 10 }]} showsVerticalScrollIndicator={false}>
+            {[0, 1, 2, 3].map((i) => <CartRowSkeleton key={i} />)}
+          </ScrollView>
         ) : (
           <ScrollView
             style={styles.list}
@@ -59,7 +64,7 @@ export default function FavoritesScreen() {
             {items.length === 0 ? (
               <View style={styles.emptyState}>
                 <Ionicons name="heart-dislike-outline" size={64} color={Colors.palette.textMuted} />
-                <Text style={styles.emptyStateText}>No favorites yet</Text>
+                <Text style={styles.emptyStateText}>{t('favorites.empty')}</Text>
               </View>
             ) : (
               items.map((item) => (
@@ -73,7 +78,7 @@ export default function FavoritesScreen() {
                   renderRightActions={() => (
                     <View style={styles.deleteAction}>
                       <Ionicons name="trash-outline" size={24} color={Colors.palette.white} />
-                      <Text style={styles.deleteLabel}>Delete</Text>
+                      <Text style={styles.deleteLabel}>{t('favorites.delete')}</Text>
                     </View>
                   )}
                 >

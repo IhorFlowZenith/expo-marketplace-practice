@@ -6,10 +6,12 @@ import { View as DefaultView, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView, Text, useThemeColor } from '@/components/Themed';
 import AppButton from '@/components/ui/AppButton';
 import Colors from '@/constants/Colors';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function SuccessScreen() {
     const { email } = useLocalSearchParams();
     const textColor = useThemeColor({}, 'text');
+    const { t } = useLanguage();
 
     return (
         <SafeAreaView style={styles.container}>
@@ -19,21 +21,21 @@ export default function SuccessScreen() {
                     <Ionicons name="checkmark" size={50} color={Colors.palette.white} />
                 </DefaultView>
 
-                <Text style={styles.title}>Check your email</Text>
+                <Text style={styles.title}>{t('auth.success.title')}</Text>
                 <Text style={styles.subtitle}>
-                    We sent a password reset link to{' '}
+                    {t('auth.success.subtitle')}{' '}
                     <Text style={[styles.emailHighlight, { color: textColor }]}>{email || 'your address'}</Text>.
-                    {'\n'}Follow the instructions in the email to reset your password.
+                    {'\n'}{t('auth.success.instruction')}
                 </Text>
 
                 <AppButton
-                    title="Back to Login"
+                    title={t('auth.success.backToLogin')}
                     onPress={() => router.replace('/login')}
                     style={{ marginTop: 40 }}
                 />
 
                 <Pressable onPress={() => router.back()} style={styles.resendLink}>
-                    <Text style={[styles.resendText, { color: textColor }]}>Didn't receive it? Try again</Text>
+                    <Text style={[styles.resendText, { color: textColor }]}>{t('auth.success.resend')}</Text>
                 </Pressable>
 
             </DefaultView>

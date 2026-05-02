@@ -1,5 +1,6 @@
 import { SafeAreaView, Text, useThemeColor, View } from '@/components/Themed';
 import Colors from '@/constants/Colors';
+import { useLanguage } from '@/context/LanguageContext';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { View as DefaultView, Linking, Pressable, ScrollView, StyleSheet } from 'react-native';
@@ -15,7 +16,6 @@ interface FAQItemProps {
 function FAQItem({ id, question, answer, expandedId, setExpandedId }: FAQItemProps) {
     const isExpanded = expandedId === id;
     const cardBg = useThemeColor({ light: Colors.palette.cardLight, dark: Colors.palette.cardDark }, 'background');
-    const iconColor = Colors.palette.primary;
 
     return (
         <DefaultView style={[styles.faqCard, { backgroundColor: cardBg }]}>
@@ -24,13 +24,8 @@ function FAQItem({ id, question, answer, expandedId, setExpandedId }: FAQItemPro
                 onPress={() => setExpandedId(isExpanded ? null : id)}
             >
                 <Text style={styles.faqQuestion}>{question}</Text>
-                <Ionicons
-                    name={isExpanded ? "chevron-up" : "chevron-down"}
-                    size={22}
-                    color={iconColor}
-                />
+                <Ionicons name={isExpanded ? 'chevron-up' : 'chevron-down'} size={22} color={Colors.palette.primary} />
             </Pressable>
-
             {isExpanded && (
                 <DefaultView style={styles.answerContainer}>
                     <View style={styles.divider} />
@@ -44,6 +39,7 @@ function FAQItem({ id, question, answer, expandedId, setExpandedId }: FAQItemPro
 export default function HelpCenterScreen() {
     const [expandedId, setExpandedId] = useState<number | null>(null);
     const cardBg = useThemeColor({ light: Colors.palette.cardLight, dark: Colors.palette.cardDark }, 'background');
+    const { t } = useLanguage();
 
     return (
         <SafeAreaView style={styles.container}>
@@ -54,122 +50,41 @@ export default function HelpCenterScreen() {
                         onPress={() => Linking.openURL('mailto:pelykhihor3456@gmail.com')}
                     >
                         <Ionicons name="chatbubble-ellipses-outline" size={24} color={Colors.palette.primary} />
-                        <Text style={styles.contactText}>Contact Support</Text>
+                        <Text style={styles.contactText}>{t('helpCenter.contactSupport')}</Text>
                     </Pressable>
-
                     <Pressable
                         style={[styles.contactCard, { backgroundColor: cardBg }]}
                         onPress={() => Linking.openURL('https://www.flowzenith.site')}
                     >
                         <Ionicons name="globe-outline" size={24} color={Colors.palette.primary} />
-                        <Text style={styles.contactText}>Visit Website</Text>
+                        <Text style={styles.contactText}>{t('helpCenter.visitWebsite')}</Text>
                     </Pressable>
                 </DefaultView>
 
                 <DefaultView style={styles.faqSection}>
-                    <Text style={styles.sectionLabel}>Frequently Asked Questions</Text>
-
-                    <FAQItem
-                        id={1}
-                        question="How to track my order?"
-                        answer="You can track your order status in the 'Orders' tab. Once the order is shipped, you will receive a tracking number via email."
-                        expandedId={expandedId}
-                        setExpandedId={setExpandedId}
-                    />
-                    <FAQItem
-                        id={2}
-                        question="What is the return policy?"
-                        answer="We offer a 30-day return policy for all unused items in their original packaging. Please go to order details to start a return."
-                        expandedId={expandedId}
-                        setExpandedId={setExpandedId}
-                    />
-                    <FAQItem
-                        id={3}
-                        question="Can I change my shipping address?"
-                        answer="You can change the shipping address only if the order has not been processed yet. Contact support immediately for help."
-                        expandedId={expandedId}
-                        setExpandedId={setExpandedId}
-                    />
-                    <FAQItem
-                        id={4}
-                        question="Which payment methods are accepted?"
-                        answer="We accept all major credit cards (Visa, Mastercard), Apple Pay, and Google Pay for secure transactions."
-                        expandedId={expandedId}
-                        setExpandedId={setExpandedId}
-                    />
+                    <Text style={styles.sectionLabel}>{t('helpCenter.faqTitle')}</Text>
+                    <FAQItem id={1} question={t('helpCenter.faq.q1')} answer={t('helpCenter.faq.a1')} expandedId={expandedId} setExpandedId={setExpandedId} />
+                    <FAQItem id={2} question={t('helpCenter.faq.q2')} answer={t('helpCenter.faq.a2')} expandedId={expandedId} setExpandedId={setExpandedId} />
+                    <FAQItem id={3} question={t('helpCenter.faq.q3')} answer={t('helpCenter.faq.a3')} expandedId={expandedId} setExpandedId={setExpandedId} />
+                    <FAQItem id={4} question={t('helpCenter.faq.q4')} answer={t('helpCenter.faq.a4')} expandedId={expandedId} setExpandedId={setExpandedId} />
                 </DefaultView>
-
             </ScrollView>
         </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    content: {
-        paddingHorizontal: 20,
-        paddingBottom: 40,
-    },
-    contactSection: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginBottom: 30,
-        backgroundColor: 'transparent',
-    },
-    contactCard: {
-        width: '48%',
-        padding: 15,
-        borderRadius: 15,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    contactText: {
-        marginTop: 8,
-        fontSize: 14,
-        fontWeight: '600',
-    },
-    faqSection: {
-        backgroundColor: 'transparent',
-    },
-    sectionLabel: {
-        fontSize: 18,
-        fontWeight: '600',
-        marginBottom: 15,
-        marginLeft: 5,
-    },
-    faqCard: {
-        borderRadius: 15,
-        marginBottom: 12,
-        overflow: 'hidden',
-    },
-    faqHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: 20,
-    },
-    faqQuestion: {
-        fontSize: 16,
-        fontWeight: '600',
-        flex: 1,
-        marginRight: 15,
-    },
-    answerContainer: {
-        paddingHorizontal: 20,
-        paddingBottom: 20,
-        backgroundColor: 'transparent',
-    },
-    divider: {
-        height: 1,
-        backgroundColor: Colors.palette.textMuted,
-        opacity: 0.1,
-        marginBottom: 15,
-    },
-    faqAnswer: {
-        fontSize: 14,
-        lineHeight: 22,
-        color: Colors.palette.textMuted,
-    },
+    container: { flex: 1 },
+    content: { paddingHorizontal: 20, paddingBottom: 40 },
+    contactSection: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 30, backgroundColor: 'transparent' },
+    contactCard: { width: '48%', padding: 15, borderRadius: 15, alignItems: 'center', justifyContent: 'center' },
+    contactText: { marginTop: 8, fontSize: 14, fontWeight: '600' },
+    faqSection: { backgroundColor: 'transparent' },
+    sectionLabel: { fontSize: 18, fontWeight: '600', marginBottom: 15, marginLeft: 5 },
+    faqCard: { borderRadius: 15, marginBottom: 12, overflow: 'hidden' },
+    faqHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20 },
+    faqQuestion: { fontSize: 16, fontWeight: '600', flex: 1, marginRight: 15 },
+    answerContainer: { paddingHorizontal: 20, paddingBottom: 20, backgroundColor: 'transparent' },
+    divider: { height: 1, backgroundColor: Colors.palette.textMuted, opacity: 0.1, marginBottom: 15 },
+    faqAnswer: { fontSize: 14, lineHeight: 22, color: Colors.palette.textMuted },
 });
