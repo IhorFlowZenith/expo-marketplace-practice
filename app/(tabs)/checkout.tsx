@@ -9,12 +9,13 @@ import Colors from '@/constants/Colors';
 import { useCartContext } from '@/context/CartContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { useOrders } from '@/hooks/useOrders';
+import { usePromoCodes } from '@/hooks/usePromoCodes';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import type { Address, PaymentCard, PaymentMethod } from '@/types';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
-import { Alert, View as DefaultView, Pressable, ScrollView, StyleSheet } from 'react-native';
+import React, { useRef, useState } from 'react';
+import { Alert, View as DefaultView, Pressable, ScrollView, StyleSheet, TextInput } from 'react-native';
 
 function PaymentOption({ icon, label, sub, selected, onPress }: {
 	icon: React.ReactNode;
@@ -59,11 +60,21 @@ export default function CheckoutScreen() {
 	const [editValue, setEditValue] = useState('');
 	const [addressModalVisible, setAddressModalVisible] = useState(false);
 
-	useEffect(() => {
-		if (!profile) return;
-	}, [profile]);
+	const {
+		promoInput, setPromoInput,
+		promoDiscount, promoLabel, promoError, validating,
+		validatePromo, removePromo,
+	} = usePromoCodes();
+	const promoInputRef = useRef<TextInput>(null);
 
-	const defaultCard = profile?.paymentCards?.find(c => c.isDefault) ?? profile?.paymentCards?.[0];
+	const handleApplyPromo = () => {
+		validatePromo(summary.subtotal);
+		promoInputRef.current?.blur();
+	};
+
+	const totalWithPromo = Math.max(0, summary.total - promoDiscount);
+
+	const defaultCard = profile?.paymentCards?.find(card => card.isDefault) ?? profile?.paymentCards?.[0];
 	const hasAddress = !!(profile?.addresses?.[0]?.street);
 	const hasPhone = !!(profile?.phone);
 	const hasCard = !!defaultCard;
@@ -91,7 +102,8 @@ export default function CheckoutScreen() {
 		try {
 			const orderId = await placeOrder(items, {
 				status: 'pending', deliveryAddress,
-				deliveryFee: summary.delivery, discountAmount: summary.discount,
+				deliveryFee: summary.delivery,
+				discountAmount: summary.discount + promoDiscount,
 				paymentMethod, paymentStatus: 'pending',
 			});
 			if (orderId) router.replace('/(auth)/success');
@@ -205,12 +217,55 @@ export default function CheckoutScreen() {
 					<SummaryRow label={t('cart.items')} value={summary.count} />
 					<SummaryRow label={t('cart.subtotal')} value={`${summary.subtotal}`} />
 					<SummaryRow label={t('cart.discount')} value={`${summary.discount}`} />
+					{promoDiscount > 0 && (
+						<SummaryRow label={promoLabel} value={`-$${promoDiscount}`} />
+					)}
 					<SummaryRow label={t('cart.delivery')} value={`${summary.delivery}`} />
 					<DefaultView style={[styles.separator, { borderTopColor: separatorColor }]} />
 					<DefaultView style={styles.totalRow}>
 						<Text style={[styles.totalLabel, { color: textColor }]}>{t('cart.total')}</Text>
-						<Text style={[styles.totalValue, { color: textColor }]}>${summary.total}</Text>
+						<Text style={[styles.totalValue, { color: textColor }]}>${totalWithPromo}</Text>
 					</DefaultView>
+				</View>
+
+				<View style={[styles.card, { backgroundColor: cardBg }]}>
+					<Text style={[styles.cardTitle, { color: textColor }]}>{t('checkout.promoCode')}</Text>
+					{promoLabel ? (
+						<DefaultView style={styles.promoAppliedRow}>
+							<DefaultView style={styles.promoAppliedBadge}>
+								<Ionicons name="pricetag" size={14} color={Colors.palette.primary} />
+								<Text style={[styles.promoAppliedText, { color: Colors.palette.primary }]}>{promoLabel}</Text>
+							</DefaultView>
+							<Pressable onPress={removePromo} style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}>
+								<Text style={styles.promoRemoveText}>{t('checkout.promoRemove')}</Text>
+							</Pressable>
+						</DefaultView>
+					) : (
+						<DefaultView style={styles.promoRow}>
+							<TextInput
+								ref={promoInputRef}
+								value={promoInput}
+								onChangeText={(text) => { setPromoInput(text); }}
+								placeholder={t('checkout.promoPlaceholder')}
+								placeholderTextColor={mutedColor}
+								autoCapitalize="characters"
+								style={[styles.promoInput, {
+									color: textColor,
+									borderColor: promoError ? '#FF3B30' : separatorColor,
+								}]}
+							/>
+							<Pressable
+								onPress={handleApplyPromo}
+								disabled={validating}
+								style={({ pressed }) => [styles.promoBtn, { opacity: pressed || validating ? 0.7 : 1 }]}
+							>
+								<Text style={styles.promoBtnText}>{validating ? '...' : t('checkout.promoApply')}</Text>
+							</Pressable>
+						</DefaultView>
+					)}
+					{promoError && (
+						<Text style={styles.promoErrorText}>{t('checkout.promoInvalid')}</Text>
+					)}
 				</View>
 
 				<View style={{ backgroundColor: 'transparent' }}>
@@ -312,5 +367,37 @@ const styles = StyleSheet.create({
 		width: 26, height: 26, borderRadius: 13,
 		backgroundColor: 'rgba(128,128,128,0.12)',
 		alignItems: 'center', justifyContent: 'center',
+	},
+	promoRow: {
+		flexDirection: 'row', alignItems: 'center', gap: 10,
+	},
+	promoInput: {
+		flex: 1, height: 46, borderWidth: 1, borderRadius: 12,
+		paddingHorizontal: 14, fontSize: 15, fontWeight: '500',
+	},
+	promoBtn: {
+		height: 46, paddingHorizontal: 18, borderRadius: 12,
+		backgroundColor: Colors.palette.primary,
+		alignItems: 'center', justifyContent: 'center',
+	},
+	promoBtnText: {
+		color: '#fff', fontSize: 15, fontWeight: '700',
+	},
+	promoErrorText: {
+		marginTop: 6, fontSize: 13, color: '#FF3B30',
+	},
+	promoAppliedRow: {
+		flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+	},
+	promoAppliedBadge: {
+		flexDirection: 'row', alignItems: 'center', gap: 6,
+		backgroundColor: Colors.palette.primary + '18',
+		paddingHorizontal: 12, paddingVertical: 8, borderRadius: 10,
+	},
+	promoAppliedText: {
+		fontSize: 14, fontWeight: '700',
+	},
+	promoRemoveText: {
+		fontSize: 14, color: '#FF3B30', fontWeight: '600',
 	},
 });

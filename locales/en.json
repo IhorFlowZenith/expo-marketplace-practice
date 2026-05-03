@@ -113,6 +113,12 @@
     "cash": "Cash",
     "placingOrder": "Placing Order...",
     "placeOrder": "Place Order",
+    "promoCode": "Promo Code",
+    "promoPlaceholder": "Enter promo code",
+    "promoApply": "Apply",
+    "promoApplied": "Promo applied",
+    "promoInvalid": "Invalid promo code",
+    "promoRemove": "Remove",
     "errors": {
       "phoneRequired": "Phone required",
       "addPhone": "Please add your phone number",
@@ -323,5 +329,22 @@
     "email": "Email",
     "phone": "Phone",
     "address": "Address"
+  },
+  "onboarding": {
+    "skip": "Skip",
+    "next": "Next",
+    "getStarted": "Get Started",
+    "slide1": {
+      "title": "Discover Thousands of Products",
+      "subtitle": "Browse our curated collection of fashion, shoes and accessories from top brands."
+    },
+    "slide2": {
+      "title": "Save Your Favorites",
+      "subtitle": "Add items to your wishlist and never lose track of what you love."
+    },
+    "slide3": {
+      "title": "Fast & Easy Checkout",
+      "subtitle": "Order in seconds with saved addresses and payment methods. Delivered to your door."
+    }
   }
 }

@@ -56,5 +56,19 @@ service cloud.firestore {
       allow create: if request.auth != null
         && request.resource.data.userId == request.auth.uid;
     }
+
+    // ─── BANNERS ────────────────────────────────────────
+    // Публічні — читати може будь-хто (навіть без авторизації)
+    match /banners/{bannerId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // ─── PROMO CODES ────────────────────────────────────
+    // Читати може тільки авторизований користувач
+    match /promoCodes/{promoId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
   }
 }

@@ -333,6 +333,39 @@ const products = [
 	},
 ];
 
+const promoCodes = [
+	{ code: 'WELCOME10', discountPercent: 10, description: '10% off for new users', isActive: true },
+	{ code: 'SAVE20', discountPercent: 20, description: '20% off your order', isActive: true },
+	{ code: 'SUMMER15', discountPercent: 15, description: '15% summer discount', isActive: true },
+];
+
+const banners = [
+	{
+		title: 'Get Winter Discount',
+		offer: '20% Off',
+		target: 'For Children',
+		image: 'https://i.ibb.co/99QptdFT/image-1.png',
+		isActive: true,
+		order: 1,
+	},
+	{
+		title: 'New Summer Collection',
+		offer: '30% Off',
+		target: 'For Everyone',
+		image: 'https://i.ibb.co/99QptdFT/image-1.png',
+		isActive: true,
+		order: 2,
+	},
+	{
+		title: 'Flash Sale',
+		offer: '50% Off',
+		target: 'Limited Time',
+		image: 'https://i.ibb.co/99QptdFT/image-1.png',
+		isActive: true,
+		order: 3,
+	},
+];
+
 async function seedProducts() {
 	console.log('🌱 Starting Firestore seed...\n');
 
@@ -341,16 +374,24 @@ async function seedProducts() {
 
 	for (const product of products) {
 		const docRef = db.collection('products').doc();
-		batch.set(docRef, {
-			...product,
-			createdAt: now,
-			updatedAt: now,
-		});
-		console.log(`  ✅ Queued: ${product.name}`);
+		batch.set(docRef, { ...product, createdAt: now, updatedAt: now });
+		console.log(`  ✅ Queued product: ${product.name}`);
+	}
+
+	for (const promo of promoCodes) {
+		const docRef = db.collection('promoCodes').doc();
+		batch.set(docRef, { ...promo, createdAt: now });
+		console.log(`  ✅ Queued promo: ${promo.code}`);
+	}
+
+	for (const banner of banners) {
+		const docRef = db.collection('banners').doc();
+		batch.set(docRef, { ...banner, createdAt: now });
+		console.log(`  ✅ Queued banner: ${banner.title}`);
 	}
 
 	await batch.commit();
-	console.log(`\n✨ Done! ${products.length} products added to Firestore.`);
+	console.log(`\n✨ Done! ${products.length} products, ${promoCodes.length} promo codes, ${banners.length} banners added.`);
 }
 
 seedProducts().catch((error) => {

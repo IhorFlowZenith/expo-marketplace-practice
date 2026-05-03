@@ -164,6 +164,7 @@ export interface BannerItem {
 	target: string;
 	image: string;
 	isActive: boolean;
+	order?: number;
 }
 
 export interface FilterOptions {

@@ -4,9 +4,9 @@ import { SafeAreaView, Text, useThemeColor, View } from '@/components/Themed';
 import { ProductCarouselSkeleton } from '@/components/ui/Skeleton';
 import UserAvatar from '@/components/ui/UserAvatar';
 import Colors from "@/constants/Colors";
-import { MOCK_BANNERS } from '@/constants/products';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
+import { useBanners } from '@/hooks/useBanners';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useFeaturedProducts } from '@/hooks/useProducts';
 import type { ProductItem } from '@/types';
@@ -61,6 +61,7 @@ export default function HomeScreen() {
 	const { unreadCount } = useNotifications();
 	const [searchQuery] = useState('');
 	const { featured, popular, loading } = useFeaturedProducts();
+	const { banners } = useBanners();
 
 	const HOME_CATEGORIES = [
 		{ label: t('categories.all'), value: 'All', icon: 'grid-outline' as const },
@@ -113,7 +114,7 @@ export default function HomeScreen() {
 					/>
 				</Pressable>
 
-				<PromoBanner data={MOCK_BANNERS} />
+				<PromoBanner data={banners} />
 
 				<View style={styles.categoriesSection}>
 					<Text style={styles.categoriesTitle}>{t('home.categories')}</Text>

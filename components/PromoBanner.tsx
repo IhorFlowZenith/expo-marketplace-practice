@@ -1,7 +1,7 @@
 import Colors from '@/constants/Colors';
-import { BannerItem } from '@/constants/products';
+import { BannerItem } from '@/types';
 import React, { useCallback, useState } from 'react';
-import { FlatList, Image, StyleSheet, useWindowDimensions, View as DefaultView } from 'react-native';
+import { View as DefaultView, FlatList, Image, StyleSheet, useWindowDimensions } from 'react-native';
 import { Text, View } from './Themed';
 
 interface PromoBannerProps {

@@ -57,10 +57,7 @@ export function usePushNotifications() {
 
         registerForPushNotifications().then((token) => {
             if (token) {
-                console.log('[Push] Token registered:', token);
                 NotificationsService.savePushToken(user.uid, token);
-            } else {
-                console.warn('[Push] No token — device not physical or permission denied');
             }
         }).catch(e => console.error('[Push] Registration error:', e));
 

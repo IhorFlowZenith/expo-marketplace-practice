@@ -9,8 +9,8 @@ import { useProduct } from '@/hooks/useProducts';
 import type { CartItem, FavoriteItem } from '@/types';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, useWindowDimensions } from 'react-native';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Pressable, ScrollView, Share, StyleSheet, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function ProductDetailsScreen() {
@@ -28,6 +28,14 @@ export default function ProductDetailsScreen() {
     const { addItem } = useCartContext();
     const { isFavorite, toggleFavorite } = useFavoritesContext();
 
+    useEffect(() => {
+        if (!product) return;
+        const sizes = product.availableSizes ?? [...new Set(product.variants?.map((variant) => variant.size).filter(Boolean) as string[])];
+        const colors = product.availableColors ?? [...new Set(product.variants?.map((variant) => variant.color).filter(Boolean) as string[])];
+        if (sizes[0]) setSelectedSize(sizes[0]);
+        if (colors[0]) setSelectedColor(colors[0]);
+    }, [product]);
+
     const bgColor = useThemeColor({ light: '#FFFFFF', dark: '#000000' }, 'background');
     const cardBg = useThemeColor({ light: '#FFFFFF', dark: '#1C1C1E' }, 'background');
     const textColor = useThemeColor({}, 'text');
@@ -36,33 +44,20 @@ export default function ProductDetailsScreen() {
         'background',
     );
 
-    const sizeOptions = useMemo(() => {
+    const buildOptions = (key: 'size' | 'color', filterKey: 'color' | 'size', filterValue: string) => {
         if (!product) return [];
-        const sizes =
-            product.availableSizes ??
-            [...new Set(product.variants?.map((v) => v.size).filter(Boolean) as string[])];
-        return sizes.map((size) => ({
-            value: size,
-            stock:
-                product.variants
-                    ?.filter((v) => v.size === size && (!selectedColor || v.color === selectedColor))
-                    .reduce((sum, v) => sum + (v.stock ?? 0), 0) ?? product.stock,
+        const values = (key === 'size' ? product.availableSizes : product.availableColors)
+            ?? [...new Set(product.variants?.map((variant) => variant[key]).filter(Boolean) as string[])];
+        return values.map((value) => ({
+            value,
+            stock: product.variants
+                ?.filter((variant) => variant[key] === value && (!filterValue || variant[filterKey] === filterValue))
+                .reduce((total, variant) => total + (variant.stock ?? 0), 0) ?? product.stock,
         }));
-    }, [product, selectedColor]);
+    };
 
-    const colorOptions = useMemo(() => {
-        if (!product) return [];
-        const colors =
-            product.availableColors ??
-            [...new Set(product.variants?.map((v) => v.color).filter(Boolean) as string[])];
-        return colors.map((color) => ({
-            value: color,
-            stock:
-                product.variants
-                    ?.filter((v) => v.color === color && (!selectedSize || v.size === selectedSize))
-                    .reduce((sum, v) => sum + (v.stock ?? 0), 0) ?? product.stock,
-        }));
-    }, [product, selectedSize]);
+    const sizeOptions = useMemo(() => buildOptions('size', 'color', selectedColor), [product, selectedColor]);
+    const colorOptions = useMemo(() => buildOptions('color', 'size', selectedSize), [product, selectedSize]);
 
     if (loading || !product) {
         return (
@@ -75,24 +70,31 @@ export default function ProductDetailsScreen() {
     const displayImages = product.images?.length > 0 ? product.images : [product.image];
     const favorited = isFavorite(product.id);
     const selectedVariant = product.variants?.find(
-        (v) => v.size === selectedSize && v.color === selectedColor,
+        (variant) => variant.size === selectedSize && variant.color === selectedColor,
     );
     const isOutOfStock = (selectedVariant?.stock ?? product.stock) === 0;
 
+    const buildCartItem = (): CartItem => ({
+        id: `${product.id}_${selectedSize}_${selectedColor}`,
+        productId: product.id,
+        name: product.name,
+        brand: product.brand,
+        price: product.discountPrice ?? product.price,
+        quantity: 1,
+        image: product.image,
+        selectedSize: selectedSize || undefined,
+        selectedColor: selectedColor || undefined,
+    });
+
     const handleAddToCart = async () => {
         if (isOutOfStock) return;
-        const cartItem: CartItem = {
-            id: `${product.id}_${selectedSize}_${selectedColor}`,
-            productId: product.id,
-            name: product.name,
-            brand: product.brand,
-            price: product.discountPrice ?? product.price,
-            quantity: 1,
-            image: product.image,
-            selectedSize: selectedSize || undefined,
-            selectedColor: selectedColor || undefined,
-        };
-        await addItem(cartItem);
+        await addItem(buildCartItem());
+    };
+
+    const handleBuyNow = async () => {
+        if (isOutOfStock) return;
+        await addItem(buildCartItem());
+        router.push('/(tabs)/checkout');
     };
 
     const handleToggleFavorite = async () => {
@@ -105,6 +107,13 @@ export default function ProductDetailsScreen() {
             addedAt: new Date().toISOString(),
         };
         await toggleFavorite(favItem);
+    };
+
+    const handleShare = () => {
+        Share.share({
+            title: product.name,
+            message: `${product.name} — ${product.brand}\n$${product.discountPrice ?? product.price}\n\nCheck it out in the Marketplace app!`,
+        });
     };
 
     return (
@@ -146,7 +155,7 @@ export default function ProductDetailsScreen() {
                 <View style={{ flex: 1, backgroundColor: 'transparent' }}>
                     <AppButton
                         title={isOutOfStock ? 'Out of Stock' : 'Buy Now'}
-                        onPress={handleAddToCart}
+                        onPress={handleBuyNow}
                         style={{ marginTop: 0, opacity: isOutOfStock ? 0.5 : 1 }}
                     />
                 </View>
@@ -158,6 +167,15 @@ export default function ProductDetailsScreen() {
                     ]}
                 >
                     <Ionicons name="bag-outline" size={24} color={textColor} />
+                </Pressable>
+                <Pressable
+                    onPress={handleShare}
+                    style={({ pressed }) => [
+                        [styles.cartBtn, { backgroundColor: iconBtnBg }],
+                        { opacity: pressed ? 0.7 : 1 },
+                    ]}
+                >
+                    <Ionicons name="share-outline" size={24} color={textColor} />
                 </Pressable>
             </View>
         </View>

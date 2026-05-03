@@ -22,6 +22,10 @@
 | 🎨 Теми | Автоматична Dark/Light тема через системний колірний режим |
 | 🗺 Навігація | File-based routing (Expo Router). Групи: `(auth)`, `(tabs)`, `(settings)`, `(support)`, `(profile-extra)` |
 | 🔔 Push | Expo Push API — реальні push-сповіщення на телефон. Токен зберігається в Firestore. Сповіщення при реєстрації та оформленні замовлення |
+| 🚀 Onboarding | 3-слайдовий вступний екран для нових користувачів. Показується лише один раз — стан зберігається в AsyncStorage |
+| 📤 Share | Нативний Share API на екрані деталей товару — ділитися назвою, брендом та ціною одним тапом |
+| 🏷 Промокоди | Промокоди в Firestore — валідація на льоту, адмін керує через Firebase Console без релізу |
+| 🖼 Банери | Промо-банери на головному екрані з Firestore — реальний час, сортування за `order` |
 
 ---
 
@@ -30,7 +34,99 @@
 > 🟢 — Останній коміт · 🔴 — Попередні етапи · Читається зверху вниз (нове → старе)
 ---
 
-### 🟢 [01.05.2026 – 02.05.2026] Інтернаціоналізація (i18n) · Skeleton · Push-сповіщення · Telegram Auth · Аватарка · Виправлення багів
+### 🟢 [03.05.2026] Промокоди · Банери з Firebase · Виправлення багів
+
+**Що зроблено:** Промокоди та банери перенесено в Firestore, нові сервіси та хуки, оновлено правила безпеки, виправлено краші.
+
+---
+
+#### Рішення та обґрунтування
+
+**🏷 Промокоди в Firestore**
+- **Проблема:** Промокоди були захардкоджені в `constants/promoCodes.ts` — щоб додати новий код, потрібно було перезбирати додаток.
+- **Рішення:** Колекція `promoCodes` в Firestore з полями `code`, `discountPercent`, `description`, `isActive`. `PromoCodesService.validate(code)` робить запит з фільтром `isActive == true`. Логіка валідації залишена в `applyPromoCode()` — але тепер приймає масив з Firestore замість локальних констант.
+- **Хук `usePromoCodes`:** Інкапсулює весь стан (input, discount, label, error, validating) і async-валідацію. `checkout.tsx` тепер не знає про деталі реалізації.
+- **Чому саме так:** Адмін може вмикати/вимикати промокоди через Firebase Console без релізу.
+
+**🖼 Банери в Firestore**
+- **Проблема:** `MOCK_BANNERS` в `constants/products.ts` — статичні дані, не можна змінити без релізу.
+- **Рішення:** Колекція `banners` з полями `title`, `offer`, `target`, `image`, `isActive`, `order`. `BannersService.getAll()` читає активні банери, відсортовані за `order`. Хук `useBanners` — простий fetch при монтуванні.
+- **`BannerItem` тип:** Перенесено з `constants/products.ts` в `types/index.ts` — прибрано дублювання. Додано поле `order?: number`.
+- **Чому саме так:** Маркетинг може керувати банерами в реальному часі без участі розробника.
+
+**🔒 Правила Firestore**
+- `banners` — `allow read: if true` (публічні, навіть без авторизації)
+- `promoCodes` — `allow read: if request.auth != null` (тільки авторизовані)
+- Запис в обидві колекції — тільки через Admin SDK
+
+**🐛 Виправлення**
+- `index.tsx` — відсутній імпорт `useBanners` (runtime crash)
+- `app/(tabs)/_layout.tsx` — невалідна назва іконки `"bag"` → `"bag-outline"` (runtime crash)
+
+---
+
+#### Змінені файли
+
+| # | File | What changed |
+|---|------|--------------|
+| 🆕 | `hooks/useBanners.ts` | Fetch банерів з Firestore |
+| 🆕 | `hooks/usePromoCodes.ts` | Стан і async-валідація промокоду |
+| 🔄 | `services/firestore.ts` | `PromoCodesService`, `BannersService` |
+| 🔄 | `constants/promoCodes.ts` | Видалено `PROMO_CODES[]`, `applyPromoCode` тепер приймає масив |
+| 🔄 | `app/(tabs)/checkout.tsx` | Використовує `usePromoCodes` хук |
+| 🔄 | `app/(tabs)/index.tsx` | `MOCK_BANNERS` → `useBanners()`, додано імпорт |
+| 🔄 | `components/PromoBanner.tsx` | `BannerItem` імпортується з `@/types` |
+| 🔄 | `types/index.ts` | `BannerItem` — додано поле `order?: number` |
+| 🔄 | `firestore.rules` | Правила для `banners` і `promoCodes` |
+| 🔄 | `scripts/seed-firestore.js` | Seed для `promoCodes` і `banners` |
+| 🐛 | `app/(tabs)/_layout.tsx` | `"bag"` → `"bag-outline"` |
+
+---
+
+### 🔴 [03.05.2026] Onboarding · Share товару · Buy Now · Автовибір варіантів · Рефакторинг
+
+**Що зроблено:** Екран онбордингу з одноразовим показом, функція поділитися товаром, кнопка Buy Now з переходом на Checkout, автовибір першого варіанту товару, рефакторинг `sizeOptions`/`colorOptions`, заміна однолітерних змінних.
+
+---
+
+#### Рішення та обґрунтування
+
+**🚀 Onboarding (одноразовий показ)**
+- **Проблема:** Відсутній вступний екран для нових користувачів. При повторному запуску додатку онбординг показувався знову.
+- **Рішення:** Створено `app/(onboarding)/index.tsx` — 3-слайдовий екран з іконками, заголовками та підзаголовками (через `i18n`). Після завершення або натискання "Skip" в `AsyncStorage` записується ключ `@onboarding_completed = 'true'`.
+- **Перевірка при старті:** У `RootLayoutNav` (`app/_layout.tsx`) при монтуванні зчитується `AsyncStorage`. Поки перевірка не завершена — рендериться `null` (уникаємо флікеру). Якщо онбординг пройдено — одразу редирект на `/(auth)/login`, минаючи `/(onboarding)`.
+- **Чому саме так:** `AsyncStorage` — стандартний спосіб персистентності в Expo без нативних залежностей. Рендер `null` до завершення перевірки гарантує, що `SplashScreen` залишається видимим і користувач не бачить миготіння онбордингу.
+
+**📤 Share товару**
+- **Проблема:** На екрані деталей товару `handleShare` викликав `Share.share()`, але `Share` не був імпортований з `react-native` — runtime crash `ReferenceError: Property 'Share' doesn't exist`.
+- **Рішення:** Додано `Share` до імпорту з `react-native` в `app/(tabs)/product-details/[id].tsx`.
+- **Чому саме так:** `Share` — вбудований React Native API, окремої установки не потребує.
+
+**🛒 Buy Now → одразу на Checkout**
+- **Проблема:** Кнопка "Buy Now" лише додавала товар до кошика, але не переходила на оформлення.
+- **Рішення:** Додано `handleBuyNow` — викликає `addItem` і одразу `router.push('/(tabs)/checkout')`. Логіка побудови `CartItem` винесена в `buildCartItem()`, щоб не дублювати між `handleAddToCart` і `handleBuyNow`.
+
+**✅ Автовибір першого варіанту**
+- **Проблема:** При відкритті екрана деталей розмір і колір не були вибрані — користувач мусив вибирати вручну перед додаванням у кошик.
+- **Рішення:** `useEffect` після завантаження `product` автоматично встановлює `sizes[0]` і `colors[0]` як вибрані значення.
+
+**⚡ Рефакторинг варіантів товару**
+- **Проблема:** `sizeOptions` і `colorOptions` мали ідентичну логіку, продубльовану в двох `useMemo` (22 рядки). Всі колбеки використовували однолітерну змінну `v`.
+- **Рішення:** Винесено в хелпер `buildOptions(key, filterKey, filterValue)` — одна функція покриває обидва випадки, `useMemo` скоротились до одного рядка кожен. Замінено `v` → `variant`, `sum` → `total` у всіх колбеках файлу.
+
+---
+
+#### Змінені файли
+
+| # | File | What changed |
+|---|------|--------------|
+| 🆕 | `app/(onboarding)/index.tsx` | 3-слайдовий onboarding з пагінацією, кнопками Next/Get Started/Skip |
+| 🔄 | `app/_layout.tsx` | Перевірка `@onboarding_completed` при старті, `render null` до завершення перевірки |
+| 🔄 | `app/(tabs)/product-details/[id].tsx` | `handleBuyNow`, `buildCartItem`, `buildOptions`, автовибір варіантів, фікс імпорту `Share`, читабельні імена змінних |
+
+---
+
+### 🔴 [01.05.2026 – 02.05.2026] Інтернаціоналізація (i18n) · Skeleton · Push-сповіщення · Telegram Auth · Аватарка · Виправлення багів
 
 **Що зроблено:** Повна підтримка двох мов (EN/UK), анімовані скелетони на всіх екранах, реальні push-сповіщення через Expo Push API + FCM v1, сповіщення при оформленні замовлення, спроба інтеграції Telegram OIDC, сторінка сповіщень винесена з tabs, аватарка з Firestore однакова на всіх екранах, блокування Checkout при порожньому кошику, виправлення TypeScript помилок та роутингу.
 

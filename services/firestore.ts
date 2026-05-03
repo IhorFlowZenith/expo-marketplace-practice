@@ -1,5 +1,6 @@
 import { auth } from '@/constants/firebase';
-import type { Address, AppNotification, CartItem, FavoriteItem, FilterOptions, NotificationType, Order, PaymentCard, ProductItem, Review, UserProfile } from '@/types';
+import type { PromoCode } from '@/constants/promoCodes';
+import type { Address, AppNotification, BannerItem, CartItem, FavoriteItem, FilterOptions, NotificationType, Order, PaymentCard, ProductItem, Review, UserProfile } from '@/types';
 import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, getFirestore, limit, onSnapshot, orderBy, query, serverTimestamp, setDoc, updateDoc, where, type Unsubscribe } from 'firebase/firestore';
 
 const db = getFirestore();
@@ -366,18 +367,7 @@ async function sendExpoPush(
 	body: string,
 	data?: Record<string, string>
 ): Promise<void> {
-	if (!expoPushToken.startsWith('ExponentPushToken[')) {
-		console.warn('[Push] Invalid token format:', expoPushToken);
-		return;
-	}
-
-	const message = {
-		to: expoPushToken,
-		sound: 'default',
-		title,
-		body,
-		data: data ?? {},
-	};
+	if (!expoPushToken.startsWith('ExponentPushToken[')) return;
 
 	const response = await fetch('https://exp.host/--/api/v2/push/send', {
 		method: 'POST',
@@ -386,14 +376,18 @@ async function sendExpoPush(
 			'Accept-encoding': 'gzip, deflate',
 			'Content-Type': 'application/json',
 		},
-		body: JSON.stringify(message),
+		body: JSON.stringify({
+			to: expoPushToken,
+			sound: 'default',
+			title,
+			body,
+			data: data ?? {},
+		}),
 	});
 
 	const result = await response.json();
 	if (result?.data?.status === 'error') {
 		console.error('[Push] Expo push error:', result.data.message);
-	} else {
-		console.log('[Push] Sent successfully to:', expoPushToken.substring(0, 30) + '...');
 	}
 }
 
@@ -435,8 +429,6 @@ export const NotificationsService = {
 			const expoPushToken = userSnap.data()?.expoPushToken;
 			if (expoPushToken) {
 				await sendExpoPush(expoPushToken, title, body, data);
-			} else {
-				console.warn('[Push] No expoPushToken for user:', userId);
 			}
 		} catch (e) {
 			console.error('[Push] Failed to send push notification:', e);
@@ -466,5 +458,29 @@ export const NotificationsService = {
 
 	async savePushToken(userId: string, token: string): Promise<void> {
 		await setDoc(doc(db, 'users', userId), { expoPushToken: token }, { merge: true });
+	},
+};
+
+export const PromoCodesService = {
+	async getAll(): Promise<PromoCode[]> {
+		const snapshot = await getDocs(query(collection(db, 'promoCodes'), where('isActive', '==', true)));
+		return snapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() })) as unknown as PromoCode[];
+	},
+
+	async validate(code: string): Promise<PromoCode | null> {
+		const snapshot = await getDocs(
+			query(collection(db, 'promoCodes'), where('code', '==', code.trim().toUpperCase()), where('isActive', '==', true), limit(1))
+		);
+		if (snapshot.empty) return null;
+		return { id: snapshot.docs[0].id, ...snapshot.docs[0].data() } as unknown as PromoCode;
+	},
+};
+
+export const BannersService = {
+	async getAll(): Promise<BannerItem[]> {
+		const snapshot = await getDocs(
+			query(collection(db, 'banners'), where('isActive', '==', true), orderBy('order', 'asc'))
+		);
+		return snapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() })) as BannerItem[];
 	},
 };
