@@ -59,10 +59,6 @@
 - `promoCodes` — `allow read: if request.auth != null` (тільки авторизовані)
 - Запис в обидві колекції — тільки через Admin SDK
 
-**🐛 Виправлення**
-- `index.tsx` — відсутній імпорт `useBanners` (runtime crash)
-- `app/(tabs)/_layout.tsx` — невалідна назва іконки `"bag"` → `"bag-outline"` (runtime crash)
-
 ---
 
 #### Змінені файли
