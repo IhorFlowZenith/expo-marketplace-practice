@@ -14,7 +14,6 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
 [![Firebase](https://img.shields.io/badge/Firebase_v12-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)](https://firebase.google.com)
 [![Expo Router](https://img.shields.io/badge/Expo_Router-6.0-000020?style=for-the-badge&logo=expo&logoColor=white)](https://docs.expo.dev/router/introduction/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
 <br />
 
@@ -51,7 +50,7 @@ The app features a file-based routing architecture (Expo Router), real-time data
 |:--:|---------|---------|
 | 🔐 | **Auth Flow** | Email/Password + Google Sign-In via Firebase, persistent sessions |
 | 👋 | **Onboarding** | 3-slide intro shown once (AsyncStorage flag) |
-| 🔍 | **Live Search & Filters** | Search by name/tags, filter by category/brand/color/price range |
+| 🔍 | **Live Search & Filters** | Search by name/tags/brand, filter by category/gender/brand/color/price range |
 | 🏠 | **Product Catalog** | Home screen with featured products, categories, promo banners |
 | 🍕 | **Product Details** | Image gallery with zoom, size/color variants, stock-aware selection |
 | 🛒 | **Cart Management** | Real-time cart with swipe-to-delete, quantity controls, fixed order summary |
@@ -65,6 +64,7 @@ The app features a file-based routing architecture (Expo Router), real-time data
 | 🖼 | **Promo Banners** | Real-time banners from Firestore, sorted by priority |
 | 📤 | **Share** | Native Share API on product details |
 | 💀 | **Skeleton Loading** | 8 animated skeleton variants across all screens |
+| ⭐ | **Reviews** | Firestore-backed reviews with auto-updated product ratings |
 
 ---
 
@@ -123,7 +123,7 @@ The app features a file-based routing architecture (Expo Router), real-time data
 ## 📂 Project Architecture
 
 ```
-expo-marketplace-practice/
+expo-marketplace-main/
 │
 ├── app/                               # Expo Router (file-based routing)
 │   ├── _layout.tsx                    # Root layout — providers, auth guard
@@ -239,7 +239,7 @@ expo-marketplace-practice/
 │   ├── authStyles.ts                  # Shared auth screen styles
 │   ├── firebase.ts                    # Firebase initialization
 │   ├── products.ts                    # Product constants & mocks
-│   └── promoCodes.ts                  # Legacy promo code data
+│   └── promoCodes.ts                  # Promo code logic
 │
 ├── locales/                           # 🌐 i18n translations
 │   ├── en.json                        # English strings
@@ -282,15 +282,17 @@ expo-marketplace-practice/
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/your-username/expo-marketplace-practice.git
-cd expo-marketplace-practice
+git clone https://github.com/your-username/expo-marketplace-main.git
+cd expo-marketplace-main
 
 # 2. Install dependencies
 npm install
 
 # 3. Set up environment variables
-cp .env.example .env   # or create .env with your Firebase config
+cp .env.example .env   # if .env.example exists, otherwise create .env manually
 ```
+
+> **Note:** `.env` is already ignored via `.gitignore`. If `.env.example` is not present in the repo, create `.env` manually using the variables below.
 
 ### Environment Variables
 
@@ -303,7 +305,10 @@ EXPO_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
 EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
 EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
 EXPO_PUBLIC_FIREBASE_APP_ID=your_app_id
-EXPO_PUBLIC_GOOGLE_CLIENT_ID=your_google_client_id
+EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID=your_web_client_id
+EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID=your_android_client_id
+EXPO_PUBLIC_TELEGRAM_CLIENT_ID=your_telegram_client_id
+EXPO_PUBLIC_TELEGRAM_CLIENT_SECRET=your_telegram_client_secret
 ```
 
 ### Running the App
@@ -322,6 +327,7 @@ npx expo start --web        # Web browser
 
 ```bash
 # Seed initial data (products, banners, promo codes)
+# Requires serviceAccountKey.json in project root
 node scripts/seed-firestore.js
 
 # Deploy Firestore rules & indexes
@@ -334,10 +340,10 @@ firebase deploy --only firestore
 
 | Script | Command | Description |
 |--------|---------|-------------|
-| `npx expo start` | `expo start` | Start Expo dev server |
-| `npx expo start --android` | `expo run:android` | Build & launch on Android |
-| `npx expo start --ios` | `expo run:ios` | Build & launch on iOS |
-| `npx expo start --web` | `expo start --web` | Run in web browser |
+| `npm start` | `expo start` | Start Expo dev server |
+| `npm run android` | `expo run:android` | Build & launch on Android |
+| `npm run ios` | `expo run:ios` | Build & launch on iOS |
+| `npm run web` | `expo start --web` | Run in web browser |
 | `node scripts/seed-firestore.js` | — | Seed Firestore with initial data |
 
 ---
@@ -345,11 +351,11 @@ firebase deploy --only firestore
 ## 🧪 Tests
 
 ```bash
-# Run tests (jest via react-test-renderer)
+# Run tests (react-test-renderer)
 npx react-test-renderer
 ```
 
-The test suite validates that core UI components render correctly across different themes and states.
+> **Note:** The current test suite is minimal. Only `components/__tests__/StyledText-test.js` is present. There is no Jest configuration in the project.
 
 ---
 
@@ -380,8 +386,8 @@ app/_layout.tsx (Root — Providers + Auth Guard)
         ├── checkout.tsx
         ├── orders.tsx
         ├── favorites.tsx
-        ├── notifications.tsx
         ├── categories.tsx
+        ├── notifications.tsx
         └── profile.tsx
             ├── (settings)/*          (settings, help, privacy, etc.)
             ├── (support)/*           (contact, share)
@@ -398,11 +404,10 @@ app/_layout.tsx (Root — Providers + Auth Guard)
      │                                                    │
      │ user actions                                       │ badge /
      ▼                                                    │ data
-┌──────────┐                                             ▼
-│ Services │                                     ┌──────────────┐
-│ (CRUD)   │                                     │  Components  │
-└──────────┘                                     │  (UI tree)   │
-                                                 └──────────────┘
+┌──────────┐                                     ┌──────────────┐
+│ Services │                                     │  Components  │
+│ (CRUD)   │                                     │  (UI tree)   │
+└──────────┘                                     └──────────────┘
 ```
 
 ### State Management
@@ -464,7 +469,7 @@ dark: {
 
 | Property | Value |
 |----------|-------|
-| **package** | `com.marketplace.app` |
+| **package** | `com.pelykhihor.marketplace` |
 | **compileSdk** | `35` |
 | **minSdk** | `24` (Android 7.0) |
 | **targetSdk** | `35` |
@@ -474,7 +479,7 @@ dark: {
 
 ## 🤝 Contributing
 
-Contributions are welcome! Here's how you can help:
+This repository is marked as **private**. If you have access and want to contribute:
 
 1. 🍴 Fork the repository
 2. 🌿 Create a feature branch (`git checkout -b feature/amazing-feature`)
@@ -482,12 +487,6 @@ Contributions are welcome! Here's how you can help:
 4. 📝 Commit (`git commit -m 'feat: add amazing feature'`)
 5. 🚀 Push (`git push origin feature/amazing-feature`)
 6. 🔄 Open a Pull Request
-
----
-
-## 📄 License
-
-Distributed under the **MIT License**. See [LICENSE](LICENSE) for more information.
 
 ---
 
